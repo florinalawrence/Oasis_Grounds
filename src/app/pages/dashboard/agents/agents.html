@@ -1,0 +1,63 @@
+<section id="agents" class="agents bg-white pt-5 pb-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="heading heading-2 text-center mb-3 mt-5">
+          <h1 class="heading--title mb-3">
+            Trusted Agents
+          </h1>
+          <p class="heading--desc mb-5">
+            "We are excited to share this news with you. Our trusted team of real estate agents is
+            ready to serve you diligently. Visit our official website to read more about them and
+            discover why they are your ideal partners in your real estate journey. Don't forget to
+            follow us on social media and subscribe to our newsletter for the latest updates and
+            real estate insights."
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row no-gutters mb-5">
+      @for (agent of agents(); track agent.id) {
+        <div class="col-xs-12 col-sm-4 col-md-4">
+          <div 
+            class="card agent-card"
+            [class.center-card]="agent.isCenter"
+            (click)="onAgentCardClick(agent)"
+          >
+            <div class="agent-image" [class.mt-5]="agent.id === 3">
+              <img 
+                [src]="agent.image" 
+                [alt]="agent.name" 
+                width="120px" 
+              />
+            </div>
+            <div class="agent--details" [class.mt-5]="agent.id === 3">
+              <p>{{ agent.description }}</p>
+              <div class="agent--social-links">
+                @if (agent.socialLinks.facebook) {
+                  <a 
+                    [href]="agent.socialLinks.facebook" 
+                    target="_blank"
+                    (click)="onSocialLinkClick(agent, 'facebook')"
+                  >
+                    <i class="fab fa-facebook"></i>
+                  </a>
+                }
+                @if (agent.socialLinks.website) {
+                  <a 
+                    [href]="agent.socialLinks.website" 
+                    target="_blank"
+                    (click)="onSocialLinkClick(agent, 'website')"
+                  >
+                    <i class="fab fa-dribbble"></i>
+                  </a>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

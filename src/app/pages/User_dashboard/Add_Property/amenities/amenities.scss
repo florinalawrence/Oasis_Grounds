@@ -1,0 +1,126 @@
+.card {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.section-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.feature-section {
+  position: relative;
+}
+
+// Material Form Field Styling
+.amenity-chip-list,
+.facility-chip-list {
+  width: 100%;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: #fff;
+  }
+
+  ::ng-deep .mat-mdc-form-field-focus-overlay {
+    background-color: transparent;
+  }
+
+  ::ng-deep .mat-mdc-chip-grid {
+    min-height: 48px;
+  }
+
+  ::ng-deep .mat-mdc-chip {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    font-size: 0.875rem;
+    
+    .mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  ::ng-deep .mat-mdc-chip-remove {
+    color: #1976d2;
+    opacity: 0.7;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0.5rem;
+    
+    &:focus {
+      border: none !important;
+      outline: none !important;
+    }
+  }
+}
+
+// Error message styling
+.text-danger {
+  font-size: 0.875rem;
+}
+
+// Button styling
+.module-property {
+  border-top: 1px solid #e0e0e0;
+  
+  .btn {
+    min-width: 100px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+  }
+
+  .btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+    
+    &:hover {
+      background-color: #6c757d;
+      color: #fff;
+    }
+  }
+
+  .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    
+    &:hover {
+      background-color: #0b5ed7;
+      border-color: #0a58ca;
+    }
+  }
+}
+
+// Gap utility
+.gap-3 {
+  gap: 1rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .module-property {
+    flex-direction: column;
+    align-items: stretch !important;
+    
+    .btn {
+      width: 100%;
+    }
+  }
+}

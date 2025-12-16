@@ -1,0 +1,649 @@
+<div class="card shadow-sm mx-auto mt-3" style="max-width: 1200px">
+  <h3 class="card-title mb-0 p-3 border-bottom">Add Property</h3>
+
+  <div class="card-body p-3">
+    <form [formGroup]="basicDetailForm" (ngSubmit)="onSubmitPropertyData()" class="space-y-5">
+      <!-- Property Status -->
+      <div class="mb-4">
+        <label class="form-label">What do you want to do?</label>
+        <div class="d-flex gap-5">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="status"
+              formControlName="status"
+              id="sell"
+              value="Sell"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['status'].errors }"
+            />
+            <label class="form-check-label" for="sell">Sell</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="status"
+              formControlName="status"
+              id="rent"
+              value="Rent"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['status'].errors }"
+            />
+            <label class="form-check-label" for="rent">Rent</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="status"
+              formControlName="status"
+              id="lease"
+              value="Lease"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['status'].errors }"
+            />
+            <label class="form-check-label" for="lease">Lease</label>
+          </div>
+        </div>
+        @if (btnSubmitted && f['status'].errors) {
+        <div class="text-danger small mt-2">
+          @if (f['status'].errors['required']) {
+          <span>Please select any one item to do</span>
+          }
+        </div>
+        }
+      </div>
+
+       <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <label class="form-label-1 mb-0">List property as</label>
+         
+        </div>
+        <div class="d-flex gap-4">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="userType"
+              formControlName="userType"
+              id="individual"
+              value="Owner"
+            />
+            <label class="form-check-label" for="individual">Individual</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="userType"
+              formControlName="userType"
+              id="broker"
+              value="Broker"
+            />
+            <label class="form-check-label" for="broker">Broker</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="userType"
+              formControlName="userType"
+              id="developer"
+              value="Developer"
+            />
+            <label class="form-check-label" for="developer">Developer</label>
+          </div>
+        </div>
+        @if (btnSubmitted && f['userType']?.errors) {
+          <div class="text-danger small mt-2">
+            Please select a valid user type!
+          </div>
+        }
+      </div>
+
+      <!-- Basic Information -->
+      <div class="mb-4">
+        <h4 class="h5 border-bottom pb-2">Basic Information</h4>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="title" class="form-label">Title</label>
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              formControlName="title"
+              placeholder="Enter property title"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['title'].errors }"
+            />
+            @if (btnSubmitted && f['title'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['title'].errors['required']) {
+              <span>Title is required</span>
+              } @if (f['title'].errors['maxlength']) {
+              <span>Title contains maximum 50 characters long!</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="propertyType" class="form-label">Property Type</label>
+            <select
+              class="form-select"
+              id="propertyType"
+              formControlName="type"
+              (change)="onChangePropertyType($event)"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['type'].errors }"
+            >
+              <option value="" disabled selected>Select property type</option>
+              <option value="Plots">Plots</option>
+              <option value="Apartments">Apartments</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Villas">Villas</option>
+              <option value="Row house">Row house</option>
+              <option value="Agricultural land">Agricultural land</option>
+              <option value="Farmhouses">Farmhouses</option>
+              <option value="Vacation homes">Vacation homes</option>
+              <option value="Residential complex">Residential complex</option>
+              <option value="Individual house">Individual house</option>
+              <option value="Shop">Shop</option>
+            </select>
+            @if (btnSubmitted && f['type'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['type'].errors['required']) {
+              <span>Property type is required!</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="area" class="form-label">Area</label>
+            <input
+              type="number"
+              class="form-control"
+              id="area"
+              formControlName="areaSize"
+              placeholder="Enter area"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['areaSize'].errors }"
+            />
+            @if (btnSubmitted && f['areaSize'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['areaSize'].errors['required']) {
+              <span>Property area size is required</span>
+              } @if (f['areaSize'].errors['pattern']) {
+              <span>Invalid property area, numbers after decimal point not exceed two digits!</span>
+              }
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-4">
+            <label for="size" class="form-label">Size</label>
+            <select
+              class="form-select"
+              id="size"
+              formControlName="areaUnit"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['areaUnit'].errors }"
+            >
+              <option value="" disabled selected>Select size unit</option>
+              <option value="Sq.Ft">Sq.Ft</option>
+              <option value="Mts">Mts</option>
+            </select>
+            @if (btnSubmitted && f['areaUnit'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['areaUnit'].errors['required']) {
+              <span>Property area unit is required!</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="currency" class="form-label">Currency</label>
+            <select
+              class="form-select"
+              id="currency"
+              formControlName="currency"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['currency'].errors }"
+            >
+              <option value="" disabled selected>Select currency</option>
+              @for (currency of currencyDetails; track currency.code) {
+              <option [value]="currency.code">
+                {{ currency.name }} (<span [innerHTML]="currency.symbol"></span>)
+              </option>
+              }
+            </select>
+            @if (btnSubmitted && f['currency'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['currency'].errors['required']) {
+              <span>Currency is required!</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="price" class="form-label">Price</label>
+            <input
+              type="number"
+              class="form-control"
+              id="price"
+              formControlName="price"
+              placeholder="Enter price"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['price'].errors }"
+            />
+            @if (btnSubmitted && f['price'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['price'].errors['required']) {
+              <span>Price field is required</span>
+              } @if (f['price'].errors['pattern']) {
+              <span>Invalid price, numbers after decimal point not exceed two digits!</span>
+              }
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-4">
+            <label for="perValueUnit" class="form-label">Per Value Unit</label>
+            <select class="form-select" id="perValueUnit" formControlName="perValueUnit">
+              <option value="">Select unit</option>
+              <option value="sqft">sq.ft</option>
+              <option value="sqm">sq.m</option>
+              <option value="ground">ground</option>
+              <option value="acre">acre</option>
+              <option value="hectacre">hectacre</option>
+              <option value="cent">cent</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label for="propertyAgeMin" class="form-label">Property Age Min(yrs)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="propertyAgeMin"
+              formControlName="propertyAgeMin"
+              placeholder="Min age"
+              min="0"
+              max="100"
+              (change)="onCompareAge()"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['propertyAgeMin'].errors }"
+            />
+            @if (btnSubmitted && f['propertyAgeMin'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['propertyAgeMin'].errors['pattern']) {
+              <span
+                >Invalid age min!, valid: maximum value is 100. Numbers after decimal point not
+                exceed two digits!</span
+              >
+              } @if (f['propertyAgeMin'].errors['max']) {
+              <span>Property age cannot be greater than 100.</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="propertyAgeMax" class="form-label">Property Age Max(yrs)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="propertyAgeMax"
+              formControlName="propertyAgeMax"
+              placeholder="Max age"
+              min="0"
+              max="100"
+              (change)="onCompareAge()"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['propertyAgeMax'].errors }"
+            />
+            @if (btnSubmitted && f['propertyAgeMax'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['propertyAgeMax'].errors['pattern']) {
+              <span
+                >Invalid age max, valid: maximum value is 100!. Numbers after decimal point not
+                exceed two digits!</span
+              >
+              } @if (f['propertyAgeMax'].errors['max']) {
+              <span>Property age cannot be greater than 100.</span>
+              }
+            </div>
+            }
+          </div>
+        </div>
+
+        @if (PropertyType.value !== 'Plots' && PropertyType.value !== 'Agricultural land' &&
+        PropertyType.value !== 'Shop') {
+        <div class="row g-3 mt-3">
+          <div class="col-md-4">
+            <label for="bedrooms" class="form-label">No. of Bedrooms</label>
+            <input
+              type="number"
+              class="form-control"
+              id="bedrooms"
+              formControlName="noOfBedrooms"
+              placeholder="Number of bedrooms"
+              min="0"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['noOfBedrooms'].errors }"
+            />
+            @if (btnSubmitted && f['noOfBedrooms'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['noOfBedrooms'].errors['pattern']) {
+              <span>Invalid bedrooms, maximum three digits required!</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="bathrooms" class="form-label">No. of Bathrooms</label>
+            <input
+              type="number"
+              class="form-control"
+              id="bathrooms"
+              formControlName="noOfBathrooms"
+              placeholder="Number of bathrooms"
+              min="0"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['noOfBathrooms'].errors }"
+            />
+            @if (btnSubmitted && f['noOfBathrooms'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['noOfBathrooms'].errors['pattern']) {
+              <span>Invalid bathrooms, maximum three digits required!</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="parking" class="form-label">Parking</label>
+            <select class="form-select" id="parking" formControlName="parking">
+              <option value="">Select parking type</option>
+              <option value="Open Parking">Open Parking</option>
+              <option value="Closed Parking">Closed Parking</option>
+            </select>
+          </div>
+        </div>
+        }
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-4">
+            <label for="facing" class="form-label">Facing</label>
+            <select class="form-select" id="facing" formControlName="facing">
+              <option value="">Select facing direction</option>
+              <option value="North">North</option>
+              <option value="South">South</option>
+              <option value="East">East</option>
+              <option value="West">West</option>
+              <option value="NorthEast">NorthEast</option>
+              <option value="SouthWest">SouthWest</option>
+              <option value="NorthWest">NorthWest</option>
+              <option value="SouthEast">SouthEast</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label for="videoUrl" class="form-label">Video URL</label>
+            <input
+              type="text"
+              class="form-control"
+              id="videoUrl"
+              formControlName="videoUrl"
+              placeholder="Youtube, Vimeo, Dailymotion, etc.."
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['videoUrl'].errors }"
+            />
+            @if (btnSubmitted && f['videoUrl'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['videoUrl'].errors['pattern']) {
+              <span>Invalid! Valid formats: https://www.youtube.com/...</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            <label for="availability" class="form-label">Availability</label>
+            @if (!IsReadyToMove.value) {
+            <input
+              type="date"
+              class="form-control"
+              id="availability"
+              formControlName="transferDate"
+              [min]="minDate"
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['transferDate'].errors }"
+            />
+            }
+            <div class="form-check form-switch mt-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="readyToMove"
+                formControlName="isReadyToMove"
+                (change)="onCheckReadyToMoveFlag()"
+              />
+              <label class="form-check-label" for="readyToMove"> Ready To Move </label>
+            </div>
+            @if (basicDetailForm.hasError('checkboxOrDateRequired') && btnSubmitted) {
+            <div class="text-danger small mt-1">
+              <span>Please give value to either available date or ready to move</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        @if (ListPropAs.value === 'Developer') {
+        <div class="row g-3 mt-3">
+          <div class="col-md-4">
+            <label for="developer" class="form-label">Developer</label>
+            <input
+              type="text"
+              class="form-control"
+              id="developer"
+              formControlName="developerName"
+              placeholder="Developer name"
+              readonly
+              [ngClass]="{ 'is-invalid': btnSubmitted && f['developerName'].errors }"
+            />
+            @if (btnSubmitted && f['developerName'].errors) {
+            <div class="text-danger small mt-1">
+              @if (f['developerName'].errors['maxlength']) {
+              <span>Developer name contains maximum 100 characters long!</span>
+              }
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+
+      <div class="mt-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea
+          class="form-control"
+          id="description"
+          formControlName="description"
+          rows="5"
+          placeholder="Describe your property in detail..."
+          [ngClass]="{ 'is-invalid': btnSubmitted && f['description'].errors }"
+        ></textarea>
+        @if (btnSubmitted && f['description'].errors) {
+        <div class="text-danger small mt-1">
+          @if (f['description'].errors['maxlength']) {
+          <span>Description cannot be greater than 1500 characters long!</span>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="justify-content-end gap-3 pt-4 module-property d-flex align-items-center">
+        <button type="button" class="btn btn-outline-secondary" (click)="clearData()">
+          Clear All
+        </button>
+        <button type="submit" class="btn btn-primary shadow-sm">Continue</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Additional Forms Section -->
+<!-- <div id="additional-forms" *ngIf="showAdditionalForms" class="mt-4"> -->
+  <!-- Progress Indicator -->
+  <!-- <div class="card shadow-sm mx-auto mb-3" style="max-width: 1200px">
+    <div class="card-body p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div
+          class="step-indicator"
+          [class.active]="currentStep >= 1"
+          [class.completed]="currentStep > 1"
+        >
+          <span class="step-number">1</span>
+          <span class="step-label">Basic Details</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 1"></div>
+        <div
+          class="step-indicator"
+          [class.active]="currentStep >= 2"
+          [class.completed]="currentStep > 2"
+        >
+          <span class="step-number">2</span>
+          <span class="step-label">Property Management</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 2"></div>
+        <div
+          class="step-indicator"
+          [class.active]="currentStep >= 3"
+          [class.completed]="currentStep > 3"
+        >
+          <span class="step-number">3</span>
+          <span class="step-label">Nearby Locations</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 3"></div>
+        <div
+          class="step-indicator"
+          [class.active]="currentStep >= 4"
+          [class.completed]="currentStep > 4"
+        >
+          <span class="step-number">4</span>
+          <span class="step-label">Property Images</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 4"></div>
+        <div
+          class="step-indicator"
+          [class.active]="currentStep >= 5"
+          [class.completed]="currentStep > 5"
+        >
+          <span class="step-number">5</span>
+          <span class="step-label">Documents</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 5"></div>
+        <div class="step-indicator" [class.active]="currentStep >= 6">
+          <span class="step-number">6</span>
+          <span class="step-label">Location</span>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Property Management Form -->
+  <!-- <div class="card shadow-sm mx-auto mb-3" style="max-width: 1200px" *ngIf="currentStep >= 2">
+    <h3 class="card-title mb-0 p-3 border-bottom">Property Management</h3>
+    <div class="card-body p-3">
+      <p class="text-muted">Add property management details here...</p>
+      <div class="d-flex justify-content-end gap-3 mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="currentStep = currentStep - 1"
+        >
+          Back
+        </button>
+        <button type="button" class="btn btn-primary" (click)="currentStep = 3">Continue</button>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Nearby Locations Form -->
+  <!-- <div class="card shadow-sm mx-auto mb-3" style="max-width: 1200px" *ngIf="currentStep >= 3">
+    <h3 class="card-title mb-0 p-3 border-bottom">Nearby Locations</h3>
+    <div class="card-body p-3">
+      <p class="text-muted">Add nearby locations and amenities here...</p>
+      <div class="d-flex justify-content-end gap-3 mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="currentStep = currentStep - 1"
+        >
+          Back
+        </button>
+        <button type="button" class="btn btn-primary" (click)="currentStep = 4">Continue</button>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Property Images Form -->
+  <!-- <div class="card shadow-sm mx-auto mb-3" style="max-width: 1200px" *ngIf="currentStep >= 4">
+    <h3 class="card-title mb-0 p-3 border-bottom">Property Images</h3>
+    <div class="card-body p-3">
+      <p class="text-muted">Upload property images here...</p>
+      <div class="d-flex justify-content-end gap-3 mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="currentStep = currentStep - 1"
+        >
+          Back
+        </button>
+        <button type="button" class="btn btn-primary" (click)="currentStep = 5">Continue</button>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Document Attachments Form -->
+  <!-- <div class="card shadow-sm mx-auto mb-3" style="max-width: 1200px" *ngIf="currentStep >= 5">
+    <h3 class="card-title mb-0 p-3 border-bottom">Document Attachments</h3>
+    <div class="card-body p-3">
+      <p class="text-muted">Upload property documents here...</p>
+      <div class="d-flex justify-content-end gap-3 mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="currentStep = currentStep - 1"
+        >
+          Back
+        </button>
+        <button type="button" class="btn btn-primary" (click)="currentStep = 6">Continue</button>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Property Location Form -->
+  <!-- <div class="card shadow-sm mx-auto mb-3" style="max-width: 1200px" *ngIf="currentStep >= 6">
+    <h3 class="card-title mb-0 p-3 border-bottom">Property Location</h3>
+    <div class="card-body p-3">
+      <p class="text-muted">Add property location details here...</p>
+      <div class="d-flex justify-content-end gap-3 mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="currentStep = currentStep - 1"
+        >
+          Back
+        </button>
+        <button type="button" class="btn btn-success" (click)="onFinalSubmit()">
+          Submit Property
+        </button>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+
+<!-- Spinner -->
+<!-- <ngx-spinner></ngx-spinner> -->
+
+<!-- <app-property-location></app-property-location> -->

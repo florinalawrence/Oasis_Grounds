@@ -1,0 +1,300 @@
+<!-- <div class="card shadow-sm mt-4" style="max-width: 1200px;">
+ 
+    <h3 class="card-title mb-0 p-3 border-bottom">Nearby Locations</h3>
+  
+  <div class="card-body p-3">
+    <div class="nearby-section"> -->
+      
+       
+
+        <!-- Input Form Card -->
+      
+                <!-- <div class="row g-3"> -->
+                    <!-- Nearby Type -->
+                    <!-- <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-tag me-2 text-primary"></i>
+                            Nearby Type
+                        </label>
+                        <select class="form-select form-select-enhanced">
+                            <option selected disabled>Select type</option>
+                            <option value="school">School</option>
+                            <option value="hospital">Hospital</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="bank">Bank</option>
+                            <option value="mall">Shopping Mall</option>
+                            <option value="park">Park</option>
+                            <option value="gym">Gym</option>
+                            <option value="transport">Public Transport</option>
+                        </select>
+                    </div> -->
+
+                    <!-- Nearby Place -->
+                    <!-- <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-building me-2 text-primary"></i>
+                            <span class="label">Nearby Place</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control form-control-enhanced" 
+                            placeholder="Enter place name"
+                        />
+                    </div> -->
+
+                    <!-- Distance -->
+                    <!-- <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-ruler me-2 text-primary"></i>
+                            <span class="label">Distance</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-control form-control-enhanced" 
+                            placeholder="0"
+                            min="0"
+                            step="0.1"
+                        />
+                    </div> -->
+
+                    <!-- Distance Unit -->
+                    <!-- <div class="col-md-2">
+                        <label class="form-label">
+                            <i class="fas fa-arrows-alt-h me-2 text-primary"></i>
+                            <span class="label">Unit</span>
+                        </label>
+                        <select class="form-select form-select-enhanced">
+                            <option selected disabled>Select unit</option>
+                            <option value="km">Kilometers (km)</option>
+                            <option value="m">Meters (m)</option>
+                            <option value="mi">Miles (mi)</option>
+                        </select>
+                    </div> -->
+
+                    <!-- Add Button -->
+                    <!-- <div class="col-md-1 d-flex align-items-end justify-content-center">
+                        <button type="button" class="btn btn-add-nearby rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+           
+          </div>
+        </div> -->
+
+        <!-- Empty State / List Section --><div class="nearby-list-section mt-4">
+            <!-- Empty State -->
+                <!-- <div class="empty-state-card text-center p-5">
+                    <div class="empty-state-icon mb-3">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div> -->
+                <!-- <h4 class="empty-state-title mb-2 text-center">No Nearby Locations Added Yet</h4> -->
+                <!-- <p class="empty-state-text mb-4">
+                    Start adding nearby places like schools, hospitals, restaurants, and more to help buyers understand the area better.
+                </p>
+                <button class="btn btn-primary btn-get-started">
+                    <i class="fas fa-location-arrow me-2"></i>
+                    Get Started
+                </button> -->
+            <!-- </div> -->
+
+           
+         
+        <!-- </div>
+        
+    </div>
+
+  
+</div> -->
+
+<div class="card shadow-sm mt-4" style="max-width: 1200px;">
+  <h3 class="card-title mb-0 p-3 border-bottom">Nearby Locations</h3>
+  
+  <div class="card-body p-3">
+    <div class="nearby-section">
+      <!-- Input Form Card -->
+      <form [formGroup]="nearbyDetailsForm" (ngSubmit)="onSubmitNearByData()" autocomplete="false">
+        <div class="row g-3">
+          <!-- Nearby Type -->
+          <div class="col-md-3">
+            <label class="form-label">
+              <i class="fas fa-tag me-2 text-primary"></i>
+              Nearby Type
+            </label>
+            <select 
+              class="form-select form-select-enhanced"
+              formControlName="ddlNearby"
+              (change)="onShowListofPlaces()"
+              [ngClass]="{'is-invalid': btnSubmitted && f['ddlNearby'].errors}">
+              <option value="" disabled selected>Select type</option>
+              <option value="Location">Locations</option>
+              <option value="Connection">Connections</option>
+            </select>
+            <div class="text-danger small mt-1" *ngIf="btnSubmitted && f['ddlNearby'].errors">
+              <span *ngIf="f['ddlNearby'].hasError('required')">
+                Nearby type is required!
+              </span>
+            </div>
+          </div>
+
+          <!-- Nearby Place -->
+          <div class="col-md-3">
+            <label class="form-label">
+              <i class="fas fa-building me-2 text-primary"></i>
+              <span class="label">Nearby Place</span>
+            </label>
+            
+            <!-- Location Options -->
+            <select 
+              *ngIf="showDdlLocations"
+              class="form-control form-control-enhanced"
+              formControlName="ddlPlace"
+              [ngClass]="{'is-invalid': btnSubmitted && f['ddlPlace'].errors}">
+              <option value="" disabled selected>Select place</option>
+              <option value="Citi Mall">Citi Mall</option>
+              <option value="Hospital">Hospital</option>
+              <option value="Market">Market</option>
+              <option value="Ships">Ships</option>
+            </select>
+            
+            <!-- Connection Options -->
+            <select 
+              *ngIf="!showDdlLocations"
+              class="form-control form-control-enhanced"
+              formControlName="ddlPlace"
+              [ngClass]="{'is-invalid': btnSubmitted && f['ddlPlace'].errors}">
+              <option value="" disabled selected>Select connection</option>
+              <option value="Highway">Highway</option>
+              <option value="Roadway">Roadway</option>
+              <option value="Railway Station">Railway Station</option>
+              <option value="Ships">Ships</option>
+            </select>
+            
+            <div class="text-danger small mt-1" *ngIf="btnSubmitted && f['ddlPlace'].errors">
+              <span *ngIf="f['ddlPlace'].hasError('required')">
+                Place is required!
+              </span>
+            </div>
+          </div>
+
+          <!-- Distance -->
+          <div class="col-md-3">
+            <label class="form-label">
+              <i class="fas fa-ruler me-2 text-primary"></i>
+              <span class="label">Distance</span>
+            </label>
+            <input 
+              type="number" 
+              class="form-control form-control-enhanced" 
+              placeholder="0"
+              min="0"
+              step="0.1"
+              formControlName="distance"
+              [ngClass]="{'is-invalid': btnSubmitted && f['distance'].errors}"
+            />
+            <div class="text-danger small mt-1" *ngIf="btnSubmitted && f['distance'].errors">
+              <span *ngIf="f['distance'].hasError('required')">
+                Distance is required!
+              </span>
+              <span *ngIf="f['distance'].hasError('pattern')">
+                Maximum 15 digits. Up to 2 decimal places allowed.
+              </span>
+            </div>
+          </div>
+
+          <!-- Distance Unit -->
+          <div class="col-md-2">
+            <label class="form-label">
+              <i class="fas fa-arrows-alt-h me-2 text-primary"></i>
+              <span class="label">Unit</span>
+            </label>
+            <select 
+              class="form-select form-select-enhanced"
+              formControlName="distanceUnit"
+              [ngClass]="{'is-invalid': btnSubmitted && f['distanceUnit'].errors}">
+              <option value="" disabled selected>Select unit</option>
+              <option value="Kms">Kilometers (km)</option>
+              <option value="Mts">Meters (m)</option>
+            </select>
+            <div class="text-danger small mt-1" *ngIf="btnSubmitted && f['distanceUnit'].errors">
+              <span *ngIf="f['distanceUnit'].hasError('required')">
+                Unit is required!
+              </span>
+            </div>
+          </div>
+
+          <!-- Add/Save Button -->
+          <div class="col-md-1 d-flex align-items-end justify-content-center">
+            <button 
+              type="submit" 
+              class="btn btn-add-nearby rounded-circle d-flex align-items-center justify-content-center" 
+              style="width: 40px; height: 40px;"
+              [title]="isEditMode ? 'Save Changes' : 'Add Location'">
+              <i [class]="isEditMode ? 'fas fa-check' : 'fas fa-plus'"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- List Section -->
+    <div class="nearby-list-section mt-4">
+      <!-- Empty State -->
+      <div *ngIf="nearbyDetailList.length === 0" class="text-center py-5">
+        <div class="empty-state-icon mb-3 text-muted">
+          <i class="fas fa-map-marked-alt" style="font-size: 3rem; opacity: 0.3;"></i>
+        </div>
+        <h4 class="empty-state-title mb-2">No Nearby Locations Added Yet</h4>
+        <p class="text-muted">
+          Start adding nearby places like schools, hospitals, restaurants, and more to help buyers understand the area better.
+        </p>
+      </div>
+
+      <!-- Nearby Locations Table -->
+      <div *ngIf="nearbyDetailList.length > 0" class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 60px;">#</th>
+              <th scope="col">Nearby Type</th>
+              <th scope="col">Place</th>
+              <th scope="col">Distance</th>
+              <th scope="col" style="width: 120px;" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of nearbyDetailList; let i = index">
+              <td class="text-muted">{{ i + 1 }}</td>
+              <td>
+                <span class="badge bg-primary-subtle text-primary">
+                  {{ item.nearByType }}
+                </span>
+              </td>
+              <td>{{ item.location }}</td>
+              <td>
+                <strong>{{ item.distance }}</strong> {{ item.distanceUnit }}
+              </td>
+              <td class="text-center">
+                <div class="btn-group" role="group">
+                  <button 
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="onEditNearbyData(i, item)"
+                    title="Edit">
+                    <i class="fas fa-pencil-alt"></i>
+                  </button>
+                  <button 
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="removeNearByData(item)"
+                    title="Delete">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

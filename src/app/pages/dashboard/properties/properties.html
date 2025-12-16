@@ -1,0 +1,358 @@
+<section class="property-listings">
+  <div class="container mt-5">
+    <!-- Production API Debug Panel -->
+    <!-- <div class="alert alert-success mb-3" style="font-size: 12px;">
+      <strong>🔧 Production API Status</strong>
+      <span class="badge bg-success ms-2">{{ getApiEnvironment() }}</span>
+      <div class="mt-2">
+        <small><strong>API URL:</strong> {{ getApiUrl() }}</small>
+        <br>
+        <small><strong>Properties Loaded:</strong> {{ getTotalPropertiesCount() }}</small>
+        <br>
+        <small><strong>Featured Properties:</strong> {{ getFeaturedPropertiesCount() }}</small>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-success me-2" (click)="testApiConnection()">
+          🔗 Test API Connection
+        </button>
+        <button class="btn btn-sm btn-outline-secondary me-2" (click)="logApiDebugInfo()">
+          📊 Log Debug Info
+        </button>
+        <button class="btn btn-sm btn-outline-primary" (click)="loadInitialProperties()">
+          🔄 Reload Properties
+        </button>
+      </div>
+    </div> -->
+
+    <!-- Featured Properties Section - Always show title and description -->
+    <h1 class="section-title mb-3">Featured Properties</h1>
+    <p class="para text-center mb-3">
+      We make the best choices with the hottest and most prestigious projects, please visit the
+      details below to find out more
+    </p>
+
+    <!-- Featured Properties Content -->
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <!-- <span class="visually-hidden">Loading featured properties...</span> -->
+        </div>
+        <div class="ms-3">
+          <!-- <p class="text-muted mb-0">Loading featured properties...</p> -->
+        </div>
+      </div>
+    } @else {
+
+      @if (hasFeaturedProperties()) {
+        <div class="property-cards-wrapper" id="carouselWrapper2">
+          <div
+            class="property-cards-container"
+            id="cardsContainer"
+            [ngClass]="{ 'scroll-enabled': canScrollFeatured() }"
+          >
+            <!-- Featured Property Cards -->
+            @for (item of jmrPropertyList(); track item.id) {
+              <div class="property-card">
+                <div class="card-img-container">
+                  <img
+                    [src]="item?.featuredImage || 'assets/images/no_image.png'"
+                    class="property-image"
+                    [alt]="item?.title"
+                    (click)="gotoViewDetail(item)"
+                    (error)="onImageError($event)"
+                  />
+                  <div class="badge-container">
+                    <span
+                      [ngClass]="{
+                        'status-badge': true,
+                        'for-sale': item?.status === 'Sell',
+                        'for-rent': item?.status === 'Rent'
+                      }"
+                    >
+                      {{ item?.status === 'Sell' ? 'For Sale' : 'For Rent' }}
+                    </span>
+                  </div>
+                  @if (item?.propertyOwnerShip == 'Jmr Owned Property') {
+                    <div class="featured-ribbon-bottom">
+                      Featured
+                    </div>
+                  }
+                </div>
+                <div class="card-body">
+                  <div class="property-header">
+                    <div class="property-info">
+                      <h5 class="property-title" (click)="gotoViewDetail(item)">
+                        {{ item?.title | titlecase }}
+                      </h5>
+                      <p class="property-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ item?.addressInfo?.city ? item?.addressInfo?.city + ', ' : '' }}
+                        {{ item?.addressInfo?.country ? item?.addressInfo?.country : '' }}
+                      </p>
+                      @if (item?.bedRooms) {
+                        <span class="bhk-badge">
+                          {{ item?.bedRooms }} BHK {{ item?.type }}
+                        </span>
+                      }
+                    </div>
+                    <div>
+                      <span class="price-label">Property price</span>
+                      <div class="property-price">
+                        <!-- Use old-style price display logic -->
+                        @if (item?.currency === 'INR') {
+                          <div class="d-inline-flex align-items-center">
+                            @for (currency of currencyDetails(); track currency.code) {
+                              @if (currency.code === item?.currency) {
+                                <span [innerHTML]="currency?.symbol"></span>
+                                {{ item?.price ? (item.price | currencyString : 2) : '' }}
+                                @if (item?.valueUnit) {
+                                  <span class="price-unit">
+                                    /{{ item?.valueUnit }}
+                                  </span>
+                                }
+                              }
+                            }
+                          </div>
+                        } @else {
+                          <div class="d-inline-flex align-items-center">
+                            @for (currency of currencyDetails(); track currency.code) {
+                              @if (currency.code === item?.currency) {
+                                <span [innerHTML]="currency?.symbol"></span>
+                                {{ item?.price ? (item.price | indianNumber) : '' }}
+                                @if (item?.valueUnit) {
+                                  <span class="price-unit">
+                                    /{{ item?.valueUnit }}
+                                  </span>
+                                }
+                              }
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+                  <div class="investment-stats">
+                    <div class="stat-box d-flex justify-content-between align-items-center">
+                      <div class="stat-label">Posted By</div>
+                      <div class="stat-value highlight">{{ item?.listPropertyAs | titlecase }}</div>
+                    </div>
+                    <div class="stat-box d-flex justify-content-between align-items-center">
+                      <div class="stat-label">Availability</div>
+                      <div
+                        class="stat-value"
+                        [ngClass]="{
+                          success: item?.availability?.readyToMove,
+                          warning: !item?.availability?.readyToMove
+                        }"
+                      >
+                        @if (item?.availability?.readyToMove) {
+                          Ready To Move
+                        } @else if (item?.availability?.availableDate) {
+                          Since {{ item?.availability?.availableDate | date : 'MMM yyyy' }}
+                        } @else {
+                          NA
+                        }
+                      </div>
+                    </div>
+                    <div class="stat-box d-flex justify-content-between align-items-center">
+                      <div class="stat-label">Area</div>
+                      <div class="stat-value success">
+                        {{ item?.area ? (item.area | indianNumber) + ' ' + item?.size : '' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <!-- <div class="text-center py-5">
+          <div class="no-data-container">
+            <i class="fas fa-star fa-2x text-muted mb-3"></i>
+            <h5 class="text-muted mb-3">NO DATA FOUND</h5>
+            <div class="alert alert-warning">
+              <strong>📭 Production Database Status:</strong>
+              <p class="mb-1">No featured properties available in production database</p>
+              <small class="text-muted">
+                • Featured properties are marked as "JMR Owned Property"<br>
+                • The production database may be empty<br>
+                • Check API connection using the debug panel above
+              </small>
+            </div>
+          </div>
+        </div> -->
+      }
+
+    }
+
+    <!-- Latest Properties Section - Always show title and description -->
+    <div class="container mt-5">
+      <h1 class="section-title mb-3">Latest Properties</h1>
+      <p class="para text-center mb-3">
+        Owning a home is a keystone of wealth… both financial affluence and emotional security. The
+        house you looked at today and wanted to think about until tomorrow may be the same house
+        someone looked at yesterday and will buy today.
+      </p>
+
+      <!-- Latest Properties Content -->
+      @if (isLoading()) {
+        <div class="d-flex justify-content-center align-items-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <!-- <span class="visually-hidden">Loading latest properties...</span> -->
+          </div>
+          <div class="ms-3">
+            <!-- <p class="text-muted mb-0">Loading latest properties...</p> -->
+          </div>
+        </div>
+      } @else if (hasLatestProperties()) {
+          <div class="property-cards-wrapper" id="carouselWrapper">
+            <div
+              class="property-cards-container"
+              id="cardsContainer"
+              [ngClass]="{ 'scroll-enabled': canScrollLatest() }"
+            >
+              <!-- Latest Property Cards -->
+              @for (item of propertyList(); track item.id) {
+                <div class="property-card">
+                  <div class="card-img-container">
+                    <img
+                      [src]="item?.featuredImage || 'assets/images/no_image.png'"
+                      class="property-image"
+                      [alt]="item?.title"
+                      (click)="gotoViewDetail(item)"
+                      (error)="onImageError($event)"
+                    />
+                    <div class="badge-container">
+                      <span
+                        [ngClass]="{
+                          'status-badge': true,
+                          'for-sale': item?.status === 'Sell',
+                          'for-rent': item?.status === 'Rent'
+                        }"
+                      >
+                        {{ item?.status === 'Sell' ? 'For Sale' : 'For Rent' }}
+                      </span>
+                    </div>
+                    @if (item?.propertyOwnerShip == 'Jmr Owned Property') {
+                      <div class="featured-ribbon-bottom">
+                        Featured
+                      </div>
+                    }
+                  </div>
+                  <div class="card-body">
+                    <div class="property-header">
+                      <div class="property-info">
+                        <h5 class="property-title" (click)="gotoViewDetail(item)">
+                          {{ item?.title | titlecase }}
+                        </h5>
+                        <p class="property-location">
+                          <i class="fas fa-map-marker-alt"></i>
+                          {{ item?.addressInfo?.city ? item?.addressInfo?.city + ', ' : '' }}
+                          @if (item?.addressInfo?.country === 'India' && item?.addressInfo?.state) {
+                            {{ item?.addressInfo?.state + ', ' }}
+                          }
+                          {{ item?.addressInfo?.country ? item?.addressInfo?.country : '' }}
+                        </p>
+                        @if (item?.bedRooms) {
+                          <span class="bhk-badge">
+                            {{ item?.bedRooms }} BHK {{ item?.type }}
+                          </span>
+                        }
+                      </div>
+                      <div>
+                        <span class="price-label">Property price</span>
+                        <div class="property-price">
+                          <!-- Use old-style price display logic -->
+                          @if (item?.currency === 'INR') {
+                            <div class="d-inline-flex align-items-center">
+                              @for (currency of currencyDetails(); track currency.code) {
+                                @if (currency.code === item?.currency) {
+                                  <span [innerHTML]="currency?.symbol"></span>
+                                  {{ item?.price ? (item.price | currencyString : 2) : '' }}
+                                  @if (item?.valueUnit) {
+                                    <span class="price-unit">
+                                      /{{ item?.valueUnit }}
+                                    </span>
+                                  }
+                                }
+                              }
+                            </div>
+                          } @else {
+                            <div class="d-inline-flex align-items-center">
+                              @for (currency of currencyDetails(); track currency.code) {
+                                @if (currency.code === item?.currency) {
+                                  <span [innerHTML]="currency?.symbol"></span>
+                                  {{ item?.price ? (item.price | indianNumber) : '' }}
+                                  @if (item?.valueUnit) {
+                                    <span class="price-unit">
+                                      /{{ item?.valueUnit }}
+                                    </span>
+                                  }
+                                }
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="investment-stats">
+                      <div class="stat-box d-flex justify-content-between align-items-center">
+                        <div class="stat-label">Posted By</div>
+                        <div class="stat-value highlight">{{ item?.listPropertyAs | titlecase }}</div>
+                      </div>
+                      <div class="stat-box d-flex justify-content-between align-items-center">
+                        <div class="stat-label">Availability</div>
+                        <div
+                          class="stat-value"
+                          [ngClass]="{
+                            success: item?.availability?.readyToMove,
+                            warning: !item?.availability?.readyToMove
+                          }"
+                        >
+                          @if (item?.availability?.readyToMove) {
+                            Ready To Move
+                          } @else if (item?.availability?.availableDate) {
+                            Since {{ item?.availability?.availableDate | date : 'MMM yyyy' }}
+                          } @else {
+                            NA
+                          }
+                        </div>
+                      </div>
+                      <div class="stat-box d-flex justify-content-between align-items-center">
+                        <div class="stat-label">Area</div>
+                        <div class="stat-value success">
+                          {{ item?.area ? (item.area | indianNumber) + ' ' + item?.size : '' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+      } @else {
+        <!-- <div class="text-center py-5">
+          <div class="no-data-container">
+            <i class="fas fa-home fa-2x text-muted mb-3"></i>
+            <h5 class="text-muted mb-3">NO DATA FOUND</h5> -->
+            <!-- <div class="alert alert-warning">
+              <strong>📭 Production Database Status:</strong>
+              <p class="mb-1">No properties available in production database</p>
+              <small class="text-muted">
+                • The production database appears to be empty<br>
+                • API connection: {{ getApiUrl() }}<br>
+                • Use the debug panel above to test API connectivity
+              </small>
+            </div> -->
+            <!-- <button class="btn btn-primary mt-3" (click)="loadInitialProperties()">
+              <i class="fas fa-refresh"></i> Retry Loading
+            </button>
+          </div>
+        </div> -->
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,286 @@
+.city-property {
+  padding: 40px 0;
+  
+  .heading--title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00264D;
+  }
+
+  .heading--desc {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
+
+  .card {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+
+  .card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .card-body {
+    padding: 15px;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    color: #333;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.2);
+  }
+
+  .card:hover img {
+    transform: scale(1.08);
+  }
+
+  .card:hover .card-title {
+    color: #007bff;
+  }
+}
+
+/* Mobile View - 320px */
+@media (max-width: 575.98px) {
+  .city-property {
+    padding: 30px 10px;
+
+    .heading--title {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+    }
+
+    .heading--desc {
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      padding: 0 15px;
+      line-height: 1.5;
+    }
+
+    .card {
+      margin-bottom: 15px;
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    .card-img-top {
+      height: 160px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+    }
+
+    .card-body {
+      padding: 10px;
+    }
+  }
+
+  .container-fluid {
+    padding: 0 15px;
+  }
+
+  .row {
+    margin: 0 -10px;
+  }
+
+  .col-md-3 {
+    padding: 0 10px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Tablet View - 768px */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .city-property {
+    padding: 35px 20px;
+
+    .heading--title {
+      font-size: 1.75rem;
+      margin-bottom: 15px;
+    }
+
+    .heading--desc {
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      padding: 0 20px;
+    }
+
+    .card {
+      margin-bottom: 20px;
+    }
+
+    .card-img-top {
+      height: 200px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+    }
+
+    .card-body {
+      padding: 14px;
+    }
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+  }
+
+  .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 0 10px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Laptop View - 1024px */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .city-property {
+    padding: 40px 30px;
+
+    .heading--title {
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+    }
+
+    .heading--desc {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      max-width: 850px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card {
+      margin-bottom: 25px;
+    }
+
+    .card-img-top {
+      height: 220px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -12px;
+  }
+
+  .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 0 12px;
+    margin-bottom: 25px;
+  }
+}
+
+/* Desktop View - 1200px and up */
+@media (min-width: 1200px) {
+  .city-property {
+    padding: 45px 40px;
+
+    .heading--title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .heading--desc {
+      font-size: 1.05rem;
+      margin-bottom: 35px;
+      max-width: 950px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card {
+      margin-bottom: 30px;
+    }
+
+    .card-img-top {
+      height: 240px;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+  }
+
+  .col-md-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 0 15px;
+    margin-bottom: 30px;
+  }
+}
+
+/* Remove inline styles override */
+.city-property .card[style] {
+  width: 100% !important;
+}
+
+/* Ensure smooth transitions on all screen sizes */
+@media (prefers-reduced-motion: no-preference) {
+  .card,
+  .card-img-top,
+  .card-title {
+    transition-duration: 0.3s;
+  }
+}
+
+/* Fix for very small screens */
+@media (max-width: 374px) {
+  .city-property {
+    .heading--title {
+      font-size: 1.3rem;
+    }
+
+    .heading--desc {
+      font-size: 0.85rem;
+    }
+
+    .card-img-top {
+      height: 160px;
+    }
+  }
+}
+
+
+
+

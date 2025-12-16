@@ -1,0 +1,277 @@
+<section id="page-title" class="page-title bg-overlay bg-overlay-dark2">
+  <div class="bg-section"></div>
+  <div class="container-fluid px-4">
+    <div class="row px-4">
+      <div class="col-12 col-md-6">
+        <div class="title title-1">
+          <div class="title--content">
+            <div class="title--heading">
+              <div class="breadcrumb ms-1 mt-3">
+                <a [routerLink]="['/home']">Home</a>&nbsp;/&nbsp;Contact
+              </div>
+              <h2 class="mb-2 mt-4" style="color: #00264d">Contact Us</h2>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact #1 -->
+<section id="contact" class="contact contact-1">
+  <div class="container-fluid px-4">
+    <div class="row px-4">
+      <div class="col-12 col-md-3">
+        <div class="heading heading-2 mb-4">
+          <h3 class="heading--title mb-3">Get In Touch</h3>
+        </div>
+        <div class="contact-panel">
+          <h5 class="mb-3">Address</h5>
+          <p class="mb-3">
+            57C, M.S. Road, Vasan Eyecare Building, Ozhignasery, Nagercoil- 629 001, Kanyakumari,
+            Tamil Nadu
+          </p>
+        </div>
+        <div class="contact-panel">
+          <h5 class="mb-3">Hotline:</h5>
+          <p class="mb-3">+91 93638 80322</p>
+        </div>
+        <div class="contact-panel">
+          <h5 class="mb-3">Email:</h5>
+          <p>info&#64;jmrrealestate.com</p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-8 offset-md-1 p-30">
+        <app-map-location
+          [city]="city()"
+          [state]="state()"
+          [landMark]="landMark()"
+          [country]="country()"
+          [zipCode]="zipCode()"
+          [latitude]="latitude()"
+          [longitude]="longitude()"
+          [isDraggable]="true"
+          (locationUpdated)="onLocationUpdated($event)"
+        >
+        </app-map-location>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact #2 - Contact Form -->
+<section id="contact2" class="contact contact-2">
+  <div class="container-fluid px-4">
+    <div class="row px-4">
+      <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="heading heading-2 mb-20">
+          <h3 class="heading--title mb-3">Leave a message</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin: 20px 60px 20px 60px">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row contact-section">
+              <div class="col-12 col-sm-12 col-md-5">
+                <img
+                  src="../../../assets/images/contact-ani.jpg"
+                  alt="Contact Image"
+                  class="img-fluid"
+                />
+              </div>
+
+              <div class="col-12 col-md-7">
+                <div class="form-box">
+                  <script [src]="v3captchaRenderUrl()"></script>
+                  <form
+                    class="mb-0 font-weight-bold"
+                    id="userProfileForm"
+                    autocomplete="off"
+                    novalidate
+                    [formGroup]="contactForm()"
+                    (ngSubmit)="onSubmit()"
+                  >
+                    <div class="row">
+                      <!-- Full Name -->
+                      <div class="col-12 mb-3 propBlock">
+                        <div class="form-group">
+                          <label for="fullName" class="mb-2">Your Name</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            name="fullName"
+                            placeholder="Name"
+                            id="iptFullName"
+                            formControlName="fullName"
+                            [ngClass]="{ 'is-invalid': btnSubmitted() && f['fullName'].errors }"
+                            required
+                          />
+                          @if (btnSubmitted() && f['fullName'].errors) {
+                            <div class="text-danger err-msg ps-2">
+                              @if (f['fullName'].errors['required']) {
+                                <span class="text-danger"> Name is Required </span>
+                              } @if (f['fullName'].errors['pattern']) {
+                                <span class="text-danger"> Alphabets Only Allowed </span>
+                              } @if (f['fullName'].errors['minlength']) {
+                                <span class="text-danger">
+                                  Name should be Minimum 3 Characters Long!
+                                </span>
+                              } @if (f['fullName'].errors['maxlength']) {
+                                <span class="text-danger">
+                                  Name should be Maximum 30 Characters Long!
+                                </span>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Email -->
+                      <div class="col-12 mb-3 propBlock">
+                        <div class="form-group">
+                          <label for="contact-email" class="mb-2">Email Address</label>
+                          <input
+                            type="text"
+                            placeholder="Email address"
+                            autocomplete="off"
+                            name="email"
+                            class="form-control ipt-boxStyle"
+                            id="iptEmail"
+                            formControlName="email"
+                            [ngClass]="{ 'is-invalid': btnSubmitted() && f['email'].errors }"
+                            required
+                          />
+                          @if (btnSubmitted() && f['email'].errors) {
+                            <div class="text-danger err-msg ps-2">
+                              @if (f['email'].errors['required']) {
+                                <span class="text-danger"> Email is Required </span>
+                              } @if (f['email'].errors['pattern']) {
+                                <span class="text-danger"> Please Enter a Valid Email! </span>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Phone Number -->
+                      <div class="col-12 propBlock">
+                        <div class="form-group">
+                          <div class="row">
+                            <!-- Country Code -->
+                            <div class="col-3 mb-3 propBlock">
+                              <label for="iptMobNo" class="mb-2">Code</label>
+                              <div class="select--box">
+                                <select
+                                  name="mobCode"
+                                  formControlName="mobCode"
+                                  [ngClass]="{ 'is-invalid': btnSubmitted() && f['mobCode'].errors }"
+                                  required
+                                  class="form-select country-code-select"
+                                >
+                                  <option value="" disabled selected>Select</option>
+                                  @for (country of countryCodes(); track country.code) {
+                                    <option [value]="country.dial_code">
+                                      {{ country.code }} ({{ country.dial_code }})
+                                    </option>
+                                  }
+                                </select>
+                              </div>
+                              @if (btnSubmitted() && f['mobCode'].errors) {
+                                <div class="text-danger err-msg ps-2 mt-1">
+                                  @if (f['mobCode'].errors['required']) {
+                                    <span class="text-danger"> Mobile Code is Required </span>
+                                  }
+                                </div>
+                              }
+                            </div>
+
+                            <!-- Mobile Number -->
+                            <div class="col-9 mb-3 propBlock">
+                              <label for="iptPhoneNo" class="mb-2">Phone No</label>
+                              <input
+                                type="number"
+                                placeholder="Mobile Number"
+                                name="mobileNo"
+                                autocomplete="off"
+                                class="form-control ipt-boxStyle"
+                                id="iptMobNo"
+                                formControlName="mobileNo"
+                                [ngClass]="{ 'is-invalid': btnSubmitted() && f['mobileNo'].errors }"
+                                required
+                              />
+                              @if (btnSubmitted() && f['mobileNo'].errors) {
+                                <div class="text-danger err-msg ps-2 mt-1">
+                                  @if (f['mobileNo'].errors['required']) {
+                                    <span class="text-danger"> Mobile Number is Required </span>
+                                  } @if (f['mobileNo'].errors['pattern']) {
+                                    <span class="text-danger">
+                                      Phone no should be min 3 digits and max 15 digits
+                                    </span>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Message -->
+                      <div class="col-12 propBlock">
+                        <div class="form-group">
+                          <label for="message" class="mb-2">Message</label>
+                          <textarea
+                            class="form-control"
+                            name="message"
+                            id="message"
+                            rows="2"
+                            placeholder="Enter message here..."
+                            autocomplete="off"
+                            formControlName="message"
+                            [ngClass]="{ 'is-invalid': btnSubmitted() && f['message'].errors }"
+                            required
+                          ></textarea>
+                          @if (btnSubmitted() && f['message'].errors) {
+                            <div class="text-danger err-msg ps-2">
+                              @if (f['message'].errors['required']) {
+                                <span class="text-danger"> Message is Required </span>
+                              } @if (f['message'].errors['pattern']) {
+                                <span class="text-danger">
+                                  Alphanumeric with special characters !@#()\-`.+,/" allowed
+                                </span>
+                              } @if (f['message'].errors['minlength']) {
+                                <span class="text-danger">
+                                  Message should be Minimum 20 Characters Long!
+                                </span>
+                              } @if (f['message'].errors['maxlength']) {
+                                <span class="text-danger">
+                                  Message should be Maximum 500 Characters Long!
+                                </span>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Submit Button -->
+                      <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-primary w-100">Send Message</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+

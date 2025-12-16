@@ -1,0 +1,310 @@
+.agent-card {
+  border: none;
+  background-color: #ffffff; 
+  text-align: center;
+  padding: 20px 15px; 
+  height: 400px; 
+  min-height: 400px; 
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.heading--desc {
+            color: #6c757d;
+            font-size: 14px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+.center-card {
+  background-color: #ffffff;
+}
+
+/* Hover effect */
+.agent-card:hover {
+  
+   box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+
+.agent-image {
+  margin-bottom: 10px; 
+  flex-shrink: 0;
+}
+
+/* Image styling */
+.agent-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+  display: block; 
+  margin: 0 auto;
+}
+
+
+
+.agent--details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+  position: relative;
+}
+
+
+.agent--details p {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  position: absolute;
+  height: 0;
+  
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 10px;
+}
+
+
+.agent-card:hover .agent--details p {
+  opacity: 1;
+  transform: translateY(0);
+  position: relative; 
+  
+  margin-top: 10px; 
+}
+
+
+.agent--social-links {
+
+
+ 
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.agent-card:hover .agent--social-links {
+  opacity: 1;
+}
+
+.agent--social-links a {
+  color: #007bff;
+  font-size: 18px;
+  margin: 0 8px;
+  transition: color 0.3s ease;
+  
+}
+
+.agent--social-links a:hover {
+  color: #0056b3;
+}
+
+/* Mobile View - 320px */
+@media (max-width: 575.98px) {
+  .agents {
+    padding: 30px 0 !important;
+  }
+
+  .heading {
+    margin-top: 20px !important;
+  }
+
+  .heading--title {
+    font-size: 20px !important;
+    font-weight: bold;
+    color: #00264D;
+    margin-bottom: 15px !important;
+  }
+
+  .heading--desc {
+    font-size: 0.85rem !important;
+    padding: 0 15px;
+    line-height: 1.5;
+    margin-bottom: 30px !important;
+  }
+
+  .agent-card {
+    height: auto;
+    min-height: 350px;
+    margin-bottom: 20px;
+    padding: 15px 10px;
+  }
+
+  .agent-image {
+    margin-bottom: 8px;
+  }
+
+  .agent-image img {
+    max-width: 100px;
+  }
+
+  .agent--details p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .agent--social-links {
+    bottom: 10px;
+  }
+
+  .agent--social-links a {
+    font-size: 16px;
+    margin: 0 6px;
+  }
+
+  .no-gutters {
+    margin-bottom: 30px !important;
+  }
+}
+
+/* Tablet View - 768px */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .agents {
+    padding: 40px 0 !important;
+  }
+
+  .heading {
+    margin-top: 30px !important;
+  }
+
+  .heading--title {
+    font-size: 20px !important;
+    font-weight: bold;
+    color:#00264D
+    // margin-bottom: 20px !important;
+  }
+
+  .heading--desc {
+    font-size: 0.95rem !important;
+    padding: 0 20px;
+    margin-bottom: 35px !important;
+  }
+
+  .agent-card {
+    height: auto;
+    min-height: 420px;
+    margin-bottom: 25px;
+    padding: 18px 15px;
+  }
+
+  .agent-image img {
+    max-width: 110px;
+  }
+
+  .agent--details p {
+    font-size: 0.9rem;
+  }
+
+  .agent--social-links a {
+    font-size: 17px;
+  }
+
+  .no-gutters {
+    margin-bottom: 40px !important;
+  }
+}
+
+/* Laptop View - 1024px */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .agents {
+    padding: 45px 0 !important;
+  }
+
+  .heading {
+    margin-top: 35px !important;
+  }
+
+  .heading--title {
+    font-size: 20px !important;
+    font-weight: bold;
+    color: #00264D;
+    margin-bottom: 22px !important;
+  }
+
+  .heading--desc {
+    font-size: 1rem !important;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 40px !important;
+  }
+
+  .agent-card {
+    height: auto;
+    min-height: 400px;
+    margin-bottom: 0;
+    padding: 20px 15px;
+  }
+
+  .agent-image img {
+    max-width: 115px;
+  }
+
+  .agent--details p {
+    font-size: 0.95rem;
+  }
+
+  .agent--social-links a {
+    font-size: 18px;
+  }
+
+  .no-gutters {
+    margin-bottom: 45px !important;
+  }
+}
+
+/* Desktop View - 1200px and up */
+@media (min-width: 1200px) {
+  .agents {
+    padding: 50px 0 !important;
+  }
+
+  .heading {
+    margin-top: 40px !important;
+  }
+
+  .heading--title {
+    font-size: 20px !important;
+    font-weight: bold;
+    color: #00264D; ;
+    margin-bottom: 25px !important;
+  }
+
+  .heading--desc {
+    font-size: 14px !important;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 45px !important;
+  }
+
+  .agent-card {
+    min-height: 400px;
+  }
+
+  .agent-image img {
+    max-width: 120px;
+  }
+
+  .no-gutters {
+    margin-bottom: 50px !important;
+  }
+}
+
+

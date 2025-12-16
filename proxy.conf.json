@@ -1,0 +1,14 @@
+{
+  "/nominatim/*": {
+    "target": "https://nominatim.openstreetmap.org",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/nominatim": ""
+    },
+    "headers": {
+      "User-Agent": "OasisGrounds-App/1.0"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+<div class="sidebar-container">
+  <!-- Profile Section -->
+  <div class="profile-section">
+    <div class="profile-image-wrapper">
+      <div class="profile-image">
+        @if (profileImageUrl) {
+          <img [src]="profileImageUrl" alt="Profile" />
+        } @else {
+          <i class="bi bi-person"></i>
+        }
+      </div>
+      <div class="edit-badge" (click)="onEditProfileImage()">
+        <i class="bi bi-pencil-fill"></i>
+      </div>
+      <input 
+        type="file" 
+        #fileInput 
+        (change)="onFileSelected($event)" 
+        accept="image/*" 
+        style="display: none;"
+      />
+    </div>
+    <div class="profile-name">{{ profileName || 'User' }}</div>
+    <div class="profile-role">{{ profileRole }}</div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <div class="nav-menu">
+    <a class="nav-item profile-icon" routerLink="/user-dashboard/edit-profile" routerLinkActive="active">
+      <i class="bi bi-person-circle"></i>
+      <span>My Profile</span>
+    </a>
+    <a class="nav-item properties-icon" routerLink="/user-dashboard/my-property" routerLinkActive="active">
+      <i class="bi bi-house-door"></i>
+      <span>My Properties</span>
+    </a>
+    <a class="nav-item favorite-icon" routerLink="/user-dashboard/favourites" routerLinkActive="active">
+      <i class="bi bi-heart"></i>
+      <span>My Favorites</span>
+    </a>
+    <a class="nav-item add-icon" routerLink="/user-dashboard/add-property" routerLinkActive="active">
+      <i class="bi bi-plus-square"></i>
+      <span>Add Property</span>
+    </a>
+    <a class="nav-item logout-icon" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Logout</span>
+    </a>
+  </div>
+</div>

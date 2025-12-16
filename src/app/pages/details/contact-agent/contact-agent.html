@@ -1,0 +1,144 @@
+<div class="card sticky-top" style="top: 7rem">
+  <div class="card-header bg-white border-bottom">
+    <h5 class="card-title mb-0 pt-2 pb-2">Contact Agent</h5>
+  </div>
+  <div class="card-body">
+    <!-- Agent Profile Section -->
+    <div class="d-flex align-items-center mb-4">
+      <div class="flex-shrink-0">
+        @if (agent().avatar) {
+          <img 
+            [src]="agent().avatar" 
+            [alt]="agent().name"
+            class="rounded-circle"
+            style="width: 50px; height: 50px; object-fit: cover;"
+          />
+        } @else {
+          <div
+            class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+            style="width: 50px; height: 50px"
+          >
+            <i class="bi bi-person-fill text-muted fs-5"></i>
+          </div>
+        }
+      </div>
+      <div class="flex-grow-1 ms-3">
+        <h6 class="mb-0">{{ agent().name }}</h6>
+        <small class="text-muted">{{ agent().role }}</small>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    @if (submitSuccess()) {
+      <div class="alert alert-success mb-3" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        Message sent successfully!
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (submitError()) {
+      <div class="alert alert-danger mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ submitError() }}
+      </div>
+    }
+
+    <!-- Contact Form -->
+    <form [formGroup]="contactForm()" (ngSubmit)="onSubmit()" class="mb-4">
+      <div class="mb-3">
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Your Name"
+          formControlName="name"
+          [class.is-invalid]="hasError('name', 'required') || hasError('name', 'minlength')"
+        />
+        @if (hasError('name', 'required')) {
+          <div class="invalid-feedback">Name is required</div>
+        }
+        @if (hasError('name', 'minlength')) {
+          <div class="invalid-feedback">Name must be at least 2 characters</div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <input 
+          type="email" 
+          class="form-control" 
+          placeholder="Your Email"
+          formControlName="email"
+          [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')"
+        />
+        @if (hasError('email', 'required')) {
+          <div class="invalid-feedback">Email is required</div>
+        }
+        @if (hasError('email', 'email')) {
+          <div class="invalid-feedback">Please enter a valid email</div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <input 
+          type="tel" 
+          class="form-control" 
+          placeholder="Your Phone"
+          formControlName="phone"
+          [class.is-invalid]="hasError('phone', 'required') || hasError('phone', 'pattern')"
+        />
+        @if (hasError('phone', 'required')) {
+          <div class="invalid-feedback">Phone is required</div>
+        }
+        @if (hasError('phone', 'pattern')) {
+          <div class="invalid-feedback">Please enter a valid phone number</div>
+        }
+      </div>
+
+      <div class="mb-3">
+        <textarea 
+          class="form-control" 
+          placeholder="Message (Optional)" 
+          rows="4"
+          formControlName="message"
+          [class.is-invalid]="hasError('message', 'maxlength')"
+        ></textarea>
+        @if (hasError('message', 'maxlength')) {
+          <div class="invalid-feedback">Message must be less than 500 characters</div>
+        }
+      </div>
+
+      <button 
+        type="submit"
+        class="btn btn-primary w-100 mb-3"
+        [disabled]="!canSubmit()"
+      >
+        @if (isSubmitting()) {
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          Sending...
+        } @else {
+          <i class="bi bi-chat-left-text me-2"></i>
+          Send Message
+        }
+      </button>
+    </form>
+
+    <div class="d-grid gap-2">
+      <button 
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="onCallAgent()"
+      >
+        <i class="bi bi-telephone me-2"></i>
+        Call Agent
+      </button>
+      <button 
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="onEmailAgent()"
+      >
+        <i class="bi bi-envelope me-2"></i>
+        Email Agent
+      </button>
+    </div>
+  </div>
+</div>

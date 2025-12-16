@@ -1,0 +1,67 @@
+<div class="container-fluid px-4">
+  <div class="row px-4">
+    <!-- Breadcrumb with Angular 20 click handler -->
+    <div class="breadcrumb ms-1 mt-3">
+      <p>
+        <a (click)="navigateToHome()" 
+           style="cursor: pointer; color: rgb(48, 46, 46); text-decoration: none;"
+           role="button"
+           tabindex="0">Home</a>&nbsp;/&nbsp;About Us
+      </p>
+    </div>
+    
+    <!-- Title (keeping exact same styling) -->
+    <h2 class="ms-1 mt-4" style="color: #00264d">About US</h2>
+
+    <!-- Main content with Angular 20 loading state (invisible when not loading) -->
+    @if (!isLoading()) {
+      <section class="about-section">
+        <div class="about-row">
+          <div class="image-column">
+            <div class="image-container">
+              <img
+                src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80"
+                alt="Oasis Grounds Building"
+                class="building-image"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="content-column">
+            <div class="about-content">
+              <h2 class="about-title">About Oasis Grounds</h2>
+              
+              <!-- Dynamic content using Angular 20 signals (same visual output) -->
+              @for (content of getAboutContent(); track content.title) {
+                <p class="about-text">
+                  <span class="fw-bold">{{ content.title }}:</span> {{ content.description }}
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    } @else {
+      <!-- Loading state (hidden by default, same layout) -->
+      <section class="about-section">
+        <div class="about-row">
+          <div class="image-column">
+            <div class="image-container">
+              <div class="d-flex justify-content-center align-items-center h-100">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="content-column">
+            <div class="about-content">
+              <h2 class="about-title">Loading...</h2>
+              <p class="about-text">Please wait while we load the content.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+  </div>
+</div>

@@ -1,0 +1,102 @@
+.vh-25 {
+  height: 25vh;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.hover-opacity-100:hover {
+  opacity: 1 !important;
+}
+
+.hover-bg-light:hover {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.2), rgba(111, 66, 193, 0.2));
+}
+
+.space-y-5 > * + * {
+  margin-top: 1.5rem;
+}
+
+.btn-outline-secondary{
+  background-color: #34495e;
+}
+
+/* Responsive Design for User Dashboard */
+
+/* Laptop View (992px - 1200px) */
+@media (min-width: 992px) and (max-width: 1200px) {
+  .row {
+    gap: 15px;
+  }
+
+  .col-lg-3 {
+    flex: 0 0 260px;
+    max-width: 260px;
+  }
+
+  .col-lg-9 {
+    flex: 1;
+    max-width: calc(100% - 275px);
+    padding-left: 10px;
+  }
+}
+
+@media (max-width: 991px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .col-lg-3 {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .col-lg-9 {
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container-fluid {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .row {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .col-lg-3,
+  .col-lg-9 {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .min-vh-100 {
+    padding: 0;
+  }
+
+  .container-fluid {
+    padding: 0;
+  }
+
+  .row {
+    margin: 0;
+  }
+
+  .col-lg-3,
+  .col-lg-9 {
+    padding: 0;
+  }
+}

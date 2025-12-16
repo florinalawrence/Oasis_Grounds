@@ -1,0 +1,18 @@
+export interface ISearchPropertyDetails {
+  searchWithCountry: string,
+  searchWithZipcode: number[],
+  searchWithState: string,
+  type: string[],
+  status: string,
+  sortFilter: string,
+  minArea: any,
+  maxArea: any,
+  size: string,
+  minPrice: any,
+  maxPrice: any,
+  minAge: string,
+  maxAge: string,
+  pageNo: any,
+  limit: any,
+  city:string[],
+}

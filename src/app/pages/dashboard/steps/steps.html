@@ -1,0 +1,37 @@
+<section id="feature" class="feature-section">
+  <div class="container-fluid px-5">
+    <div class="row">
+      <div class="col-12">
+        <div class="heading heading-2 text-center mb-5">
+          <h1 class="heading--title" style="color: #00264d">Simple Steps</h1>
+          <p class="heading--desc">
+            We gladly announce to follow the below steps to achieve your goals.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      @for (step of orderedSteps(); track step.id) {
+        <div 
+          class="col-12 col-md-6 col-lg-4 d-flex"
+          [class.mx-md-auto]="isLastStep(step)"
+        >
+          <div class="feature-panel flex-fill">
+            <div class="feature--icon">
+              <img 
+                [src]="step.iconPath" 
+                [alt]="step.altText"
+                (error)="onImageError($event)"
+              />
+            </div>
+            <div class="feature--content">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.description }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

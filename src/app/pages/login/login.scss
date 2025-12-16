@@ -1,0 +1,288 @@
+body {
+  background-color: #f0f8ff;
+}
+
+.login-section {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  min-height: 100vh;
+  padding-top: 50px;
+}
+
+.form-box {
+  max-width: 480px !important;
+  margin: 0 auto !important;
+  padding: 40px 30px !important;
+  background-color: #fff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+  z-index: 10 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.login-btn {
+  background: linear-gradient(90deg, rgba(107, 150, 247, 1) 0%, rgba(22, 105, 246, 1) 50%);
+  color: white;
+  font-size: 16px !important;
+  height: 45px;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.login-btn:hover {
+  background: white;
+  color: #0d6efd;
+  border: 1px solid #0d6efd;
+}
+
+.forgot-password,
+.sign-up {
+  color: #007bff;
+  font-size: 14px;
+}
+
+.forgot-password:hover,
+.sign-up:hover {
+  text-decoration: underline;
+}
+
+h3 {
+  font-weight: 700;
+  text-align: center;
+}
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.divider-line {
+  flex: 1;
+  border: 0;
+  border-top: 1px solid #6c757d;
+  opacity: .25;
+}
+
+.divider-text {
+  margin: 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.form-control {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.password-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  padding-right: 45px;
+  width: 100%;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+
+  &:hover {
+    color: #495057;
+  }
+
+  i {
+    pointer-events: none;
+  }
+}
+
+.container {
+  margin-bottom: 100px;
+}
+
+// Loading Spinner Overlay
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: #0d6efd;
+
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+// Invalid input styling
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+// Error message styling
+.err-msg {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+// Divider styling - UPDATED
+.divider-container {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider-line {
+  flex: 1;
+  border: 0;
+  border-top: 1px solid #6c757d;
+  opacity: .25;
+  margin: 0;
+}
+
+.divider-text {
+  padding: 0 15px;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+}
+
+// Button disabled state
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+// Links styling
+.forgot-password {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Google Sign-In button wrapper - UPDATED
+.google-signin-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  
+  &.loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+}
+
+.google-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+  z-index: 10;
+}
+
+// Google Button Styles - ADD THESE
+.asl-google-signin-button {
+  width: 100% !important;
+  display: block !important;
+  max-width: 100% !important;
+  
+  // Override default Google button styles
+  div[role="button"] {
+    width: 100% !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+  }
+}
+
+.newUserSection{
+  font-size: 14px;
+}
+
+// Form styling
+#login-section {
+  min-height: 100vh !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  padding-bottom: 80px !important;
+  
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+}
+
+.form-box {
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.form--title {
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+// Ensure the form group takes full width
+#login-section .form-box .form-group {
+  width: 100%;
+}
+
+// Center the Google button container
+.form-group .google-signin-wrapper {
+  display: flex;
+  justify-content: center;
+}

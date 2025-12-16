@@ -1,0 +1,39 @@
+.card {
+  margin-right: 0;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile View - 320px */
+@media (max-width: 575px) {
+  .card {
+    margin-right: 0;
+    margin-left: 0;
+    margin-top: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 1rem;
+  }
+}
+
+/* Tablet View - 768px */
+@media (min-width: 576px) and (max-width: 991px) {
+  .card {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-top: 2rem;
+  }
+}
+
+/* Laptop View - 1024px */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .card {
+  }
+}
+
+/* Desktop View - 1200px and up */
+@media (min-width: 1200px) {
+  .card {
+  }
+}

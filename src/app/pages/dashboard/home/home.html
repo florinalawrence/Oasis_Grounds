@@ -1,0 +1,194 @@
+<section class="carousel-section py-0">
+  <div class="container-fluid position-relative p-0">
+    <!-- Loading Indicator -->
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center" style="height: 400px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else {
+      <!-- Bootstrap Carousel -->
+      <div id="homeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+        <div class="carousel-indicators">
+          @for (image of carouselImages(); track image.id) {
+            <button
+              type="button"
+              data-bs-target="#homeCarousel"
+              [attr.data-bs-slide-to]="$index"
+              [class.active]="$index === 0"
+              [attr.aria-current]="$index === 0 ? 'true' : null"
+              [attr.aria-label]="'Slide ' + ($index + 1) + ': ' + image.alt"
+              (click)="goToSlide($index)"
+            ></button>
+          }
+        </div>
+
+        <div class="carousel-inner">
+          @for (image of carouselImages(); track image.id) {
+            <div 
+              class="carousel-item" 
+              [class.active]="$index === 0"
+              (click)="onCarouselImageClick(image)"
+              style="cursor: pointer;"
+            >
+              <img 
+                [src]="image.url" 
+                class="d-block w-100" 
+                [alt]="image.alt"
+                [title]="image.title"
+                loading="lazy"
+              />
+              <div class="carousel-overlay"></div>
+              @if (image.title || image.description) {
+                <div class="carousel-caption d-none d-md-block">
+                  @if (image.title) {
+                    <h5>{{ image.title }}</h5>
+                  }
+                  @if (image.description) {
+                    <p>{{ image.description }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#homeCarousel"
+          data-bs-slide="prev"
+          (click)="previousSlide()"
+          aria-label="Previous slide"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#homeCarousel"
+          data-bs-slide="next"
+          (click)="nextSlide()"
+          aria-label="Next slide"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+
+      <!-- Search Form Overlay -->
+      <div class="search-form-overlay">
+        <div class="row">
+          <h1 class="text-center text-white mb-2" style="font-size: 30px !important">
+            Find Your Favorite Property
+          </h1>
+        </div>
+
+        <form
+          class="font-weight-bold"
+          [formGroup]="searchFilterForm"
+          (ngSubmit)="onSubmitSearchData()"
+          autocomplete="off"
+          novalidate
+          data-bs-theme="light"
+        >
+          <div class="form-box">
+            <div class="row g-3">
+              <!-- Location Select -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="form-group">
+                  <div class="select--box">
+                    <select
+                      class="form-select"
+                      formControlName="country"
+                      aria-label="Select Location"
+                      (change)="onChangeCountry($event)"
+                    >
+                      <option value="">Select Location</option>
+                      @for (country of countryCodes(); track country.code) {
+                        <option [value]="country.name">{{ country.name }}</option>
+                      }
+                    </select>
+                    <i class="fa fa-angle-down"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Property Type Select -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="form-group">
+                  <div class="select--box">
+                    <select
+                      class="form-select"
+                      formControlName="propertyType"
+                      aria-label="Select Property Type"
+                      (change)="onChangePropertyType($event)"
+                    >
+                      <option value="">Any Type</option>
+                      @for (type of propertyTypes(); track type.value) {
+                        <option [value]="type.value">{{ type.label }}</option>
+                      }
+                    </select>
+                    <i class="fa fa-angle-down"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Status Select -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="form-group">
+                  <div class="select--box">
+                    <select
+                      class="form-select"
+                      formControlName="status"
+                      aria-label="Select Status"
+                      (change)="onChangeStatus($event)"
+                    >
+                      <option value="">Any Status</option>
+                      @for (status of propertyStatuses(); track status.value) {
+                        <option [value]="status.value">{{ status.label }}</option>
+                      }
+                    </select>
+                    <i class="fa fa-angle-down"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Search Button -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="d-flex gap-2">
+                  <button
+                    type="submit"
+                    class="btn module-property d-flex align-items-center justify-content-center flex-grow-1"
+                    [disabled]="isLoading()"
+                  >
+                    @if (isLoading()) {
+                      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Searching...
+                    } @else {
+                      <i class="fas fa-search me-2"></i>Search
+                    }
+                  </button>
+                  
+                  @if (hasSearchCriteria()) {
+                    <button
+                      type="button"
+                      class="btn btn-outline-light"
+                      (click)="onClearSearch()"
+                      title="Clear search"
+                      aria-label="Clear search filters"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</section>

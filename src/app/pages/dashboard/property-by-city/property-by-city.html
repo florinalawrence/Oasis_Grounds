@@ -1,0 +1,33 @@
+<section id="city-property" class="city-property text-center">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="heading heading-2 text-center">
+          <h1 class="heading--title">Property By City</h1>
+          <p class="heading--desc">
+            Each place is a good choice, it will help you make the right decision, do not miss the
+            opportunity to discover our wonderful properties.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      @for (city of cities(); track city.id) {
+        <div class="col-md-3">
+          <div class="card shadow-sm">
+            <img
+              [src]="city.imagePath"
+              class="card-img-top"
+              [alt]="city.altText"
+              (error)="onImageError($event)"
+            />
+            <div class="card-body">
+              <h5 class="card-title">{{ city.name }}</h5>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

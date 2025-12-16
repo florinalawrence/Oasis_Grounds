@@ -1,0 +1,82 @@
+<div class="otp-container">
+  <div class="otp-card mt-5">
+    <h4 class="form--title mb-4">Verify Your Account</h4>
+
+    <form [formGroup]="otpVerifyForm" id="otpVerifyForm" autocomplete="off" novalidate>
+      <div class="otp-inputs">
+        <input
+          type="text"
+          class="otp-input"
+          maxlength="1"
+          pattern="[0-9]"
+          inputmode="numeric"
+          id="otp-1"
+          formControlName="value1"
+          (input)="handleInput(0, $event)"
+          (keydown)="handleKeydown(1, $event)"
+        />
+        <input
+          type="text"
+          class="otp-input"
+          maxlength="1"
+          pattern="[0-9]"
+          inputmode="numeric"
+          id="otp-2"
+          formControlName="value2"
+          (input)="handleInput(1, $event)"
+          (keydown)="handleKeydown(2, $event)"
+        />
+        <input
+          type="text"
+          class="otp-input"
+          maxlength="1"
+          pattern="[0-9]"
+          inputmode="numeric"
+          id="otp-3"
+          formControlName="value3"
+          (input)="handleInput(2, $event)"
+          (keydown)="handleKeydown(3, $event)"
+        />
+        <input
+          type="text"
+          class="otp-input"
+          maxlength="1"
+          pattern="[0-9]"
+          inputmode="numeric"
+          id="otp-4"
+          formControlName="value4"
+          (input)="handleInput(3, $event)"
+          (keydown)="handleKeydown(4, $event)"
+        />
+      </div>
+
+      <div class="error-message" *ngIf="btnSubmitted && otpVerifyForm.invalid">
+        <small class="text-danger">Please enter the complete 4-digit OTP code</small>
+      </div>
+
+      <div class="resend-section">
+        Didn't receive the code?
+        <a class="resend-link" id="resendBtn" (click)="resendOTP()">Resend</a>
+        <span class="timer" id="timer" style="display: none"></span>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-verify" 
+        #verifyButton 
+        (click)="verifyOTP()"
+        [disabled]="!otpVerifyForm.valid">
+        Verify Account
+      </button>
+
+
+    </form>
+
+    <div class="back-link">
+      <a routerLink="/register" id="backBtn">
+        <i class="bi bi-arrow-left"></i> Back to Registration
+      </a>
+    </div>
+  </div>
+</div>
+

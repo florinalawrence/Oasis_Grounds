@@ -1,0 +1,139 @@
+<section id="page-title" class="page-title bg-overlay bg-overlay-dark2">
+  <div class="bg-section"></div>
+</section>
+
+<section id="login-section">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-12 loginSection">
+        <div class="form-box login--form">
+          <form id="loginForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()" autocomplete="false" novalidate role="form">
+            <h4 class="form--title text-center">Login</h4>
+
+            <!-- Email Field -->
+            <div class="form-group mb-3 mt-3">
+              <label for="iptEmail" class="col-form-label label-style">Email</label>
+              <input 
+                name="email" 
+                formControlName="email" 
+                type="email" 
+                placeholder="Email Address" 
+                autocomplete="off"
+                [ngClass]="{'is-invalid': isFieldInvalid('email')}" 
+                class="form-control ipt-boxStyle"
+                id="iptEmail" 
+                required>
+
+              @if (isFieldInvalid('email')) {
+                <div class="text-danger err-msg ps-2">
+                  @if (loginForm.get('email')?.hasError('required')) {
+                    <span class="text-danger">Email is Required</span>
+                  }
+                  @if (loginForm.get('email')?.hasError('email')) {
+                    <span class="text-danger">Please Enter a Valid Email!</span>
+                  }
+                  @if (loginForm.get('email')?.hasError('noSpaceAllowed')) {
+                    <div>Email Address cannot Contain a Space.</div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group mb-1">
+              <label for="password">Password</label>
+              <div class="password-field-wrapper position-relative">
+                <input 
+                  name="password" 
+                  [type]="showPassword ? 'text' : 'password'" 
+                  class="form-control ipt-boxStyle password-input"
+                  id="iptPwd" 
+                  placeholder="Password" 
+                  formControlName="password" 
+                  autocomplete="off"
+                  [ngClass]="{'is-invalid': isFieldInvalid('password')}" 
+                  required>
+                <span 
+                  class="password-toggle-icon position-absolute top-50 end-0 translate-middle-y pe-3"
+                  (click)="togglePasswordVisibility()" 
+                  style="cursor: pointer; z-index: 10">
+                  <i class="rightAlignIcons bi" 
+                     [ngClass]="{
+                       'bi-eye-fill': !showPassword,
+                       'bi-eye-slash-fill': showPassword
+                     }" 
+                     aria-hidden="true"></i>
+                </span>
+              </div>
+              
+              @if (isFieldInvalid('password')) {
+                <div class="text-danger err-msg ps-2">
+                  @if (loginForm.get('password')?.hasError('required')) {
+                    <span class="text-danger">Password is Required</span>
+                  }
+                  @if (loginForm.get('password')?.hasError('noSpaceAllowed')) {
+                    <span>Password Cannot Contain a Space!</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Forgot Password Link -->
+            <div class="form-group mb-3">
+              <p class="text-end">
+                <a [routerLink]="'/forgot-password'" class="forgot-pwd-style text-decoration-none">
+                  Forgot Password?
+                </a>
+              </p>
+            </div>
+
+         
+
+            <!-- Login Button -->
+            <div class="form-group mb-3">
+              <button type="submit" value="Login" name="submit" class="login-btn btn btn--primary btn--block w-100">
+                Login
+              </button>
+            </div>
+
+               <!-- Sign Up Link -->
+            <div class="newUserSection mb-3 text-center">
+              New User?
+              <a class="btn-popup text-decoration-underline" [routerLink]="'/register'">Sign Up</a>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider-container d-flex align-items-center my-3">
+              <hr class="divider-line flex-grow-1" />
+              <p class="divider-text px-3 mb-0 text-muted">or Login with</p>
+              <hr class="divider-line flex-grow-1" />
+            </div>
+
+            <!-- Google Sign-In Button -->
+            <div class="form-group">
+              <div class="google-signin-wrapper text-center">
+                <asl-google-signin-button
+                  type="standard"
+                  size="large"
+                  text="signin_with"
+                  theme="outline"
+                  logo_alignment="left">
+                </asl-google-signin-button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Loading Spinner -->
+<ngx-spinner 
+  bdColor="rgba(0, 0, 0, 0.2)" 
+  size="medium" 
+  color="#fff" 
+  type="ball-clip-rotate" 
+  [fullScreen]="true">
+</ngx-spinner>

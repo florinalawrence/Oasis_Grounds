@@ -1,0 +1,96 @@
+<form autocomplete="false" (ngSubmit)="onSubmitFeatureData()">
+  <div class="card shadow-sm mt-4" style="max-width: 1200px;">
+    <h3 class="card-title p-3 mb-0 border-bottom">
+      About Property
+    </h3>
+   
+    <div class="card-body p-3">
+      <!-- Property Features -->
+      <div class="feature-section mb-4">
+        <label class="section-label">
+          Property Features
+        </label>
+        
+        <mat-form-field class="amenity-chip-list w-100" appearance="outline">
+          <mat-chip-grid #amenityChipGrid aria-label="Feature Selection">
+            <mat-chip-row *ngFor="let amenity of amenities" (removed)="removeAmenity(amenity)">
+              {{amenity}}
+              <button matChipRemove [attr.aria-label]="'remove ' + amenity">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            <input 
+              placeholder="Type to search or add custom features..." 
+              #amenityInput 
+              [formControl]="amenityCtrl" 
+              [matChipInputFor]="amenityChipGrid"
+              [matAutocomplete]="autoAmenity" 
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodesForAmenity"
+              (matChipInputTokenEnd)="addAmenity($event)"
+              class="form-control border-0">
+          </mat-chip-grid>
+          <mat-autocomplete #autoAmenity="matAutocomplete" (optionSelected)="selectedAmenity($event)">
+            <mat-option *ngFor="let filterData of filteredAmenities | async" [value]="filterData">
+              {{filterData}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        
+        <div class="text-danger small mt-1" *ngIf="amenityMatchCount > 0">
+          Amenity already exists!
+        </div>
+        <div class="text-danger small mt-1" *ngIf="errMsg?.amenity">
+          {{errMsg.amenity}}
+        </div>
+      </div>
+
+      <!-- Property Facilities -->
+      <div class="feature-section mb-4">
+        <label class="section-label">
+          Manage Facility For Property
+        </label>
+        
+        <mat-form-field class="facility-chip-list w-100" appearance="outline">
+          <mat-chip-grid #chipGrid1 aria-label="Facility Selection">
+            <mat-chip-row *ngFor="let facility of facilities" (removed)="removeFacility(facility)">
+              {{facility}}
+              <button matChipRemove [attr.aria-label]="'remove ' + facility">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            <input 
+              placeholder="Type to search or add custom facilities..." 
+              #facilityInput 
+              [formControl]="facilityCtrl" 
+              [matChipInputFor]="chipGrid1"
+              [matAutocomplete]="auto" 
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodesForFacility"
+              (matChipInputTokenEnd)="addFacility($event)">
+          </mat-chip-grid>
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedFacility($event)">
+            <mat-option *ngFor="let filterData of filteredFacilities | async" [value]="filterData">
+              {{filterData}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        
+        <div class="text-danger small mt-1" *ngIf="facilityMatchCount > 0">
+          Facility already exists!
+        </div>
+        <div class="text-danger small mt-1" *ngIf="errMsg?.managingFacility">
+          {{errMsg.managingFacility}}
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="justify-content-end gap-3 pt-4 module-property d-flex align-items-center">
+        <button type="button" (click)="clearData()" class="btn btn-outline-secondary">
+          Clear All
+        </button>
+        <button type="submit" class="btn btn-primary shadow-sm">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</form>

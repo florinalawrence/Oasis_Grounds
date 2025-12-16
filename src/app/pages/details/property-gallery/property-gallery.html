@@ -1,0 +1,121 @@
+<div class="gallery-container">
+  <div class="gallery-card">
+    <!-- Main Image Container -->
+    <div class="main-image-container">
+      <img
+        [src]="images[currentIndex]"
+        [alt]="'Property image ' + (currentIndex + 1)"
+        class="main-image"
+      />
+
+      <!-- Image Counter -->
+      <div class="image-counter">
+        <span>{{ currentIndex + 1 }} / {{ images.length }}</span>
+      </div>
+
+      <!-- Navigation Arrows -->
+      <button class="nav-btn nav-btn-left" (click)="prevImage()" aria-label="Previous image">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <button class="nav-btn nav-btn-right" (click)="nextImage()" aria-label="Next image">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Thumbnail Strip -->
+    <div class="thumbnail-strip">
+      <div class="thumbnail-container">
+        <button
+          *ngFor="let image of images; let i = index"
+          class="thumbnail-btn"
+          [class.active]="currentIndex === i"
+          (click)="selectImage(i)"
+          [attr.aria-label]="'View image ' + (i + 1)"
+        >
+          <img [src]="image" [alt]="'Thumbnail ' + (i + 1)" class="thumbnail-image" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Modal -->
+  <div *ngIf="isFullscreen" class="fullscreen-modal" (click)="closeFullscreen()">
+    <button class="close-btn" (click)="closeFullscreen()" aria-label="Close fullscreen">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+
+    <img
+      [src]="images[currentIndex]"
+      [alt]="'Property image ' + (currentIndex + 1)"
+      class="fullscreen-image"
+      (click)="$event.stopPropagation()"
+    />
+
+    <!-- Fullscreen Navigation -->
+    <button
+      class="fullscreen-nav-btn fullscreen-nav-left"
+      (click)="prevImage(); $event.stopPropagation()"
+      aria-label="Previous image"
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+    <button
+      class="fullscreen-nav-btn fullscreen-nav-right"
+      (click)="nextImage(); $event.stopPropagation()"
+      aria-label="Next image"
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </button>
+
+    <!-- Fullscreen Counter -->
+    <div class="fullscreen-counter">
+      <span>{{ currentIndex + 1 }} / {{ images.length }}</span>
+    </div>
+  </div>
+</div>

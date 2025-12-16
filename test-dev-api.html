@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Development API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Production API Database Test</h1>
+    <p><strong>API URL:</strong> https://api.oasisgrounds.com/jmr-properties-api/v1/</p>
+    
+    <button onclick="testBasicConnection()">Test Basic Connection</button>
+    <button onclick="testPropertySearch()">Test Property Search</button>
+    <button onclick="testRandomProperties()">Test Random Properties</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'https://api.oasisgrounds.com/jmr-properties-api/v1/';
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testBasicConnection() {
+            clearResults();
+            addResult('🔗 Testing basic API connection...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + 'public/browse/property/open/search?limit=1', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                addResult(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('✅ API is reachable!', 'success');
+                    addResult(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'info');
+                } else {
+                    addResult('❌ API returned an error', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testPropertySearch() {
+            clearResults();
+            addResult('🔍 Testing property search endpoint...', 'info');
+            
+            const searchData = {
+                searchWithCountry: '',
+                type: [],
+                sortFilter: '',
+                status: '',
+                pageNo: 1,
+                limit: 10
+            };
+            
+            try {
+                const response = await fetch(API_BASE + 'public/browse/property/open/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(searchData)
+                });
+                
+                addResult(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    let propertyCount = 0;
+                    if (data?.data && Array.isArray(data.data)) {
+                        propertyCount = data.data.length;
+                    } else if (Array.isArray(data)) {
+                        propertyCount = data.length;
+                    } else if (data?.recordInfo && Array.isArray(data.recordInfo)) {
+                        propertyCount = data.recordInfo.length;
+                    }
+                    
+                    if (propertyCount > 0) {
+                        addResult(`✅ Found ${propertyCount} properties in development database!`, 'success');
+                    } else {
+                        addResult('📭 No properties found in development database', 'info');
+                    }
+                    
+                    addResult(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'info');
+                } else {
+                    addResult('❌ Search request failed', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Search failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testRandomProperties() {
+            clearResults();
+            addResult('🎲 Testing random properties endpoint...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + 'public/browse/property/random', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                addResult(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    let propertyCount = 0;
+                    if (data?.data && Array.isArray(data.data)) {
+                        propertyCount = data.data.length;
+                    } else if (Array.isArray(data)) {
+                        propertyCount = data.length;
+                    } else if (data?.recordInfo && Array.isArray(data.recordInfo)) {
+                        propertyCount = data.recordInfo.length;
+                    }
+                    
+                    if (propertyCount > 0) {
+                        addResult(`✅ Found ${propertyCount} random properties!`, 'success');
+                    } else {
+                        addResult('📭 No random properties available', 'info');
+                    }
+                    
+                    addResult(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'info');
+                } else {
+                    addResult('❌ Random properties request failed', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Random properties test failed: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+</content>

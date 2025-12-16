@@ -1,0 +1,88 @@
+<header class="main-header shadow-sm" [class.scrolled]="isScrolled()">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white py-2 px-4">
+    <div class="container-fluid">
+      <!-- Logo with routerLink -->
+      <a class="navbar-brand d-flex align-items-center me-2" [routerLink]="['/home']">
+        <!-- @if (isScrolled()) {
+          <img class="logo-dark" src="assets/images/logo/logo-dark.png" alt="Logo" />
+        } -->
+        @if (!isScrolled()) {
+          <img class="logo-light" src="assets/images/logo/logoDark.png" alt="Logo" />
+        }
+      </a>
+
+      <!-- Navbar Toggle for Mobile -->
+      <button class="navbar-toggler" type="button" (click)="toggleNavbar()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar Links -->
+      <div class="collapse navbar-collapse" [ngClass]="{'show': isNavbarCollapsed()}" #navbarCollapse>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" 
+               [routerLink]="['/home']" 
+               routerLinkActive="active"
+               [routerLinkActiveOptions]="{exact: true}"
+               (click)="closeNavbar()">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" 
+               [routerLink]="['/all-property']" 
+               routerLinkActive="active"
+               (click)="closeNavbar()">All Properties</a>
+          </li>
+          @if (hasLoggedIn()) {
+            <li class="nav-item">
+              <a class="nav-link"
+                 [routerLink]="['/user-dashboard/my-property']"
+                 routerLinkActive="active"
+                 (click)="closeNavbar()">My Properties</a>
+            </li>
+          }
+          <li class="nav-item">
+            <a class="nav-link"
+               [routerLink]="['/about']"
+               routerLinkActive="active"
+               (click)="closeNavbar()">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"
+               [routerLink]="['/contact']"
+               routerLinkActive="active"
+               (click)="closeNavbar()">Contact</a>
+          </li>
+        </ul>
+
+        <!-- Login / Logout / Profile Section -->
+        <div class="d-flex">
+          @if (hasLoggedIn()) {
+            <div class="user-dropdown-container" 
+                 (mouseenter)="showDropdown = true" 
+                 (mouseleave)="showDropdown = false"
+                 (click)="toggleDropdown()">
+              <a class="nav-link user-welcome-link" href="#" (click)="$event.preventDefault()">
+                <span>Welcome{{ userName() ? ' ' + userName() : '' }}</span>
+              </a>
+              <ul class="custom-dropdown-menu" [class.show]="showDropdown" style="margin-top: 0px;">
+                <li><a class="dropdown-item" [routerLink]="['/user-dashboard']" (click)="closeNavbar()">User Dashboard</a></li>
+                <li><a class="dropdown-item" (click)="logOut()">Logout</a></li>
+              </ul>
+            </div>
+          }
+          @if (!hasLoggedIn()) {
+            <div>
+              <a class="btn btn-outline-primary" [routerLink]="['/login']" (click)="closeNavbar()">Login</a>
+              <!-- <a class="btn btn-outline-primary" [routerLink]="['/register']" (click)="closeNavbar()">Register</a> -->
+            </div>
+          }
+        </div>
+
+        <!-- Add Property Button -->
+        <div class="module module-property pull-right ms-5">
+          <a class="btn btn-pop" (click)="navigateToAddProperty()">Add Property</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

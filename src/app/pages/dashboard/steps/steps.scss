@@ -1,0 +1,330 @@
+:root {
+  --primary-color: #00264d;
+  --secondary-color: #eef2f6;
+  --text-color: #333;
+  --white: #ffffff;
+}
+
+
+
+.feature-section {
+  background-color: var(--secondary-color);
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.heading--title {
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.heading--desc {
+  color: #6c757d;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature-panel {
+  transition: all 0.4s ease;
+  background-color: white;
+  color: var(--text-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 30px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), #0d6efd);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.feature-panel:hover {
+  background-color: #00264d !important ;
+
+  color: var(--white);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.feature-panel:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-panel:hover h3,
+.feature-panel:hover p {
+  color: var(--white);
+}
+
+.feature-panel:hover .feature--icon img {
+  filter: brightness(0) invert(1);
+  transform: scale(1.1);
+}
+
+.feature--icon {
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.feature--icon img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.feature--content h3 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+.feature--content p {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+  line-height: 1.6;
+}
+
+.flex-fill:hover {
+  color: white;
+}
+
+/* Step indicators for larger screens */
+.step-indicator {
+  display: none;
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+/* Mobile View - 320px */
+@media (max-width: 575.98px) {
+  .feature-section {
+    padding: 30px 15px;
+  }
+
+  .heading--title {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .heading--desc {
+    font-size: 0.9rem;
+    padding: 0 10px;
+    line-height: 1.5;
+  }
+
+  .feature-panel {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+    min-height: 220px;
+  }
+
+  .feature--icon {
+    margin-bottom: 0.75rem;
+  }
+
+  .feature--icon img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .feature--content h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature--content p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .step-indicator {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
+
+/* Tablet View - 768px */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .feature-section {
+    padding: 40px 20px;
+  }
+
+  .heading--title {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .heading--desc {
+    font-size: 1rem;
+    padding: 0 20px;
+  }
+
+  .feature-panel {
+    padding: 25px 18px;
+    margin-bottom: 25px;
+    min-height: 200px;
+  }
+
+  .feature--icon {
+    margin-bottom: 1rem;
+  }
+
+  .feature--icon img {
+    width: 55px;
+    height: 55px;
+  }
+
+  .feature--content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature--content p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .step-indicator {
+    display: flex;
+  }
+}
+
+/* Laptop View - 1024px */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .feature-section {
+    padding: 50px 30px;
+  }
+
+  .heading--title {
+    font-size: 1.9rem;
+  }
+
+  .heading--desc {
+    font-size: 1.05rem;
+    max-width: 700px;
+  }
+
+  .feature-panel {
+    padding: 28px 22px;
+    min-height: 280px;
+  }
+
+  .feature--icon {
+    margin-bottom: 1.2rem;
+  }
+
+  .feature--icon img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .feature--content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature--content p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .step-indicator {
+    display: flex;
+  }
+}
+
+/* Desktop View - 1200px and up */
+@media (min-width: 1200px) {
+  .feature-section {
+    padding: 60px 40px;
+  }
+
+  .heading--title {
+    font-size: 2rem;
+  }
+
+  .heading--desc {
+    font-size: 1.1rem;
+    max-width: 800px;
+  }
+
+  .feature-panel {
+    padding: 30px 25px;
+    min-height: 200px;
+  }
+
+  .feature--icon {
+    margin-bottom: 1.25rem;
+  }
+
+  .feature--icon img {
+    width: 65px;
+    height: 65px;
+  }
+
+  .feature--content h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature--content p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .step-indicator {
+    display: flex;
+  }
+}
+
+/* Animation for step indicators */
+@keyframes pulse {
+  0% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+.feature-panel:hover .step-indicator {
+  animation: pulse 1s infinite;
+  background-color: #0d6efd;
+}

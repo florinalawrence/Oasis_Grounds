@@ -1,0 +1,310 @@
+// .document-container {
+//   padding: 0 15px;
+//   margin-top: 15px;
+// }
+
+// .card {
+//   border-radius: 6px;
+//   border: 1px solid #e0e0e0;
+//   overflow: hidden;
+// }
+
+// .card-header {
+//   background: linear-gradient(90deg, rgba(64, 139, 235, 1) 0%, rgba(97, 160, 241, 1) 31%, rgba(97, 160, 241, 1) 59%, rgba(64, 139, 235, 1) 100%);
+//   padding: 12px 20px;
+//   border: none;
+
+//   .card-title {
+//     color: white;
+//     font-size: 1rem;
+//     font-weight: 600;
+//     margin: 0;
+//     display: flex;
+//     align-items: center;
+//   }
+// }
+
+// .card-body {
+//   padding: 20px;
+// }
+
+// .upload-section {
+//   .form-label {
+//     font-size: 0.9rem;
+//     font-weight: 500;
+//     color: #333;
+//     margin-bottom: 10px;
+//     display: block;
+
+//     i {
+//       color: rgba(64, 139, 235, 1);
+//     }
+//   }
+// }
+
+// .file-upload-wrapper {
+//   position: relative;
+
+//   .file-input {
+//     display: none;
+//   }
+
+//   .file-upload-label {
+//     display: flex;
+//     flex-direction: column;
+//     align-items: center;
+//     justify-content: center;
+//     padding: 30px;
+//     border: 2px dashed #ddd;
+//     border-radius: 6px;
+//     background: #fafbfc;
+//     cursor: pointer;
+//     transition: all 0.2s ease;
+
+//     &:hover {
+//       border-color: rgba(64, 139, 235, 1);
+//       background: rgba(64, 139, 235, 0.05);
+
+//       i {
+//         color: rgba(64, 139, 235, 1);
+//         transform: translateY(-3px);
+//       }
+//     }
+
+//     i {
+//       font-size: 2.5rem;
+//       color: #aaa;
+//       margin-bottom: 10px;
+//       transition: all 0.2s ease;
+//     }
+
+//     span {
+//       font-size: 0.95rem;
+//       color: #555;
+//       font-weight: 500;
+//       margin-bottom: 5px;
+//     }
+
+//     small {
+//       font-size: 0.8rem;
+//       color: #888;
+//     }
+//   }
+// }
+
+// @media (max-width: 992px) {
+//   .document-container {
+//     padding: 0 10px;
+//   }
+
+//   .card-header {
+//     padding: 10px 15px;
+
+//     .card-title {
+//       font-size: 0.95rem;
+//     }
+//   }
+
+//   .card-body {
+//     padding: 15px;
+//   }
+// }
+
+// @media (max-width: 768px) {
+//   .document-container {
+//     padding: 0 5px;
+//     margin-top: 10px;
+//   }
+
+//   .upload-section .form-label {
+//     font-size: 0.85rem;
+//   }
+
+//   .file-upload-label {
+//     padding: 20px;
+
+//     i {
+//       font-size: 2rem;
+//     }
+
+//     span {
+//       font-size: 0.9rem;
+//     }
+
+//     small {
+//       font-size: 0.75rem;
+//     }
+//   }
+// }
+
+// @media (max-width: 576px) {
+//   .card-header .card-title {
+//     font-size: 0.9rem;
+
+//     i {
+//       font-size: 0.9rem;
+//     }
+//   }
+
+//   .file-upload-label {
+//     padding: 15px;
+//   }
+// }
+
+// .card{
+//     margin-left: 10px;
+//     margin-bottom: 10px;
+// }
+
+.card {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.section-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+// Document Gallery Styles
+.document-gallery {
+  .document-card {
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+      border-color: #0d6efd;
+    }
+
+    .btn-delete {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+      z-index: 10;
+      
+      &:hover {
+        opacity: 1;
+      }
+
+      i {
+        font-size: 14px;
+      }
+    }
+
+    .document-preview {
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      padding: 1rem;
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+
+    .document-name {
+      font-size: 0.85rem;
+      color: #495057;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    a {
+      color: inherit;
+      
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+// File Input Styling
+input[type="file"] {
+  &::-webkit-file-upload-button {
+    padding: 0.5rem 1rem;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #0b5ed7;
+    }
+  }
+
+  &::file-selector-button {
+    padding: 0.5rem 1rem;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #0b5ed7;
+    }
+  }
+}
+
+// Empty State
+.text-muted {
+  .bi-file-earmark-text {
+    color: #6c757d;
+  }
+}
+
+// Responsive Grid Gap
+.g-3 {
+  gap: 1rem;
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) {
+  .document-gallery {
+    .document-card {
+      .document-preview {
+        min-height: 100px;
+      }
+    }
+  }
+}
+
+// Tooltip Override
+::ng-deep {
+  .mat-mdc-tooltip {
+    font-size: 12px;
+  }
+}
+
+// Bootstrap Icons (if not already included globally)
+.bi {
+  display: inline-block;
+  vertical-align: middle;
+}

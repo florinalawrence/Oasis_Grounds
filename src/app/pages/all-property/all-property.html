@@ -1,0 +1,695 @@
+<!-- Remove the first 2 divs from the property card that were causing nesting issues -->
+<div class="container-fluid px-4">
+  <div class="row">
+    <!-- First Column - Sticky Filters -->
+    <div class="col-md-3 cd-sm-12 cd- sticky-column">
+      <div class="p-4">
+        <h3 class="section-title">Property Filters</h3>
+        <div class="accordion" id="accordionExample">
+          <!-- Accordion Item 1 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseOne"
+                aria-expanded="true"
+                aria-controls="collapseOne"
+              >
+                Property By Status
+              </button>
+            </h2>
+            <div
+              id="collapseOne"
+              class="accordion-collapse collapse show"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="accordion-body">
+                <p (click)="searchByStatus('rent')" style="cursor: pointer">For Rent</p>
+                <p (click)="searchByStatus('sale')" style="cursor: pointer">For Sale</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Item 2 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo"
+                aria-expanded="false"
+                aria-controls="collapseTwo"
+              >
+                Property By Type
+              </button>
+            </h2>
+            <div
+              id="collapseTwo"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="accordion-body">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="plots"
+                    (change)="searchByPropertyType('Plots')"
+                  />
+                  <label class="form-check-label" for="plots"><p>Plots</p></label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="apartments"
+                    (change)="searchByPropertyType('Apartments')"
+                  />
+                  <label class="form-check-label" for="apartments"><p>Apartments</p></label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="commercial"
+                    (change)="searchByPropertyType('Commercial')"
+                  />
+                  <label class="form-check-label" for="commercial"><p>Commercial</p></label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="villas"
+                    (change)="searchByPropertyType('Villas')"
+                  />
+                  <label class="form-check-label" for="villas"><p>Villas</p></label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="row-house"
+                    (change)="searchByPropertyType('Row House')"
+                  />
+                  <label class="form-check-label" for="row-house"><p>Row House</p></label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="agricultural-land"
+                    (change)="searchByPropertyType('Agricultural land')"
+                  />
+                  <label class="form-check-label" for="agricultural-land"
+                    ><p>Agricultural land</p></label
+                  >
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="farm-houses"
+                    (change)="searchByPropertyType('Farm Houses')"
+                  />
+                  <label class="form-check-label" for="farm-houses"><p>Farm Houses</p></label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="vacation-houses"
+                    (change)="searchByPropertyType('Vacation Houses')"
+                  />
+                  <label class="form-check-label" for="vacation-houses"
+                    ><p>Vacation Houses</p></label
+                  >
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="residential-complex"
+                    (change)="searchByPropertyType('Residential Complex')"
+                  />
+                  <label class="form-check-label" for="residential-complex"
+                    ><p>Residential Complex</p></label
+                  >
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="individual-houses"
+                    (change)="searchByPropertyType('Individual Houses')"
+                  />
+                  <label class="form-check-label" for="individual-houses"
+                    ><p>Individual Houses</p></label
+                  >
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="shops"
+                    (change)="searchByPropertyType('Shops')"
+                  />
+                  <label class="form-check-label" for="shops"><p>Shops</p></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Item 3 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseThree"
+                aria-expanded="false"
+                aria-controls="collapseThree"
+              >
+                Property By Range
+              </button>
+            </h2>
+            <div
+              id="collapseThree"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="accordion-body">
+                <form [formGroup]="rangeSearchForm">
+                  <!-- Area Section -->
+                  <div class="mb-4">
+                    <label class="form-label">Area</label>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Min"
+                          formControlName="areaMin"
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Max"
+                          formControlName="areaMax"
+                        />
+                      </div>
+                    </div>
+                    <div class="radio-group">
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="areaUnit"
+                          id="sqft"
+                          checked
+                        />
+                        <label class="form-check-label" for="sqft"> Sq.Ft </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="areaUnit" id="mts" />
+                        <label class="form-check-label" for="mts"> Mts </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Price Section -->
+                  <div class="mb-4">
+                    <label class="form-label">Price Range</label>
+                    <div class="price-range-container">
+                      <div class="price-values">
+                        <span class="price-min">{{ minPrice() | indianNumber }}</span>
+                        <span class="price-max">{{ priceRangeValue() | indianNumber }}</span>
+                      </div>
+                      <input
+                        type="range"
+                        class="form-range price-range-slider"
+                        [min]="minPrice()"
+                        [max]="maxPrice()"
+                        step="50000"
+                        [value]="priceRangeValue()"
+                        (input)="onPriceRangeChange($event)"
+                      />
+                      <div class="price-labels">
+                        <small>Min: {{ minPrice() | indianNumber }}</small>
+                        <small>Max: {{ maxPrice() | indianNumber }}</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Age Section -->
+                  <div class="mb-4">
+                    <label class="form-label">Age (in yrs)</label>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Min"
+                          formControlName="ageMin"
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Max"
+                          formControlName="ageMax"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Search Button -->
+                  <button type="button" class="btn btn-search" (click)="onSubmitRangeSearch()">
+                    Apply Filters
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Item 4 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseFour"
+                aria-expanded="false"
+                aria-controls="collapseFour"
+              >
+                Property By Location
+              </button>
+            </h2>
+            <div
+              id="collapseFour"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="accordion-body property-type-body">
+                <form [formGroup]="locSearchForm" (ngSubmit)="onSubmitLocationSearch()">
+                  <!-- Country Dropdown -->
+                  <div class="mb-3">
+                    <label class="form-label">Country</label>
+                    <select
+                      class="form-select"
+                      formControlName="country"
+                      (change)="onChangeCountry($event)"
+                    >
+                      <option selected>Select</option>
+                      <option value="india">India</option>
+                      <option value="usa">United States</option>
+                      <option value="uk">United Kingdom</option>
+                      <option value="australia">Australia</option>
+                      <option value="canada">Canada</option>
+                    </select>
+                  </div>
+
+                  <!-- State Dropdown -->
+                  <div class="mb-3">
+                    <label class="form-label">State</label>
+                    <select
+                      class="form-select"
+                      formControlName="state"
+                      (change)="onSelectStateChange($event)"
+                    >
+                      <option selected>Select State</option>
+                      @for (state of states(); track state) {
+                        <option [value]="state">{{ state }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <!-- City Chips -->
+                  <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <mat-chip-set aria-label="City selection">
+                      @for (city of cities(); track city) {
+                        <mat-chip (removed)="removeCity(city)">
+                          {{ city }}
+                          <button matChipRemove aria-label="'remove ' + city">
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip>
+                      }
+                      <input
+                        #cityInput
+                        placeholder="Add city..."
+                        [matChipInputFor]="chipGrid"
+                        [matChipInputSeparatorKeyCodes]="separatorKeysCodesForCity"
+                        [matChipInputAddOnBlur]="addOnCityBlur"
+                        (matChipInputTokenEnd)="addCity($event)"
+                      />
+                    </mat-chip-set>
+                  </div>
+
+                  <!-- Search Button -->
+                  <button type="submit" class="btn btn-search">Search Location</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Column - Scrollable Content -->
+    <div class="col-md-9 scrollable-column">
+      <div class="p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="section-title">Available Properties</h3>
+          <div class="sort-filter d-flex align-items-center">
+            <label for="sortSelect" class="mb-0">Sort by:</label>
+            <select
+              id="sortSelect"
+              class="form-select"
+              [ngModel]="selectedSort()"
+              (change)="onSelectSortFilter($event)"
+            >
+              <option value="default">Default Sorting</option>
+              <option value="newest">Newest Items</option>
+              <option value="oldest">Oldest Items</option>
+              <option value="highest">Highest Price</option>
+              <option value="lowest">Lowest Price</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Property Cards Flex Container -->
+        <div class="property-flex-container">
+          <!-- Loading Spinner -->
+          @if (isLoadingProperties()) {
+            <div class="loading-container">
+              <div class="loading-content">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-primary fw-semibold">Loading properties...</p>
+              </div>
+            </div>
+          }
+
+          <!-- No Properties Message -->
+          @if (!isLoading() && dataLoaded() && filteredProperties().length === 0) {
+            <div class="no-data-container-wrapper">
+              <div class="no-data-container">
+                <div class="no-data-icon">
+                  <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                </div>
+                <h4 class="text-muted mb-3">NO DATA FOUND</h4>
+                
+              </div>
+            </div>
+          }
+
+          <!-- Dynamic Property Cards -->
+          @for (property of filteredProperties(); track property.propertyId) {
+            <div
+              class="property-card"
+              (click)="navigateToDetails(property.propertyId)"
+              style="cursor: pointer"
+            >
+              <div class="card-img-container">
+                <img
+                  [src]="
+                    property.featuredImage ||
+                    'assets/images/no_image.png'
+                  "
+                  class="property-image"
+                  [alt]="property.propertyName"
+                  (error)="onImageError($event)"
+                />
+                <div class="badge-container">
+                  <span
+                    [ngClass]="{
+                      'status-badge': true,
+                      'for-sale': property.status === 'Sell',
+                      'for-rent': property.status === 'Rent'
+                    }"
+                  >
+                    {{ property.status === 'Sell' ? 'For Sale' : 'For Rent' }}
+                  </span>
+                  @if (property.propertyOwnerShip === 'Jmr Owned Property') {
+                    <div class="featured-ribbon">
+                      Featured
+                    </div>
+                  }
+                </div>
+                <div class="action-icons">
+                  <button class="action-btn favorite" (click)="$event.stopPropagation(); checkFavoriteData(property) ? removeFromWishList(property) : addToFavorites(property)">
+                    <i [class]="checkFavoriteData(property) ? 'fas fa-heart' : 'far fa-heart'"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="property-header">
+                  <div class="property-info">
+                    <h5 class="property-title">
+                      {{ (property.propertyName || 'Property Title') | titlecase }}
+                    </h5>
+                    <p class="property-location">
+                      <i class="fas fa-map-marker-alt"></i> {{ getLocationText(property) }}
+                    </p>
+                    @if (property.bedrooms || property.bedRooms) {
+                      <span class="bhk-badge">
+                        {{ getBHKText(property) }}
+                      </span>
+                    }
+                  </div>
+                  <div>
+                    <span class="price-label">Property price</span>
+                    <div class="property-price">
+                      @if (property.currency === 'INR') {
+                        @for (currency of currencyDetails(); track currency.code) {
+                          @if (currency.code === property.currency) {
+                            <div class="d-inline-flex align-items-center">
+                              <span [innerHTML]="currency?.symbol"></span>
+                              {{ property.price | currencyString : 2 }}
+                              @if (property.areaUnit || property.size) {
+                                <span class="price-unit">
+                                  /<small>{{ property.areaUnit || property.size }}</small>
+                                </span>
+                              }
+                            </div>
+                          }
+                        }
+                      } @else {
+                        @for (currency of currencyDetails(); track currency.code) {
+                          @if (currency.code === property.currency) {
+                            <div class="d-inline-flex align-items-center">
+                              <span [innerHTML]="currency?.symbol"></span>
+                              {{ property.price | indianNumber }}
+                              @if (property.areaUnit || property.size) {
+                                <span class="price-unit">
+                                  /<small>{{ property.areaUnit || property.size }}</small>
+                                </span>
+                              }
+                            </div>
+                          }
+                        }
+                      }
+                    </div>
+                  </div>
+                </div>
+                <hr />
+
+                <div class="investment-stats">
+                  <div class="stat-box d-flex justify-content-between align-items-center">
+                    <div class="stat-label">Posted By</div>
+                    <div class="stat-value highlight">
+                      {{ getPostedByText(property) | titlecase }}
+                    </div>
+                  </div>
+                  <div class="stat-box d-flex justify-content-between align-items-center">
+                    <div class="stat-label">Availability</div>
+                    <div class="stat-value" [ngClass]="getAvailabilityClass(property)">
+                      {{ getAvailabilityText(property) }}
+                    </div>
+                  </div>
+                  <div class="stat-box d-flex justify-content-between align-items-center">
+                    <div class="stat-label">Area</div>
+                    <div class="stat-value success">{{ getFormattedArea(property) }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        <!-- Pagination -->
+        @if (!isLoadingProperties() && totalPages() > 1 && filteredProperties().length > 0) {
+          <nav aria-label="Property pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="page() === 1">
+                <a
+                  class="page-link"
+                  href="#"
+                  (click)="onTableDataChange(page() - 1); $event.preventDefault()"
+                  tabindex="-1"
+                  [attr.aria-disabled]="page() === 1"
+                  >Previous</a
+                >
+              </li>
+              @for (pageNum of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="page() === $index + 1">
+                  <a
+                    class="page-link"
+                    href="#"
+                    (click)="onTableDataChange($index + 1); $event.preventDefault()"
+                    >{{ $index + 1 }}</a
+                  >
+                </li>
+              }
+              <li class="page-item" [class.disabled]="page() === totalPages()">
+                <a
+                  class="page-link"
+                  href="#"
+                  (click)="onTableDataChange(page() + 1); $event.preventDefault()"
+                  [attr.aria-disabled]="page() === totalPages()"
+                  >Next</a
+                >
+                </li>
+            </ul>
+          </nav>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Properties Section - All Devices -->
+  @if (featuredProperties().length > 0) {
+    <div class="row px-2">
+      <div class="col-md-12 scrollable-column">
+        <div class="p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title mb-0">Featured Properties</h3>
+            <div class="carousel-nav-buttons">
+              <button class="carousel-nav-btn" id="featuredPrev" aria-label="Previous">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="carousel-nav-btn" id="featuredNext" aria-label="Next">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Carousel Wrapper -->
+          <div class="carousel-wrapper py-4">
+            <div class="property-flex-container carousel-track" id="featuredCarousel">
+              <!-- Dynamic Featured Properties -->
+              @for (property of featuredProperties(); track property.propertyId) {
+                <div
+                  class="property-card"
+                  (click)="navigateToDetails(property.propertyId)"
+                  style="cursor: pointer"
+                >
+                  <div class="card-img-container">
+                    <img
+                      [src]="
+                        property.featuredImage ||
+                        'assets/images/no_image.png'
+                      "
+                      class="property-image"
+                      [alt]="property.propertyName"
+                      (error)="onImageError($event)"
+                    />
+                    <div class="badge-container">
+                      <span
+                        [ngClass]="{
+                          'status-badge': true,
+                          'for-sale': property.status === 'Sell',
+                          'for-rent': property.status === 'Rent'
+                        }"
+                      >
+                        {{ property.status === 'Sell' ? 'For Sale' : 'For Rent' }}
+                      </span>
+                      @if (property.propertyOwnerShip === 'Jmr Owned Property') {
+                        <div class="featured-ribbon">
+                          Featured
+                        </div>
+                      }
+                    </div>
+                    <div class="action-icons">
+                      <button class="action-btn favorite" (click)="$event.stopPropagation(); checkFavoriteData(property) ? removeFromWishList(property) : addToFavorites(property)">
+                        <i [class]="checkFavoriteData(property) ? 'fas fa-heart' : 'far fa-heart'"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="property-header">
+                      <div class="property-info">
+                        <h5 class="property-title">{{ property.propertyName | titlecase }}</h5>
+                        <p class="property-location">
+                          <i class="fas fa-map-marker-alt"></i> {{ getLocationText(property) }}
+                        </p>
+                        @if (property.bedrooms || property.bedRooms) {
+                          <span class="bhk-badge">
+                            {{ getBHKText(property) }}
+                          </span>
+                        }
+                      </div>
+                      <div>
+                        <span class="price-label mt-2 mb-2">Property price</span>
+                        <div class="property-price">
+                          @if (property.currency === 'INR') {
+                            @for (currency of currencyDetails(); track currency.code) {
+                              @if (currency.code === property.currency) {
+                                <div class="d-inline-flex align-items-center">
+                                  <span [innerHTML]="currency?.symbol"></span>
+                                  {{ property.price | currencyString : 2 }}
+                                </div>
+                              }
+                            }
+                          } @else {
+                            @for (currency of currencyDetails(); track currency.code) {
+                              @if (currency.code === property.currency) {
+                                <div class="d-inline-flex align-items-center">
+                                  <span [innerHTML]="currency?.symbol"></span>
+                                  {{ property.price | indianNumber }}
+                                </div>
+                              }
+                            }
+                          }
+                        </div>
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="investment-stats">
+                      <div class="stat-box d-flex justify-content-between align-items-center">
+                        <div class="stat-label">Posted By</div>
+                        <div class="stat-value highlight">
+                          {{ getPostedByText(property) | titlecase }}
+                        </div>
+                      </div>
+                      <div class="stat-box d-flex justify-content-between align-items-center">
+                        <div class="stat-label">Availability</div>
+                        <div class="stat-value" [ngClass]="getAvailabilityClass(property)">
+                          {{ getAvailabilityText(property) }}
+                        </div>
+                      </div>
+                      <div class="stat-box d-flex justify-content-between align-items-center">
+                        <div class="stat-label">Area</div>
+                        <div class="stat-value success">{{ getFormattedArea(property) }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

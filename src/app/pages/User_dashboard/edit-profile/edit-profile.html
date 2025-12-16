@@ -1,0 +1,332 @@
+<div class="card shadow-sm mt-3">
+  <div class="card-header border-bottom">
+    <h3 class="card-title mb-0">User Profile</h3>
+  </div>
+  <div class="card-body p-4">
+    <form [formGroup]="userProfileForm" (ngSubmit)="onSubmitUserProfileData()" class="space-y-5">
+      
+      <!-- User Type Selection -->
+      <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <label class="form-label-1 mb-0">Are you a</label>
+          <i
+            class="bi bi-info-circle text-muted cursor-pointer"
+            (click)="showReason()"
+            role="button"
+            title="Click for more information"
+          ></i>
+        </div>
+        <div class="d-flex gap-4">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="userType"
+              formControlName="userType"
+              id="individual"
+              value="Owner"
+            />
+            <label class="form-check-label" for="individual">Individual</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="userType"
+              formControlName="userType"
+              id="broker"
+              value="Broker"
+            />
+            <label class="form-check-label" for="broker">Broker</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="userType"
+              formControlName="userType"
+              id="company"
+              value="Company"
+            />
+            <label class="form-check-label" for="company">Company</label>
+          </div>
+        </div>
+        @if (btnSubmitted && f['userType']?.errors) {
+          <div class="text-danger small mt-2">
+            Please select a valid user type!
+          </div>
+        }
+      </div>
+
+      <!-- Company Information (shown when Company is selected) -->
+      @if (UserType.value === 'Company') {
+        <div class="mb-4">
+          <h4 class="h5 border-bottom pb-3">Company Information</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="companyName" class="form-label mt-3">Company Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="companyName"
+                formControlName="companyName"
+                placeholder="Enter company name"
+                [ngClass]="{'is-invalid': btnSubmitted && f['companyName'].errors}"
+              />
+              @if (btnSubmitted && f['companyName'].errors) {
+                <div class="text-danger small mt-1">
+                  @if (f['companyName'].errors['required']) {
+                    <span>Company Name is required</span>
+                  }
+                  @if (f['companyName'].errors['maxlength']) {
+                    <span>Company Name should be maximum 100 characters</span>
+                  }
+                  @if (f['companyName'].errors['error']) {
+                    <span>{{ f['companyName'].errors['error'] }}</span>
+                  }
+                </div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label for="companyType" class="form-label mt-3">Company Type</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="companyType"
+                formControlName="companyType"
+                placeholder="e.g., Real Estate Agency"
+                [ngClass]="{'is-invalid': btnSubmitted && f['companyType'].errors}"
+              />
+              @if (btnSubmitted && f['companyType'].errors) {
+                <div class="text-danger small mt-1">
+                  @if (f['companyType'].errors['required']) {
+                    <span>Company Type is required</span>
+                  }
+                  @if (f['companyType'].errors['pattern']) {
+                    <span>Alphanumeric with special characters !@#$&()-`.+,/" allowed</span>
+                  }
+                  @if (f['companyType'].errors['maxlength']) {
+                    <span>Company Type should be maximum 100 characters</span>
+                  }
+                  @if (f['companyType'].errors['error']) {
+                    <span>{{ f['companyType'].errors['error'] }}</span>
+                  }
+                </div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label for="companyAddr" class="form-label mt-3">Company Address</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="companyAddr"
+                formControlName="companyAddr"
+                placeholder="Enter company address"
+                [ngClass]="{'is-invalid': btnSubmitted && f['companyAddr'].errors}"
+              />
+              @if (btnSubmitted && f['companyAddr'].errors) {
+                <div class="text-danger small mt-1">
+                  @if (f['companyAddr'].errors['required']) {
+                    <span>Company Address is required</span>
+                  }
+                  @if (f['companyAddr'].errors['pattern']) {
+                    <span>Alphanumeric with special characters !@#$&()-`.+,/" allowed</span>
+                  }
+                  @if (f['companyAddr'].errors['maxlength']) {
+                    <span>Company Address cannot be greater than 200 characters</span>
+                  }
+                  @if (f['companyAddr'].errors['error']) {
+                    <span>{{ f['companyAddr'].errors['error'] }}</span>
+                  }
+                </div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label for="websiteUrl" class="form-label mt-3">Website URL</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="websiteUrl"
+                formControlName="websiteUrl"
+                placeholder="https://www.example.com"
+                [ngClass]="{'is-invalid': btnSubmitted && f['websiteUrl'].errors}"
+              />
+              @if (btnSubmitted && f['websiteUrl'].errors) {
+                <div class="text-danger small mt-1">
+                  @if (f['websiteUrl'].errors['pattern']) {
+                    <span>Please enter a valid website URL</span>
+                  }
+                  @if (f['websiteUrl'].errors['error']) {
+                    <span>{{ f['websiteUrl'].errors['error'] }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Personal Information (shown for Individual and Broker) -->
+      @if (UserType.value !== 'Company') {
+        <div class="mb-4">
+          <h4 class="h5 border-bottom pb-3">Personal Information</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="firstName" class="form-label mt-3">First Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firstName"
+                formControlName="firstName"
+                placeholder="Enter first name"
+                [ngClass]="{'is-invalid': btnSubmitted && f['firstName'].errors}"
+              />
+              @if (btnSubmitted && f['firstName'].errors) {
+                <div class="text-danger small mt-1">
+                  @if (f['firstName'].errors['required']) {
+                    <span>First Name is required</span>
+                  }
+                  @if (f['firstName'].errors['pattern']) {
+                    <span>Alphabets only allowed</span>
+                  }
+                  @if (f['firstName'].errors['minlength']) {
+                    <span>First Name should be minimum 3 characters</span>
+                  }
+                  @if (f['firstName'].errors['maxlength']) {
+                    <span>First Name should be maximum 50 characters</span>
+                  }
+                  @if (f['firstName'].errors['error']) {
+                    <span>{{ f['firstName'].errors['error'] }}</span>
+                  }
+                </div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label for="lastName" class="form-label mt-3">Last Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="lastName"
+                formControlName="lastName"
+                placeholder="Enter last name"
+                [ngClass]="{'is-invalid': btnSubmitted && f['lastName'].errors}"
+              />
+              @if (btnSubmitted && f['lastName'].errors) {
+                <div class="text-danger small mt-1">
+                  @if (f['lastName'].errors['required']) {
+                    <span>Last Name is required</span>
+                  }
+                  @if (f['lastName'].errors['pattern']) {
+                    <span>Alphabets only allowed</span>
+                  }
+                  @if (f['lastName'].errors['minlength']) {
+                    <span>Last Name should be minimum 1 character</span>
+                  }
+                  @if (f['lastName'].errors['maxlength']) {
+                    <span>Last Name should be maximum 50 characters</span>
+                  }
+                  @if (f['lastName'].errors['error']) {
+                    <span>{{ f['lastName'].errors['error'] }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Contact Information -->
+      <div class="mb-4">
+        <h4 class="h5 border-bottom pb-3">Contact Information</h4>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="email" class="form-label mt-3">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              formControlName="email"
+              placeholder="john.doe@example.com"
+              [ngClass]="{'is-invalid': btnSubmitted && f['email'].errors}"
+            />
+            @if (btnSubmitted && f['email'].errors) {
+              <div class="text-danger small mt-1">
+                @if (f['email'].errors['required']) {
+                  <span>Email is required</span>
+                }
+                @if (f['email'].errors['pattern']) {
+                  <span>Please enter a valid email</span>
+                }
+                @if (f['email'].errors['error']) {
+                  <span>{{ f['email'].errors['error'] }}</span>
+                }
+              </div>
+            }
+          </div>
+          <div class="col-md-6">
+            <div class="row g-2">
+              <div class="col-4">
+                <label for="countryCode" class="form-label mt-3">Code</label>
+                <select 
+                  class="form-select" 
+                  id="countryCode"
+                  formControlName="mobCode"
+                  [ngClass]="{'is-invalid': btnSubmitted && f['mobCode'].errors}"
+                >
+                  <option value="" disabled>Select</option>
+                  @for (country of countryCodes; track country.code) {
+                    <option [value]="country.dial_code">
+                      {{ country.code }} ({{ country.dial_code }})
+                    </option>
+                  }
+                </select>
+                @if (btnSubmitted && f['mobCode'].errors) {
+                  <div class="text-danger small mt-1">
+                    @if (f['mobCode'].errors['required']) {
+                      <span>Code is required</span>
+                    }
+                    @if (f['mobCode'].errors['error']) {
+                      <span>{{ f['mobCode'].errors['error'] }}</span>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="col-8">
+                <label for="phone" class="form-label mt-3">Phone</label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  id="phone"
+                  formControlName="mobileNo"
+                  placeholder="123-456-7890"
+                  [ngClass]="{'is-invalid': btnSubmitted && f['mobileNo'].errors}"
+                />
+                @if (btnSubmitted && f['mobileNo'].errors) {
+                  <div class="text-danger small mt-1">
+                    @if (f['mobileNo'].errors['required']) {
+                      <span>Mobile Number is required</span>
+                    }
+                    @if (f['mobileNo'].errors['pattern']) {
+                      <span>Phone no should be min 3 digits and max 15 digits</span>
+                    }
+                    @if (f['mobileNo'].errors['error']) {
+                      <span>{{ f['mobileNo'].errors['error'] }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="justify-content-end gap-3 pt-4 module-property d-flex align-items-center">
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Spinner -->
+<ngx-spinner></ngx-spinner>

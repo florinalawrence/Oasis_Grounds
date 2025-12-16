@@ -1,0 +1,427 @@
+.main-header {
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    background-color: #fff;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    color: #333;
+    font-weight: 550;
+    margin: 0 8px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #0d6efd;
+}
+
+.btn-primary {
+    background-color: #2e6ee9;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 6px rgba(46, 110, 233, 0.3);
+}
+
+
+
+/* Custom User Dropdown Styling */
+.user-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-welcome-link {
+  color: #333;
+  font-weight: 550;
+  margin: 0 8px;
+  transition: color 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.user-welcome-link:hover {
+  color: #0d6efd;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  padding: 0.5rem 0;
+  margin: 0;
+  list-style: none;
+  min-width: 160px;
+  display: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-dropdown-menu.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.custom-dropdown-menu .dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: #212529;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.custom-dropdown-menu .dropdown-item:hover,
+.custom-dropdown-menu .dropdown-item:focus {
+  background-color: #f8f9fa;
+  color: #1e2125;
+}
+
+/* Scrolled state styling for user dropdown */
+.main-header.scrolled .user-welcome-link {
+  color: #fff;
+}
+
+.main-header.scrolled .user-welcome-link:hover {
+  color: #e0e0e0;
+}
+
+
+.btn-primary:hover {
+    background-color: #1b57c8;
+}
+
+.btn-darkblue {
+    background-color: #003366;
+    border-color: #003366;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.btn-darkblue:hover {
+    background-color: white;
+    color: #00264d;
+    border-color: #00264d;
+}
+
+.main-header.scrolled {
+    background-color: #007bff;
+    transition: background-color 0.3s ease;
+}
+
+.main-header.scrolled .nav-link {
+    color: #fff;
+}
+
+.main-header.scrolled .navbar-brand {
+    color: #fff;
+}
+
+.btn-pop {
+    background: linear-gradient(90deg, rgba(107, 150, 247, 1) 0%, rgba(22, 105, 246, 1) 50%);
+    color: white;
+    font-weight: bold;
+    font-size: 16px !important;
+    height: 40px;
+    text-align: center;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-pop:hover {
+    background: white;
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+}
+
+/* Module Property */
+.module-property .btn {
+    height: 42px;
+    width: 165px;
+    border-radius: 4px;
+    border: none;
+    color: #fff;
+    background: rgb(64, 139, 235);
+    background: linear-gradient(90deg, rgba(64, 139, 235, 1) 0%, rgba(97, 160, 241, 1) 31%, rgba(97, 160, 241, 1) 59%, rgba(64, 139, 235, 1) 100%);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    // line-height: 40px;
+    text-transform: uppercase;
+    display: block;
+    margin-right: 0;
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.module-property .btn:hover {
+    color: #000;
+    background: transparent;
+    background-color: #ffffff;
+    border: 0.5px solid #b1b1b1;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+/* Hide login and add property buttons on mobile by default */
+.login-btn {
+    display: none !important;
+}
+
+.add-property-btn {
+    display: none !important;
+}
+
+/* Mobile-specific styles (0-767px) */
+@media (max-width: 767px) {
+    .navbar-brand img {
+        width: 120px;
+        margin-right: 15px;
+    }
+
+    .navbar-collapse {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .navbar-nav {
+        padding: 1rem 0;
+    }
+
+    .nav-item {
+        margin: 0.25rem 0;
+    }
+
+    .nav-link {
+        margin: 0;
+        padding: 0.5rem 1rem;
+    }
+
+    .header-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem !important;
+        padding: 1rem 0;
+    }
+
+    .header-buttons .btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+
+    .module-property {
+        width: 100%;
+    }
+
+    .module-property a {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Mobile dropdown adjustments */
+    .user-dropdown-container {
+        width: 100%;
+        text-align: center;
+    }
+
+    .custom-dropdown-menu {
+        position: static;
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        box-shadow: none;
+        border: none;
+        background-color: transparent;
+        padding: 0;
+        margin-top: 0.5rem;
+    }
+
+    .custom-dropdown-menu .dropdown-item {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .custom-dropdown-menu .dropdown-item:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Tablet-specific styles (768px-1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .main-header .d-flex.align-items-center.gap-3 {
+        display: none !important;
+    }
+
+    .navbar-brand img {
+        width: 140px;
+    }
+
+    .navbar-nav {
+        margin: 0 auto;
+    }
+
+    .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .header-buttons {
+        gap: 1rem !important;
+    }
+
+    .btn-pop, .btn-outline-primary {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Laptop-specific styles (1024px-1439px) */
+@media (min-width: 1024px) and (max-width: 1439px) {
+    /* Container adjustments */
+    .main-header .container-fluid {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    /* Logo sizing */
+    .navbar-brand {
+        margin-right: 1.5rem;
+    }
+
+    .navbar-brand img {
+        width: 130px;
+    }
+
+    /* Navigation links - optimized spacing */
+    .navbar-nav {
+        flex-grow: 1;
+        justify-content: center;
+        gap: 0.3rem;
+    }
+
+    .nav-link {
+        padding: 0.5rem 0.6rem;
+        margin: 0 2px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    /* Button container */
+    .header-buttons,
+    .d-flex.align-items-center.gap-3 {
+        gap: 0.6rem !important;
+        margin-left: auto;
+    }
+
+    /* Login button */
+    .btn-outline-primary {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        min-width: 70px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Add Property button */
+    .btn-pop {
+        padding: 6px 12px !important;
+        font-size: 0.85rem !important;
+        height: 36px;
+        min-width: 140px;
+    }
+
+    .module-property .btn {
+        width: 140px;
+        font-size: 13px;
+        // padding: 5px;
+        height: 38px;
+         line-height: 28px;
+    }
+}
+
+/* Desktop-specific styles (1440px and up) */
+@media (min-width: 1440px) {
+    .navbar-brand img {
+        width: 150px;
+    }
+
+    .navbar-nav {
+        flex-grow: 1;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .nav-link {
+        padding: 0.5rem 1rem;
+        margin: 0 6px;
+    }
+
+    .header-buttons,
+    .d-flex.align-items-center.gap-3 {
+        gap: 1rem !important;
+    }
+
+    .btn-outline-primary {
+        padding: 8px 16px;
+    }
+
+    .btn-pop {
+        padding: 8px 16px !important;
+        font-size: 16px !important;
+    }
+}
+
+/* Show Login and Add Property buttons on larger screens */
+@media (min-width: 992px) {
+    .btn.login-btn,
+    .btn.add-property-btn {
+        display: inline-flex !important;
+    }
+}
+
+/* Navbar flex layout optimization */
+@media (min-width: 992px) {
+    .navbar-expand-lg .navbar-collapse {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .navbar-expand-lg .navbar-nav {
+        flex-direction: row;
+    }
+}
