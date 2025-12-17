@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { About } from './pages/about/about';
-import { Properties } from './pages/dashboard/properties/properties';
 import { Contact } from './pages/contact/contact';
 import { AllProperty } from './pages/all-property/all-property';
 import { Register } from './pages/register/register';
@@ -18,9 +17,8 @@ import { Login } from './pages/login/login';
 import { MyFavourites } from './pages/User_dashboard/my-favourites/my-favourites';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
 import { OptVerificationScreen } from './pages/opt-verification-screen/opt-verification-screen';
-
-// Standalone components should be marked as such, if they are standalone
 import { provideRouter, withViewTransitions } from '@angular/router';
+import { ChangePassword } from './pages/User_dashboard/change-password/change-password';
 
 export const routes: Routes = [
     {
@@ -73,7 +71,8 @@ export const routes: Routes = [
             { path: 'edit-profile', component: EditProfile },
             { path: 'my-property', component: MyProperties },
             { path: 'favourites', component: MyFavourites },
-            { path: 'add-property', component: AddProperty }
+            { path: 'add-property', component: AddProperty },
+            { path: 'change-password', component: ChangePassword }
         ]
     },
     {

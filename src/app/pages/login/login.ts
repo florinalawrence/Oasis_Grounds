@@ -83,7 +83,7 @@ export class Login implements OnInit {
           const data = res;
           
           if (data.accessToken) {
-            this.session.setToken(data.accessToken);
+            this.session.setToken(data.accessToken, 'google');
           }
           
           if (data.headers.statusCode == 200) {
@@ -141,7 +141,7 @@ export class Login implements OnInit {
     this.toast.showToast(response.headers.message, 'success');
     
     if (response.accessToken) {
-      this.session.setToken(response.accessToken);
+      this.session.setToken(response.accessToken, 'email');
       this.notifier.isAuthenticatedSubject.next(true);
       this.loadUserProfile();
       this.navigateAfterLogin();

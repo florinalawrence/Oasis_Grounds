@@ -1,5 +1,5 @@
 import { Component, OnInit, HostListener } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { RoutePath } from '../../../core/constant/api.constant';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
@@ -12,6 +12,7 @@ import * as currencyData from '../../../../assets/common-currency.json';
 import { CommonModule } from '@angular/common';
 import { CurrencyStringPipe } from '../../../shared/pipes/currencyStringConvertor.pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { Header } from '../../../shared/components/header/header';
 
 @Component({
   selector: 'app-my-favourites',
@@ -20,11 +21,11 @@ import { NgxPaginationModule } from 'ngx-pagination';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     NgxSpinnerModule,
     NgxPaginationModule,
     IndianNumberPipe,
-    CurrencyStringPipe
+    CurrencyStringPipe,
+    Header
   ]
 })
 export class MyFavourites implements OnInit {
@@ -33,7 +34,7 @@ export class MyFavourites implements OnInit {
   currencyDetails: any[] = [];
   totalItems: number = 0;
   totalPages: number = 0;
-  page: number = 1;
+  page: number | undefined;
   tableSize: number = 6;
   count: number = 0;
   bathroomsCount: number = 0;
@@ -64,15 +65,25 @@ export class MyFavourites implements OnInit {
 
   ngOnInit(): void {
     this.currencyDetails = Object.values(currencyData).map(x => x);
-    this.getPropertyDetails();
+    
+    // Check if user is authenticated before making API call
+    if (this.session.getToken()) {
+      this.getPropertyDetails();
+    } else {
+      // If not authenticated, show empty state without making API call
+      this.propertyWishList = [];
+      this.count = 0;
+    }
   }
+
+  
 
   getPropertyDetails() {
     this.spinner.show();
     this.service.getWishlistData().subscribe({
       next: (res: any) => {
-        this.propertyWishList = res?.data || [];
-        this.count = this.propertyWishList.length;
+        this.propertyWishList = res?.data;
+        this.count = this.propertyWishList?.length || 0;
         this.spinner.hide();
       },
       error: (err: any) => {
@@ -86,7 +97,7 @@ export class MyFavourites implements OnInit {
   calculateBathCount(item: any): number {
     this.bathCount = item.bedroomInfo?.filter((data: any) => 
       data?.specification?.includes("Bathroom")
-    )?.length || 0;
+    )?.length;
     return this.bathCount;
   }
 
@@ -116,16 +127,15 @@ export class MyFavourites implements OnInit {
         this.spinner.show();
         this.service.deleteWishListProperty(propertyId).subscribe({
           next: (res: any) => {
-            if (res.headers?.statusCode == 200) {
+            if (res.headers.statusCode == 200) {
               this.swalToast.showToast(res.headers.message, 'success');
+              this.spinner.hide();
               this.propertyWishList = this.propertyWishList.filter(
                 wishItem => wishItem.propertyId !== propertyId
               );
               this.count = this.propertyWishList.length;
-              this.spinner.hide();
             } else {
-              this.swalToast.showToast(res.headers?.message || 'Error removing property', 'error');
-              this.spinner.hide();
+              this.swalToast.showToast(res.headers.message, 'error');
             }
           },
           error: (err: any) => {

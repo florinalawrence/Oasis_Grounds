@@ -127,6 +127,10 @@ body {
   width: 100%;
   height: 220px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
 }
 
 .property-image {
@@ -136,7 +140,17 @@ body {
   transition: transform 0.4s ease;
 }
 
-.property-card:hover .property-image {
+/* Smaller styling for no-image placeholder */
+.property-image[src*="no_image.png"] {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  margin: auto;
+  display: block;
+  opacity: 0.6;
+}
+
+.property-card:hover .property-image:not([src*="no_image.png"]) {
   transform: scale(1.08);
 }
 
@@ -150,9 +164,9 @@ body {
 
 .status-badge {
   display: inline-block;
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
   font-weight: 500;
   color: white;
 }
@@ -163,6 +177,19 @@ body {
 
 .status-badge.for-sale {
   background-color: #28a745;
+}
+
+.status-badge.for-lease {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* Property Type Badge - Below Status Badge (left side) */
+.property-type-badge-container {
+  position: absolute;
+  top: 45px;
+  left: 12px;
+  z-index: 2;
 }
 
 /* Action Icons - Top Right */
@@ -633,3 +660,4 @@ body {
     margin: 0 0.1rem;
   }
 }
+

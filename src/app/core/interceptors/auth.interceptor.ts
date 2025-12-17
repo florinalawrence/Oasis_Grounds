@@ -23,14 +23,15 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const SERVER_URL = environment.baseApiUrl;
-    const authToken = localStorage.getItem('AccessToken');
+    const authToken = this.session.getToken(); // Use SessionService instead of direct localStorage
     const reqObj = { url: req.url, headers: req.headers };
 
-    // Debug logging for profile API calls
-    if (req.url.includes('profile')) {
-      console.log('🔍 Interceptor: Profile API request detected');
+    // Debug logging for API calls
+    if (req.url.includes('profile') || req.url.includes('property')) {
+      console.log('🔍 Interceptor: API request detected');
       console.log('🔑 Interceptor: Auth token exists:', authToken ? 'YES' : 'NO');
       console.log('📡 Interceptor: Request URL:', req.url);
+      console.log('🔑 Interceptor: Token length:', authToken ? authToken.length : 0);
     }
 
     // Append the base API URL to the request if not already included
@@ -43,11 +44,11 @@ export class AuthInterceptor implements HttpInterceptor {
     // Add Authorization header if authToken exists
     if (authToken) {
       reqObj.headers = reqObj.headers.set('Authorization', 'Bearer ' + authToken);
-      if (req.url.includes('profile')) {
-        console.log('✅ Interceptor: Authorization header added to profile request');
+      if (req.url.includes('profile') || req.url.includes('property')) {
+        console.log('✅ Interceptor: Authorization header added to request');
       }
-    } else if (req.url.includes('profile')) {
-      console.warn('⚠️ Interceptor: No auth token found for profile request');
+    } else if (req.url.includes('profile') || req.url.includes('property')) {
+      console.warn('⚠️ Interceptor: No auth token found for API request');
     }
 
     // Clone the request with modified headers
@@ -60,7 +61,7 @@ export class AuthInterceptor implements HttpInterceptor {
           this.router.navigate([RoutePath.LOGIN]);
           return []; // Empty observable to handle the error and prevent further processing
         }
-        return throwError(err); // For any other errors, rethrow the error
+        return throwError(() => err); // For any other errors, rethrow the error
       })
     );
   }

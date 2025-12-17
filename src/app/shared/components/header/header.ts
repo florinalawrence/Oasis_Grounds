@@ -2,11 +2,10 @@ import {
   Component, 
   HostListener, 
   signal, 
-  effect,
   inject,
   viewChild,
   ElementRef,
-  DestroyRef
+  DestroyRef 
 } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -14,7 +13,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SessionService } from '../../../services/Session-service/session.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
 import { RoutePath } from '../../../core/constant/api.constant';
-
 
 @Component({
   selector: 'app-header',
@@ -24,7 +22,7 @@ import { RoutePath } from '../../../core/constant/api.constant';
   styleUrls: ['./header.scss'],
 })
 export class Header {
-  // Modern Angular 20 dependency injection
+  // Dependency injection
   private readonly router = inject(Router);
   private readonly notifier = inject(NotifierService);
   private readonly session = inject(SessionService);
@@ -40,7 +38,7 @@ export class Header {
   // Dropdown state
   showDropdown = false;
 
-  // ViewChild using modern signal-based API
+  // ViewChild for navbar collapse element
   readonly navbarCollapse = viewChild<ElementRef>('navbarCollapse');
 
   constructor() {
@@ -64,23 +62,10 @@ export class Header {
     this.notifier.userProfileData$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: any) => {
-        console.log('🏠 Header received profile data:', data);
         this.userProfileData.set(data);
-        
-        // Combine firstName and lastName to create full name
-        let userName = '';
-        if (data?.firstName) {
-          userName = data.firstName;
-          if (data?.lastName) {
-            userName += ' ' + data.lastName;
-          }
-        } else if (data?.fullName) {
-          userName = data.fullName;
-        } else if (data?.name) {
-          userName = data.name;
-        }
-        
-        console.log('👤 Setting userName to:', userName);
+
+        // Extract user name with fallbacks for different login types
+        const userName = data?.firstName || data?.name || data?.given_name || data?.displayName || '';
         this.userName.set(userName);
       });
   }
@@ -121,11 +106,19 @@ export class Header {
   }
 
   /**
+   * Get display text for welcome message
+   * Returns "Hi [FirstName]" if firstName exists, otherwise "Welcome"
+   */
+  getWelcomeText(): string {
+    return this.userName() ? `Hi ${this.userName()}` : 'Welcome';
+  }
+
+  /**
    * Handle logout
    */
   logOut(): void {
     this.showDropdown = false;
-    this.session.removeCredentials();
+    // this.session.logOut();
     this.hasLoggedIn.set(false);
     this.notifier.notifyToHeader(null);
     this.router.navigate([RoutePath.HOME]);

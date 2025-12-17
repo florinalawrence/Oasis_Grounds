@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ToastService } from '../Toast-service/toast.service';
+import { SessionService } from '../Session-service/session.service';
 import countryData from '../../../assets/countryCodes.json';
 import currencyDataJson from '../../../assets/common-currency.json';
 
@@ -15,16 +16,38 @@ import stateData from '../../../assets/states.json';
 })
 export class ManagePropertyService {
   private http = inject(HttpClient);  
-  private swalToast = inject(ToastService);  
+  private swalToast = inject(ToastService);
+  private session = inject(SessionService);
   
   baseApiUrl: string = environment.baseApiUrl;
-  private headers: HttpHeaders;
   countryCodes: any = countryData;
   currencyData: any = currencyDataJson;  
   states: any = stateData;  
 
-  constructor() {
-    this.headers = new HttpHeaders();
+  constructor() {}
+
+  /**
+   * Get headers with current access token
+   * @returns HttpHeaders
+   */
+  private getHeaders(): HttpHeaders {
+    const token = this.session.getToken();
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    console.log('🔍 ManageProperty getHeaders() called');
+    console.log('🔑 Token exists:', !!token);
+    console.log('🔑 Token length:', token ? token.length : 0);
+    
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+      console.log('✅ Authorization header added successfully');
+    } else {
+      console.error('❌ No access token found - user may not be logged in');
+    }
+    
+    return headers;
   }
 
   // Country codes data
@@ -45,18 +68,11 @@ export class ManagePropertyService {
 
   // Save property data
   savePropertyData(basicDtlReq: any): Observable<any> {
-    const token = localStorage.getItem('AccessToken');
-    let headers = this.headers;
-    
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    } else {
-      console.warn('No authentication token found. User may not be logged in.');
-    }
+    const headers = this.getHeaders();
     
     console.log('Sending property data:', basicDtlReq);
     console.log('API URL:', `${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}`);
-    console.log('Has token:', !!token);
+    console.log('📡 Making save property API call with headers:', headers.keys());
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}`, basicDtlReq, { headers })
       .pipe(
@@ -75,7 +91,8 @@ export class ManagePropertyService {
 
   // Save property feature data
   savePropertyFeature(featureData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.AMENITIES}`, featureData, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.AMENITIES}`, featureData, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving property feature';
@@ -86,7 +103,8 @@ export class ManagePropertyService {
 
   // Save facility data
   saveFacilityData(facilityData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.MANAGE_FACILITY}`, facilityData, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.MANAGE_FACILITY}`, facilityData, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving facility data';
@@ -159,7 +177,8 @@ export class ManagePropertyService {
 
   // Save nearby details
   saveNearByDetails(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.NEARBY_DETAIL}`, data, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.NEARBY_DETAIL}`, data, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving nearby details';
@@ -170,7 +189,8 @@ export class ManagePropertyService {
 
   // Delete nearby detail
   deleteNearByDetail(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_NEARBY_DATA}`, data, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_NEARBY_DATA}`, data, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting nearby detail';
@@ -181,7 +201,7 @@ export class ManagePropertyService {
 
   
 
-  // Get property details by filter
+  // Get property details by filter (for public property search)
   getPropertyDetailsByFilter(data: any): Observable<any> {
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SERARCH_PUBLISHED_PROPERTY}`, data)
       .pipe(
@@ -190,6 +210,59 @@ export class ManagePropertyService {
           return throwError(() => new Error(errorMessage));
         })
       );
+  }
+
+  // Get property details with authentication (for my-properties page)
+  getPropertyDetails(data: any): Observable<any> {
+    const headers = this.getHeaders();
+    console.log('📡 Making getPropertyDetails API call with data:', data);
+    console.log('🔑 Headers include Authorization:', headers.has('Authorization'));
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.GET_ACTIVE_USER_PROPERTIES}`, data, { 
+      headers,
+      withCredentials: false // Set to true if using cookies for auth
+    })
+      .pipe(
+        catchError(this.handleError.bind(this))
+      );
+  }
+
+  // Get user's own properties (for my-properties page) with authentication
+  getUserProperties(): Observable<any> {
+    const headers = this.getHeaders();
+    console.log('📡 Making getUserProperties API call');
+    console.log('🔑 Headers include Authorization:', headers.has('Authorization'));
+    
+    // Use POST method with empty body as the API expects POST, not GET
+    const requestBody = {};
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.GET_ACTIVE_USER_PROPERTIES}`, requestBody, { 
+      headers,
+      withCredentials: false // Set to true if using cookies for auth
+    })
+      .pipe(
+        catchError(this.handleError.bind(this))
+      );
+  }
+
+  /**
+   * Centralized error handling for all API calls
+   */
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('❌ ManageProperty API Error:', error);
+    console.error('❌ Error Status:', error.status);
+    console.error('❌ Error Message:', error.error?.headers?.message || error.message);
+    
+    if (error.status === 401) {
+      console.error('❌ 401 Unauthorized - Token may be invalid or expired');
+    } else if (error.status === 403) {
+      console.error('❌ 403 Forbidden - Insufficient permissions');
+    } else if (error.status === 0) {
+      console.error('❌ Network error - Check CORS settings or network connection');
+    }
+    
+    const errorMessage = error.error?.headers?.message || error.error?.message || error.message || 'An error occurred while processing your request';
+    return throwError(() => new Error(errorMessage));
   }
 
   // Get random property data
@@ -203,9 +276,12 @@ export class ManagePropertyService {
       );
   }
 
+
+
   // Get property details by id
   getPropertyDetailById(propertyId: string): Observable<any> {
-    return this.http.get<any>(`${this.baseApiUrl}${AuthEndPoints.GET_PROPERTY_DETAIL_BY_PROP_ID}${propertyId}`, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.get<any>(`${this.baseApiUrl}${AuthEndPoints.GET_PROPERTY_DETAIL_BY_PROP_ID}${propertyId}`, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while fetching property data';
@@ -227,7 +303,8 @@ export class ManagePropertyService {
 
   // Save room details
   saveRoomDetails(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.BEDROOMS}`, data, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.BEDROOMS}`, data, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving room details';
@@ -238,7 +315,8 @@ export class ManagePropertyService {
 
   // Publish property
   publishProperty(propertyId: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.PUBLISH_PROPERTY}${propertyId}`, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.PUBLISH_PROPERTY}${propertyId}`, {}, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while publishing property';
@@ -249,7 +327,8 @@ export class ManagePropertyService {
 
   // Save property to wishlist
   savePropertyToWishList(wishListData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_WISHLIST_PROPERTY}`, wishListData, { headers: this.headers })
+    const headers = this.getHeaders();
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_WISHLIST_PROPERTY}`, wishListData, { headers })
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving property to wishlist';
@@ -260,10 +339,18 @@ export class ManagePropertyService {
 
   // Delete wishlist property
   deleteWishListProperty(propertyId: string): Observable<any> {
+    const headers = this.getHeaders();
     const endpoint = `${this.baseApiUrl}${AuthEndPoints.DELETE_WISHLIST_PROPERTY}/${propertyId}`;
-    return this.http.delete<any>(endpoint)
+    
+    console.log('📡 Making delete wishlist API call with headers:', headers.keys());
+    
+    return this.http.delete<any>(endpoint, { headers })
       .pipe(
         catchError((err) => {
+          console.error('❌ Delete Wishlist API Error:', err);
+          console.error('❌ Error Status:', err.status);
+          console.error('❌ Error Message:', err.error?.headers?.message || err.message);
+          
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting wishlist property';
           return throwError(() => new Error(errorMessage));
         })
@@ -271,15 +358,22 @@ export class ManagePropertyService {
   }
 
   // Get wishlist data
-getWishlistData(): Observable<any> {
-  return this.http.get<any>(`${this.baseApiUrl}${AuthEndPoints.GET_WISHLIST_PROPERTY}`, { headers: this.headers })
-    .pipe(
-      catchError((err) => {
-        const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while fetching wishlist data';
-        return throwError(() => new Error(errorMessage));
-      })
-    );
-}
+  getWishlistData(): Observable<any> {
+    const headers = this.getHeaders();
+    console.log('📡 Making wishlist API call with headers:', headers.keys());
+    
+    return this.http.get<any>(`${this.baseApiUrl}${AuthEndPoints.GET_WISHLIST_PROPERTY}`, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error('❌ Wishlist API Error:', err);
+          console.error('❌ Error Status:', err.status);
+          console.error('❌ Error Message:', err.error?.headers?.message || err.message);
+          
+          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while fetching wishlist data';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
   // Delete property by id
   deletePropertyById(propertyId: string): Observable<any> {
     const endpoint = `${this.baseApiUrl}${AuthEndPoints.DELETE_PROPERTY_BY_ID}/${propertyId}`;

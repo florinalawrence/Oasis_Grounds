@@ -336,7 +336,7 @@ export class Register implements OnInit, OnDestroy {
               const data = res;
               
               if (data.accessToken) {
-                this.session.setToken(data.accessToken);
+                this.session.setToken(data.accessToken, 'google');
               }
               
               if (data.headers.statusCode == 200) {

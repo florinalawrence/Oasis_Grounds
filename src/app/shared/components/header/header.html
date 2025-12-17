@@ -3,9 +3,6 @@
     <div class="container-fluid">
       <!-- Logo with routerLink -->
       <a class="navbar-brand d-flex align-items-center me-2" [routerLink]="['/home']">
-        <!-- @if (isScrolled()) {
-          <img class="logo-dark" src="assets/images/logo/logo-dark.png" alt="Logo" />
-        } -->
         @if (!isScrolled()) {
           <img class="logo-light" src="assets/images/logo/logoDark.png" alt="Logo" />
         }
@@ -62,7 +59,10 @@
                  (mouseleave)="showDropdown = false"
                  (click)="toggleDropdown()">
               <a class="nav-link user-welcome-link" href="#" (click)="$event.preventDefault()">
-                <span>Welcome{{ userName() ? ' ' + userName() : '' }}</span>
+                <!-- Matching old code: truncated username display -->
+                <span style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  {{ getWelcomeText() }}
+                </span>
               </a>
               <ul class="custom-dropdown-menu" [class.show]="showDropdown" style="margin-top: 0px;">
                 <li><a class="dropdown-item" [routerLink]="['/user-dashboard']" (click)="closeNavbar()">User Dashboard</a></li>
@@ -73,7 +73,6 @@
           @if (!hasLoggedIn()) {
             <div>
               <a class="btn btn-outline-primary" [routerLink]="['/login']" (click)="closeNavbar()">Login</a>
-              <!-- <a class="btn btn-outline-primary" [routerLink]="['/register']" (click)="closeNavbar()">Register</a> -->
             </div>
           }
         </div>

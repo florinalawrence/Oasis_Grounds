@@ -10,5 +10,14 @@
     "headers": {
       "User-Agent": "OasisGrounds-App/1.0"
     }
+  },
+  "/jmr-properties-api/*": {
+    "target": "https://jmrpropertiesapi.techneatsolutions.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/jmr-properties-api": "/jmr-properties-api"
+    }
   }
 }

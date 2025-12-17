@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Type Badges Test - Small Size</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .property-card {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin: 20px;
+            width: 300px;
+            height: 400px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .card-img-container {
+            position: relative;
+            height: 200px;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        .badge-container {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 2;
+        }
+        .property-type-badge-container {
+            position: absolute;
+            top: 50px;
+            left: 12px;
+            z-index: 2;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: white;
+        }
+        .status-badge.for-rent {
+            background-color: #007bff;
+        }
+        .status-badge.for-sale {
+            background-color: #28a745;
+        }
+        .status-badge.for-lease {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .bg-success { background-color: #28a745; }
+        .bg-warning { background-color: #ffc107; color: #212529; }
+        .bg-danger { background-color: #dc3545; }
+        .card-body {
+            padding: 15px;
+        }
+        .property-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .property-location {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .property-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Property Type Badges Demo - Small Size</h1>
+        <p>This demonstrates the smaller property type badges (Sell/Rent/Lease) positioned directly below the verification status badge on the left side.</p>
+        
+        <!-- Property Card 1: For Sale -->
+        <div class="property-card">
+            <div class="card-img-container">
+                <span>Property Image</span>
+                
+                <!-- Status Badge -->
+                <div class="badge-container">
+                    <span class="status-badge bg-success">Published</span>
+                </div>
+                
+                <!-- Property Type Badge (Sell) -->
+                <div class="property-type-badge-container">
+                    <span class="status-badge for-sale">For Sale</span>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <h5 class="property-title">Luxury Villa in Mumbai</h5>
+                <p class="property-location">📍 Mumbai, Maharashtra, India</p>
+                <div class="property-price">₹2.5 Cr</div>
+            </div>
+        </div>
+        
+        <!-- Property Card 2: For Rent -->
+        <div class="property-card">
+            <div class="card-img-container">
+                <span>Property Image</span>
+                
+                <!-- Status Badge -->
+                <div class="badge-container">
+                    <span class="status-badge bg-warning">Verification Pending</span>
+                </div>
+                
+                <!-- Property Type Badge (Rent) -->
+                <div class="property-type-badge-container">
+                    <span class="status-badge for-rent">For Rent</span>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <h5 class="property-title">Modern Apartment in Delhi</h5>
+                <p class="property-location">📍 Delhi, Delhi, India</p>
+                <div class="property-price">₹45,000/month</div>
+            </div>
+        </div>
+        
+        <!-- Property Card 3: For Lease -->
+        <div class="property-card">
+            <div class="card-img-container">
+                <span>Property Image</span>
+                
+                <!-- Status Badge -->
+                <div class="badge-container">
+                    <span class="status-badge bg-danger">Rejected</span>
+                </div>
+                
+                <!-- Property Type Badge (Lease) -->
+                <div class="property-type-badge-container">
+                    <span class="status-badge for-lease">For Lease</span>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <h5 class="property-title">Commercial Space in Bangalore</h5>
+                <p class="property-location">📍 Bangalore, Karnataka, India</p>
+                <div class="property-price">₹1.2L/month</div>
+            </div>
+        </div>
+        
+        <div style="clear: both; margin-top: 30px;">
+            <h2>Small Badge Design:</h2>
+            <ul>
+                <li><strong>Padding:</strong> Reduced from 0.4rem 0.9rem to 0.25rem 0.6rem</li>
+                <li><strong>Font Size:</strong> Reduced from 0.8rem to 0.7rem</li>
+                <li><strong>Border Radius:</strong> Reduced from 20px to 12px</li>
+                <li><strong>Spacing:</strong> Property type badge moved closer (top: 50px instead of 60px)</li>
+            </ul>
+            
+            <h3>Badge Colors:</h3>
+            <ul>
+                <li><span class="status-badge for-sale">For Sale</span> - Green background for properties listed for sale</li>
+                <li><span class="status-badge for-rent">For Rent</span> - Blue background for properties listed for rent</li>
+                <li><span class="status-badge for-lease">For Lease</span> - Yellow background for properties listed for lease</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

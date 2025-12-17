@@ -182,7 +182,7 @@ export class OptVerificationScreen implements AfterViewInit,OnInit {
             
             if (isSuccess || (statusCode === 200 && hasAccessToken)) {
               if (responseBody.accessToken) {
-                this.session.setToken(responseBody.accessToken);
+                this.session.setToken(responseBody.accessToken, 'email');
               }
               
               const token = this.session.getToken();

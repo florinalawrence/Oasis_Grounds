@@ -13,24 +13,17 @@
 
     <div class="row g-4">
       @for (step of orderedSteps(); track step.id) {
-        <div 
-          class="col-12 col-md-6 col-lg-4 d-flex"
-          [class.mx-md-auto]="isLastStep(step)"
-        >
-          <div class="feature-panel flex-fill">
-            <div class="feature--icon">
-              <img 
-                [src]="step.iconPath" 
-                [alt]="step.altText"
-                (error)="onImageError($event)"
-              />
-            </div>
-            <div class="feature--content">
-              <h3>{{ step.title }}</h3>
-              <p>{{ step.description }}</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4 d-flex" [class.mx-md-auto]="isLastStep(step)">
+        <div class="feature-panel flex-fill">
+          <div class="feature--icon">
+            <img [src]="step.iconPath" [alt]="step.altText" (error)="onImageError($event)" />
+          </div>
+          <div class="feature--content">
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.description }}</p>
           </div>
         </div>
+      </div>
       }
     </div>
   </div>

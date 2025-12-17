@@ -94,7 +94,8 @@
               "buildTarget": "OasisGrounds:build:production"
             },
             "development": {
-              "buildTarget": "OasisGrounds:build:development"
+              "buildTarget": "OasisGrounds:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

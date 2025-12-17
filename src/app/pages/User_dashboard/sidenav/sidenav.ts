@@ -25,6 +25,9 @@ export class Sidenav implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   private currentUserData: any = null;
 
+  // Login method tracking
+  showChangePassword: boolean = true;
+
   /**
    * Convert relative image URL to absolute URL if needed
    */
@@ -76,6 +79,9 @@ export class Sidenav implements OnInit, OnDestroy {
     if (this.session.getToken()) {
       this.loadUserProfileFromServer();
     }
+
+    // Check login method to determine if change password should be shown
+    this.checkLoginMethod();
   }
   
   loadProfileData() {
@@ -444,5 +450,18 @@ export class Sidenav implements OnInit, OnDestroy {
     this.router.navigate(['/home']);
     
     console.log('✅ Sidenav: User logged out successfully');
+  }
+
+  /**
+   * Check login method and set change password visibility
+   */
+  private checkLoginMethod(): void {
+    const loginMethod = this.session.getLoginMethod();
+    console.log('🔍 Sidenav: Login method detected:', loginMethod);
+    
+    // Show change password only for email/password login, hide for Google login
+    this.showChangePassword = loginMethod === 'email';
+    
+    console.log('🔑 Sidenav: Change password visibility:', this.showChangePassword);
   }
 }
