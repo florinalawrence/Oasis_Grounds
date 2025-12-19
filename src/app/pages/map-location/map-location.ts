@@ -30,15 +30,7 @@ interface LocationUpdate {
   addressDetails: AddressDetails;
 }
 
-/**
- * MapLocation Component - Angular 20 Optimized
- * 
- * Modern implementation using:
- * - Signal-based inputs/outputs
- * - Lifecycle hooks via inject()
- * - Reactive effects
- * - Standalone component architecture
- */
+
 @Component({
   selector: 'app-map-location',
   standalone: true,
@@ -62,11 +54,11 @@ interface LocationUpdate {
   ],
 })
 export class MapLocation {
-  // Modern Angular 20 dependency injection
+  //  dependency injection
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Signal-based inputs (Angular 20 modern approach)
+  // Signal-based inputs
   readonly address = input<string>();
   readonly city = input<string>('');
   readonly state = input<string>('');
@@ -77,7 +69,7 @@ export class MapLocation {
   readonly longitude = input<number>();
   readonly isDraggable = input<boolean>(true);
 
-  // Signal-based output (Angular 20 modern approach)
+  // Signal-based output 
   readonly locationUpdated = output<LocationUpdate>();
 
   // Internal state signals
@@ -112,7 +104,7 @@ export class MapLocation {
       .pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.handleAddressChange());
 
-    // Initialize map after render (Angular 20 approach)
+    // Initialize map after render
     afterNextRender(() => {
       this.initMap();
     });

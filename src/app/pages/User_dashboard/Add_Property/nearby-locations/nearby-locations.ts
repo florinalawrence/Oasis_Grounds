@@ -19,14 +19,46 @@ import { CommonModule } from '@angular/common';
 export class NearbyLocationsComponent implements OnInit, OnDestroy {
   @Input() selectedPropertyData: any;
   
-  showDdlLocations: boolean = false;
   isEditMode: boolean = false;
   editIndex: number = -1;
   nearbyDetailList: any[] = [];
   propertyId: any;
   btnSubmitted: boolean = false;
+  selectedNearbyType: string = '';
   
   private dataSubscription: Subscription = new Subscription();
+
+  // Nearby categories
+  nearbyCategories = [
+    { value: 'Transport & Connectivity', label: 'Transport & Connectivity' },
+    { value: 'Healthcare', label: 'Healthcare' },
+    { value: 'Education', label: 'Education' },
+    { value: 'Shopping & Essentials', label: 'Shopping & Essentials' },
+    { value: 'Food & Dining', label: 'Food & Dining' },
+    { value: 'Work & Business', label: 'Work & Business' },
+    { value: 'Recreation & Leisure', label: 'Recreation & Leisure' },
+    { value: 'Religious Places', label: 'Religious Places' },
+    { value: 'Financial & Govt.Facilities', label: 'Financial & Govt.Facilities' },
+    { value: 'Beauty & Personal Care', label: 'Beauty & Personal Care' },
+    { value: 'Child & Family Support', label: 'Child & Family Support' },
+    { value: 'Pet Services', label: 'Pet Services' }
+  ];
+
+  // Places for each category
+  nearbyPlaces: { [key: string]: string[] } = {
+    'Transport & Connectivity': ['Railway Station', 'Metro Station', 'Airport', 'Busstand/Busstop', 'Autostand'],
+    'Healthcare': ['Hospital', 'Clinic', 'Pharmacy/Medical Shop', 'Diagnostic Center'],
+    'Education': ['School', 'College', 'University', 'Daycare/Play school'],
+    'Shopping & Essentials': [ 'Supermarket', 'Grocery Store', 'Malls/Shopping Centers', 'Convenience Store','Vegetable'],
+    'Food & Dining': ['Restaurant', 'Cafes/coffee Shops', 'Food Court'],
+    'Work & Business': ['IT Park/Tech Park','Industrial Areas','Business Centers','Coworking Spaces'],
+    'Recreation & Leisure': ['Park/Gardens', 'Gym/Fitness Centers', 'Clubhouse', 'Swimming Pool', 'Stadium'],
+    'Religious Places': ['Temple', 'Church', 'Mosque', 'Gurudwara', 'Spiritual Center/Ashram'],
+    'Financial & Govt.Facilities': ['Bank', 'ATM', 'Post Office', 'Police Station','Fire Station','Municipal Office/RTO'],
+    'Beauty & Personal Care': ['Salon/Spa',  'Beauty Parlor',  'Massage Center'],
+    'Child & Family Support': ['Crecha', 'Kids Play Area', 'Perenting Clinics', 'Toy Library'],
+    'Pet Services': ['Pet Clinic/Vet', 'Pet Store', 'Pet Grooming Center']
+  };
   
   nearbyDetailsForm: FormGroup = new FormGroup({
     ddlNearby: new FormControl(''),
@@ -101,17 +133,19 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
   }
 
   onShowListofPlaces() {
-    if (this.DdlNearBy.value) {
+    this.selectedNearbyType = this.DdlNearBy.value;
+    
+    if (this.selectedNearbyType) {
       this.DdlPlace.enable();
+      // Reset the place selection when category changes
+      this.DdlPlace.setValue('');
     } else {
       this.DdlPlace.disable();
     }
-    
-    if (this.DdlNearBy.value === 'Location') {
-      this.showDdlLocations = true;
-    } else {
-      this.showDdlLocations = false;
-    }
+  }
+
+  getPlacesForSelectedType(): string[] {
+    return this.nearbyPlaces[this.selectedNearbyType] || [];
   }
 
   onSubmitNearByData() {
@@ -151,13 +185,13 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
       
       this.service.saveNearByDetails(nearbyDetail).subscribe({
         next: (res: any) => {
-          if (res.headers.statusCode === 200) {
+          if (res.headers.statusCode === "200") {
             this.swalToast.showToast(res.headers.message, 'success');
             this.clearData();
             
             this.service.getPropertyDetailById(this.propertyId).subscribe({
               next: (res: any) => {
-                if (res.headers.statusCode === 200) {
+                if (res.headers.statusCode === "200") {
                   this.selectedPropertyData = res.recordInfo;
                   this.nearbyDetailList = res.recordInfo?.propertyNearByLocation;
                   this.spinner.hide();
@@ -221,7 +255,7 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
         
         this.service.deleteNearByDetail(payload).subscribe({
           next: (res: any) => {
-            if (res.headers.statusCode === 200) {
+            if (res.headers.statusCode === "200") {
               this.swalToast.showToast('Nearby data removed successfully', 'success');
               this.nearbyDetailList = this.nearbyDetailList.filter(item => item?.id !== data?.id);
               this.spinner.hide();

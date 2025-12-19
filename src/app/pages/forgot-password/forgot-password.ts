@@ -76,18 +76,47 @@ export class ForgotPassword implements OnInit {
           this.isLoading = false;
           
           if (res.headers.statusCode == 200) {
-            this.swalToast.showToast(res.headers.message, 'success');
+            this.swalToast.showToast(res.headers.message || 'Verification email sent successfully!', 'success');
+            
+            // Navigate to reset password screen after successful verification
             setTimeout(() => {
               this.resetFormData();
+              
+              // Check if response contains a password reset key/token
+              if (res.data?.passwordResetKey || res.passwordResetKey || res.data?.resetKey || res.resetKey) {
+                const resetKey = res.data?.passwordResetKey || res.passwordResetKey || res.data?.resetKey || res.resetKey;
+                console.log('Navigating to reset password with key:', resetKey);
+                this.router.navigate(['/resetPassword', resetKey]);
+              } else if (res.data?.token || res.token) {
+                // Handle case where token is provided instead of resetKey
+                const token = res.data?.token || res.token;
+                console.log('Navigating to reset password with token:', token);
+                this.router.navigate(['/resetPassword', token]);
+              } else {
+                // If no reset key in response, navigate to generic reset password page
+                console.log('No reset key found in response, navigating to generic reset page');
+                this.swalToast.showToast('Please check your email for the reset link or continue with password reset', 'info');
+                this.router.navigate(['/resetPassword']);
+              }
             }, 2000);
           } else {
-            this.swalToast.showToast(res.headers.message, 'error');
+            this.swalToast.showToast(res.headers.message || 'Failed to send verification email', 'error');
           }
         },
         error: (err) => {
           this.isLoading = false;
-          const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
-          this.swalToast.showToast(errList, 'error');
+          console.error('Forgot password error:', err);
+          
+          let errorMessage = 'Failed to send verification email';
+          if (err.error?.headers?.message) {
+            errorMessage = err.error.headers.message;
+          } else if (err.error?.message) {
+            errorMessage = err.error.message;
+          } else if (err.message) {
+            errorMessage = err.message;
+          }
+          
+          this.swalToast.showToast(errorMessage, 'error');
         },
       });
     } catch (err: any) {

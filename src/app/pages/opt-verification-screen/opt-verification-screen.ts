@@ -188,10 +188,14 @@ export class OptVerificationScreen implements AfterViewInit,OnInit {
               const token = this.session.getToken();
               if (token) {
                 this.notifier.notifyToHeader(token);
+                this.notifier.isAuthenticatedSubject.next(true);
               }
               
-              const successMessage = responseBody.headers.message || 'OTP verification successful';
+              const successMessage = responseBody.headers.message || 'Registration successful! Welcome!';
               this.swalToast.showToast(successMessage, 'success');
+              
+              // Set a flag to indicate this is a new registration (header should show "Welcome")
+              this.notifier.notifyUserData({ isNewRegistration: true });
               
               // Add a small delay before navigation to ensure toast is shown
               setTimeout(() => {

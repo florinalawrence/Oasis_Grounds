@@ -28,6 +28,24 @@
   
 }
 
+/* Auto-populated section styling */
+.auto-populated-section {
+  
+  
+  .form-check-input[readonly] {
+    pointer-events: none;
+    opacity: 0.8;
+  }
+  
+  .form-check-label {
+    color: #6c757d;
+  }
+  
+  small.text-muted {
+    font-style: italic;
+  }
+}
+
 /* Module Property */
 .module-property .btn {
     height: 42px;

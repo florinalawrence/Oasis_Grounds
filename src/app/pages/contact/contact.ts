@@ -116,9 +116,7 @@ export class Contact implements OnInit {
     this.loadCountryCodes();
   }
 
-  /**
-   * Setup page metadata for SEO (Angular 20 feature)
-   */
+ 
   private setupPageMetadata(): void {
     const metadata = this.pageMetadata();
     

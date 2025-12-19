@@ -124,16 +124,17 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   private readonly spinner = inject(NgxSpinnerService);
   private readonly swalToast = inject(ToastService);
   private readonly session = inject(SessionService);
-  readonly propertyService = inject(ManagePropertyService); // Made public for template access
+  readonly propertyService = inject(ManagePropertyService);
   private readonly announcer = inject(LiveAnnouncer);
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
-  //  signals for reactive state management
+ 
   readonly isLoading = signal(false);
   readonly isLoadingProperties = signal(false);
   readonly dataLoaded = signal(false);
   readonly selectedSort = signal('default');
+  readonly isSorting = signal(false);
   readonly priceRangeValue = signal(5000000);
   readonly minPrice = signal(0);
   readonly maxPrice = signal(10000000);
@@ -141,7 +142,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   readonly userProfileData = signal<boolean>(false);
   readonly canAddWishList = signal(false);
 
-  // Property data signals
+
   readonly properties = signal<Property[]>([]);
   readonly featuredProperties = signal<Property[]>([]);
   readonly latestProperties = signal<Property[]>([]);
@@ -155,7 +156,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   readonly propertyTypes = signal<string[]>([]);
   readonly cities = signal<string[]>([]);
 
-  // Pagination and search signals
+
   readonly totalItems = signal(0);
   readonly totalPages = signal(0);
   readonly page = signal(1);
@@ -289,9 +290,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     }, 100);
   }
 
-  /**
-   * Setup page metadata for SEO (Angular 20 feature)
-   */
+ 
   private setupPageMetadata(): void {
     const metadata = this.pageMetadata();
     
@@ -383,7 +382,9 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
 
   navigateToDetails(propertyId?: string) {
     if (propertyId) {
-      this.router.navigate(['/property/view', propertyId]);
+      this.router.navigate(['/details', propertyId], {
+        queryParams: { source: 'all-properties' }
+      });
     }
   }
 
@@ -563,38 +564,38 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.filteredProperties.set([]);
     this.propertyService.getPropertyDetailsByFilter(this.searchFilter).subscribe({
       next: (res: any) => {
-        console.log('📥 Production API Response:', res);
-        console.log('📊 Response Type:', typeof res);
-        console.log('🗂️ Response Keys:', res ? Object.keys(res) : 'No keys');
+        console.log(' Production API Response:', res);
+        console.log(' Response Type:', typeof res);
+        console.log(' Response Keys:', res ? Object.keys(res) : 'No keys');
 
         // Handle different response structures from production API
         let propertyData = [];
         
         if (res && res.data && Array.isArray(res.data)) {
           propertyData = res.data;
-          console.log('✅ Found property data in res.data from production API');
+          console.log(' Found property data in res.data from production API');
         } else if (res && Array.isArray(res)) {
           propertyData = res;
-          console.log('✅ Response is direct array from production API');
+          console.log('Response is direct array from production API');
         } else if (res && res.properties && Array.isArray(res.properties)) {
           propertyData = res.properties;
-          console.log('✅ Found property data in res.properties from production API');
+          console.log(' Found property data in res.properties from production API');
         } else if (res && res.result && Array.isArray(res.result)) {
           propertyData = res.result;
-          console.log('✅ Found property data in res.result from production API');
+          console.log(' Found property data in res.result from production API');
         } else if (res && res.recordInfo && Array.isArray(res.recordInfo)) {
           propertyData = res.recordInfo;
-          console.log('✅ Found property data in res.recordInfo from production API');
+          console.log(' Found property data in res.recordInfo from production API');
         } else {
-          console.warn('⚠️ No valid property data found in production API response');
+          console.warn(' No valid property data found in production API response');
           propertyData = [];
         }
 
         this.propertyList.set(propertyData);
 
         if (propertyData.length > 0) {
-          console.log(`📈 Found ${propertyData.length} properties in development API`);
-          console.log('🏠 Sample property from development API:', propertyData[0]);
+          console.log(`Found ${propertyData.length} properties in development API`);
+          console.log('Sample property from development API:', propertyData[0]);
 
           // FIXED MAPPING - matching the API response structure
           this.filteredProperties.set(this.propertyList().map((property) => ({
@@ -628,13 +629,20 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           this.totalPages.set(Math.ceil(this.totalItems() / this.tableSize()));
           this.searchResultsCount.set(res.totalrecords || res.total || propertyData.length);
 
-          // Split for featured and latest sections
-          const midPoint = Math.ceil(this.filteredProperties().length / 2);
-          this.featuredProperties.set(this.filteredProperties().slice(0, midPoint));
-          this.latestProperties.set(this.filteredProperties().slice(midPoint));
+          // Apply sorting if a sort filter is active
+          const currentSort = this.selectedSort();
+          if (currentSort && currentSort !== 'default') {
+            console.log(" Applying sort filter after loading:', currentSort");
+            this.applySorting(currentSort);
+          } else {
+            // Split for featured and latest sections (default behavior)
+            const midPoint = Math.ceil(this.filteredProperties().length / 2);
+            this.featuredProperties.set(this.filteredProperties().slice(0, midPoint));
+            this.latestProperties.set(this.filteredProperties().slice(midPoint));
+          }
 
-          console.log(`🎉 Successfully loaded ${propertyData.length} properties from production API`);
-          // this.swalToast.showToast(`✅ Loaded ${propertyData.length} properties from production database`, 'success');
+          console.log(`Successfully loaded ${propertyData.length} properties from production API`);
+          // this.swalToast.showToast(`Loaded ${propertyData.length} properties from production database`, 'success');
         } else {
           console.log('📭 No properties found in production API response');
           this.filteredProperties.set([]);
@@ -665,8 +673,8 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         }, 100);
       },
       error: (err: any) => {
-        console.error('❌ Production API Error:', err);
-        console.error('🚨 Error details:', {
+        console.error(' Production API Error:', err);
+        console.error(' Error details:', {
           status: err.status,
           statusText: err.statusText,
           message: err.message,
@@ -863,7 +871,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
 
     const queryParams: { [key: string]: any } = { ...this.checkQueryParamValues() };
 
-    if (selectedValue && this.searchFilter.sortFilter !== selectedValue) {
+    if (selectedValue && selectedValue !== 'default') {
       queryParams['sortFilter'] = selectedValue;
       this.searchFilter.sortFilter = selectedValue;
     } else {
@@ -871,11 +879,112 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       this.searchFilter.sortFilter = '';
     }
 
+    // Update URL with new sort parameter
     const navigationExtras: NavigationExtras = {
       queryParams,
     };
     this.router.navigate(['properties/browse'], navigationExtras);
-    this.getPropertyDetails();
+    
+    // Apply sorting to current properties instead of refetching
+    this.applySorting(selectedValue);
+    
+    console.log('🔄 Applied sorting:', selectedValue);
+  }
+
+  /**
+   * Apply sorting to the filtered properties
+   */
+  private applySorting(sortType: string): void {
+    this.isSorting.set(true);
+    
+    const currentProperties = [...this.filteredProperties()];
+    
+    if (!currentProperties.length) {
+      console.log('⚠️ No properties to sort');
+      this.isSorting.set(false);
+      return;
+    }
+
+    let sortedProperties: Property[] = [];
+
+    switch (sortType) {
+      case 'newest':
+        sortedProperties = currentProperties.sort((a, b) => {
+          // Use property ID as proxy for creation order (higher IDs are typically newer)
+          const idA = parseInt(a.propertyId?.toString() || '0');
+          const idB = parseInt(b.propertyId?.toString() || '0');
+          return idB - idA; // Newest first (higher ID first)
+        });
+        break;
+
+      case 'oldest':
+        sortedProperties = currentProperties.sort((a, b) => {
+          // Use property ID as proxy for creation order (lower IDs are typically older)
+          const idA = parseInt(a.propertyId?.toString() || '0');
+          const idB = parseInt(b.propertyId?.toString() || '0');
+          return idA - idB; // Oldest first (lower ID first)
+        });
+        break;
+
+      case 'highest':
+        sortedProperties = currentProperties.sort((a, b) => {
+          const priceA = parseFloat(a.price?.toString() || '0');
+          const priceB = parseFloat(b.price?.toString() || '0');
+          return priceB - priceA; // Highest price first
+        });
+        break;
+
+      case 'lowest':
+        sortedProperties = currentProperties.sort((a, b) => {
+          const priceA = parseFloat(a.price?.toString() || '0');
+          const priceB = parseFloat(b.price?.toString() || '0');
+          return priceA - priceB; // Lowest price first
+        });
+        break;
+
+
+
+      case 'default':
+      default:
+        // Keep original order or sort by ID
+        sortedProperties = currentProperties.sort((a, b) => {
+          const idA = parseInt(a.propertyId?.toString() || '0');
+          const idB = parseInt(b.propertyId?.toString() || '0');
+          return idB - idA; // Default: newest by ID
+        });
+        break;
+    }
+
+    // Update the filtered properties with sorted data
+    this.filteredProperties.set(sortedProperties);
+
+    // Update featured and latest sections with sorted data
+    const midPoint = Math.ceil(sortedProperties.length / 2);
+    this.featuredProperties.set(sortedProperties.slice(0, midPoint));
+    this.latestProperties.set(sortedProperties.slice(midPoint));
+
+    console.log(` Sorted ${sortedProperties.length} properties by: ${sortType}`);
+    
+    // Add a small delay to show sorting feedback
+    setTimeout(() => {
+      this.isSorting.set(false);
+    }, 300);
+  }
+
+  /**
+   * Get user-friendly description of current sort
+   */
+  getSortDescription(): string {
+    const sortType = this.selectedSort();
+    const sortDescriptions: { [key: string]: string } = {
+      'default': 'Default order',
+      'newest': 'Newest items first',
+      'oldest': 'Oldest items first',
+      'highest': 'Highest price first',
+      'lowest': 'Lowest price first'
+    };
+    
+    return sortDescriptions[sortType] || 'Default order';
   }
 
   onPriceRangeChange(event: any) {
@@ -1258,7 +1367,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     return this.canAddWishList();
   }
 
-  // TrackBy functions removed - Angular 20 @for uses track expressions directly
 
   // Helper methods
   checkQueryParamValues() {

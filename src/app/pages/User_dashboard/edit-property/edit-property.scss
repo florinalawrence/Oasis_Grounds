@@ -1,0 +1,136 @@
+.edit-property-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  .page-header {
+    margin-bottom: 30px;
+    text-align: center;
+    
+    h2 {
+      color: #2c3e50;
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      color: #7f8c8d;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+  }
+  
+  .property-id-info {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    text-align: center;
+    
+    small {
+      font-size: 0.875rem;
+      color: #6c757d;
+      
+      strong {
+        color: #495057;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .loading-state {
+    padding: 40px 20px;
+    text-align: center;
+    
+    .alert {
+      max-width: 600px;
+      margin: 0 auto;
+      
+      h5 {
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+      
+      p {
+        margin-bottom: 10px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .property-section {
+    margin-bottom: 30px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .section-title {
+      color: #2c3e50;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+      
+      &::before {
+        content: "🏠 ";
+        margin-right: 8px;
+      }
+    }
+    
+    // Ensure each section has proper spacing
+    > * {
+      width: 100%;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .edit-property-container {
+    padding: 15px;
+    
+    .page-header {
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      p {
+        font-size: 1rem;
+      }
+    }
+    
+    .property-section {
+      margin-bottom: 20px;
+      
+      &:not(:last-child) {
+        padding-bottom: 20px;
+      }
+    }
+  }
+}
+
+// Ensure proper styling for nested components
+.edit-property-container {
+  // Override any conflicting styles from child components
+  app-add-property,
+  app-property-management,
+  app-nearby-locations,
+  app-property-images,
+  app-document-attachment,
+  app-property-location {
+    display: block;
+    width: 100%;
+  }
+}

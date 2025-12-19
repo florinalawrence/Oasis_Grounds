@@ -78,9 +78,7 @@ export class Agents implements OnInit {
     this.scrollToTop();
   }
 
-  /**
-   * Setup page metadata for SEO
-   */
+ 
   private setupPageMetadata(): void {
     const metadata = this.pageMetadata();
     

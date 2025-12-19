@@ -36,9 +36,9 @@ export class SessionService {
     const credentials = this.getCredentials();
     const token = credentials?.token || null;
     
-    console.log('🔍 SessionService getToken() called');
-    console.log('🔑 Credentials found:', !!credentials);
-    console.log('🔑 Token found:', !!token);
+    console.log(' SessionService getToken() called');
+    console.log(' Credentials found:', !!credentials);
+    console.log(' Token found:', !!token);
     
     return token;
   }
@@ -83,6 +83,7 @@ export class SessionService {
    */
   removeCredentials(): void {
     localStorage.removeItem(this.CREDENTIAL_KEY);
+    this.clearUserData(); // Also clear user data on logout
   }
 
   /**
@@ -90,6 +91,34 @@ export class SessionService {
    */
   setToken(token: string, loginMethod: 'email' | 'google' = 'email'): void {
     this.setCredentials({ token, loginMethod });
+  }
+
+  /**
+   * Store user data in session storage for persistence across page refreshes
+   */
+  setUserData(userData: any): void {
+    if (userData) {
+      localStorage.setItem('oasisUserData', JSON.stringify(userData));
+      console.log(' SessionService: User data stored in localStorage');
+    }
+  }
+
+  /**
+   * Get stored user data from session storage
+   */
+  getUserData(): any {
+    const data = localStorage.getItem('oasisUserData');
+    const userData = data ? JSON.parse(data) : null;
+    console.log(' SessionService: Retrieved user data from localStorage:', !!userData);
+    return userData;
+  }
+
+  /**
+   * Clear stored user data
+   */
+  clearUserData(): void {
+    localStorage.removeItem('oasisUserData');
+    console.log(' SessionService: User data cleared from localStorage');
   }
 
   // Alias for removeCredentials for backward compatibility

@@ -322,6 +322,10 @@ export class Register implements OnInit, OnDestroy {
   onGoogleSignInButtonClicked() {
     try {
       this.googleAuthSubscription = this.authService.authState.subscribe(user => {
+        // Get Google user info
+        const googleUser = user;
+        console.log('👤 Google user info from register:', googleUser);
+        
         this.authService.getAccessToken(GoogleLoginProvider.PROVIDER_ID).then(accessToken => {
           const googleLoginPayload = {
             identifier: environment.applicationId,
@@ -350,6 +354,10 @@ export class Register implements OnInit, OnDestroy {
                 if (token) {
                   this.notifier.notifyToHeader(token);
                   this.notifier.isAuthenticatedSubject.next(true);
+                  
+                  // For Google registration, also set new registration flag initially
+                  // This ensures header shows "Welcome" until user edits profile
+                  this.notifier.notifyUserData({ isNewRegistration: true, ...googleUser });
                 }
                 
                 // Small delay before navigation to ensure toast is shown

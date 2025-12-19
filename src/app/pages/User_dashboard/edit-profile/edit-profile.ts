@@ -112,22 +112,19 @@ export class EditProfile implements OnInit, AfterViewInit {
   }
 
   setupFormListeners(): void {
+    // Only listen for userType changes to update form validators (not sidenav)
     this.userProfileForm.get('userType')?.valueChanges.subscribe(value => {
       this.updateDynamicValidators(value);
-      this.updateUserRoleInSession(value);
+      // Don't update sidenav in real-time - only on save
     });
 
-    // Listen for first name and last name changes
-    this.userProfileForm.get('firstName')?.valueChanges.subscribe(() => {
-      this.updateUserNameInSession();
-    });
-
-    this.userProfileForm.get('lastName')?.valueChanges.subscribe(() => {
-      this.updateUserNameInSession();
-    });
+    // Remove real-time listeners for firstName and lastName
+    // Sidenav will only update when save button is clicked
   }
 
   updateUserRoleInSession(userType: string): void {
+    console.log(' updateUserRoleInSession called with userType:', userType);
+    
     if (userType) {
       // Map the user type to display role
       let displayRole = '';
@@ -145,10 +142,13 @@ export class EditProfile implements OnInit, AfterViewInit {
           displayRole = 'Home Buyer';
       }
       
-
+      console.log('Mapped displayRole:', displayRole);
       
       // Notify other components about the role change
       this.notifier.notifyUserRoleChange(displayRole);
+      console.log(' Role change sent to NotifierService:', displayRole);
+    } else {
+      console.warn(' No userType provided to updateUserRoleInSession');
     }
   }
 
@@ -157,11 +157,17 @@ export class EditProfile implements OnInit, AfterViewInit {
     const lastName = this.LastName.value || '';
     const fullName = `${firstName} ${lastName}`.trim();
     
+    console.log(' updateUserNameInSession called');
+    console.log(' firstName:', firstName);
+    console.log(' lastName:', lastName);
+    console.log(' fullName:', fullName);
+    
     if (fullName) {
-
-      
       // Notify other components about the name change
       this.notifier.notifyUserNameChange(fullName);
+      console.log(' Name change sent to NotifierService:', fullName);
+    } else {
+      console.warn(' No fullName to send to NotifierService');
     }
   }
 
@@ -238,8 +244,7 @@ export class EditProfile implements OnInit, AfterViewInit {
           this.spinner.hide();
           this.MapDataIntoForm();
           
-          // Update user name in session after loading profile data
-          this.updateUserNameInSession();
+          // Don't update sidenav when loading profile data - only on save
           
           if (this.userProfiles?.userType === 'Developer' || 
               this.userProfiles?.userType === 'Owner' || 
@@ -268,10 +273,7 @@ export class EditProfile implements OnInit, AfterViewInit {
       this.UserType.setValue(null);
     } else {
       this.UserType.setValue(userType);
-      // Update session with the loaded user type
-      if (userType) {
-        this.updateUserRoleInSession(userType);
-      }
+      // Don't update sidenav when mapping form data - only on save
     }
 
     if (this.userProfiles?.userType === 'Developer') {
@@ -323,14 +325,26 @@ export class EditProfile implements OnInit, AfterViewInit {
         if (res.headers.statusCode == 200) {
           this.swalToast.showToast(res.headers.message, 'success');
           
-          // Update user role and name in session after successful save
+          // NOW update sidenav - only after successful save
+          console.log('🔄 Updating sidenav after successful profile save...');
+          console.log('📋 UserType value:', this.UserType.value);
+          
+          // Update role first
           this.updateUserRoleInSession(this.UserType.value);
+          
+          // Then update name
           this.updateUserNameInSession();
+          
+          console.log('✅ Sidenav updates sent to NotifierService');
+          
+          // Add a small delay to ensure sidenav updates are processed before navigation
+          setTimeout(() => {
+            // Load fresh profile data and send to header for "Hi [userName]" display
+            this.loadProfileDataForHeader();
+          }, 200);
           
           this.spinner.hide();
           this.resetFormData();
-          this.notifier.notifyUserData(this.userProfiles);
-          this.router.navigateByUrl(RoutePath.HOME);
         } else {
           const error = res?.error?.errorList;
           if (error !== undefined && error !== null && Object.keys(error)) {
@@ -359,6 +373,38 @@ export class EditProfile implements OnInit, AfterViewInit {
     this.userProfileForm.reset();
   }
 
+  /**
+   * Load profile data and send to header for "Hi [userName]" display
+   * Then navigate to home page
+   */
+  private loadProfileDataForHeader(): void {
+    console.log('🔄 Loading profile data for header after profile save...');
+    
+    this.service.loadUserProfile().subscribe({
+      next: (profile) => {
+        console.log('✅ Profile data loaded for header:', profile);
+        
+        if (profile && profile.recordInfo) {
+          // Send actual user profile data to header (not the new registration flag)
+          this.notifier.notifyUserData(profile.recordInfo);
+          console.log('📤 User profile data sent to header for "Hi [userName]" display');
+        }
+        
+        // Navigate to home page after profile data is sent
+        setTimeout(() => {
+          this.router.navigateByUrl(RoutePath.HOME);
+        }, 500);
+      },
+      error: (err) => {
+        console.error('Failed to load profile data for header:', err);
+        // Still navigate to home even if profile loading fails
+        setTimeout(() => {
+          this.router.navigateByUrl(RoutePath.HOME);
+        }, 500);
+      }
+    });
+  }
+
   onSelectFile(event: any): void {
     if (event.target.files[0]) {
       const file = event.target.files[0];
@@ -380,10 +426,10 @@ export class EditProfile implements OnInit, AfterViewInit {
           if (this.userId) {
             formData.append('userId', this.userId);
           } else {
-            console.warn('⚠️ Edit Profile: No userId available for upload');
+            console.warn('Edit Profile: No userId available for upload');
           }
           
-          console.log('📋 Edit Profile: FormData prepared with fields:', Array.from(formData.keys()));
+          console.log('Edit Profile: FormData prepared with fields:', Array.from(formData.keys()));
           
           this.spinner.show();
           this.service.updateProfilePicture(formData).subscribe({
@@ -398,7 +444,7 @@ export class EditProfile implements OnInit, AfterViewInit {
               }
             },
             error: (err) => {
-              console.error('❌ Edit Profile: Upload failed:', err);
+              console.error('Edit Profile: Upload failed:', err);
               
               let errorMessage = 'Failed to upload profile picture';
               

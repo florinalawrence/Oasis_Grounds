@@ -41,7 +41,7 @@ export class About implements OnInit {
     }
   ]);
 
-  // Computed signal for page metadata
+ 
   readonly pageMetadata = computed(() => ({
     title: `About US - Oasis Grounds`,
     description: 'Learn more about Oasis Grounds - Security, Perfect Tools, and Search in Click features.',
@@ -53,9 +53,7 @@ export class About implements OnInit {
     this.scrollToTop();
   }
 
-  /**
-   * Setup page metadata for SEO (Angular 20 feature)
-   */
+  
   private setupPageMetadata(): void {
     const metadata = this.pageMetadata();
     
@@ -67,23 +65,17 @@ export class About implements OnInit {
     this.meta.updateTag({ property: 'og:type', content: 'website' });
   }
 
-  /**
-   * Scroll to top of page 
-   */
+ 
   private scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /**
-   * Navigate to home page 
-   */
+ 
   navigateToHome(): void {
     this.router.navigate(['/home']);
   }
 
-  /**
-   * Get about content 
-   */
+ 
   getAboutContent(): AboutContent[] {
     return this.aboutContent();
   }

@@ -1,9 +1,9 @@
-<!-- Remove the first 2 divs from the property card that were causing nesting issues -->
+
 <div class="container-fluid px-4">
-  <div class="row">
+  <div class="row align-items-start">
     <!-- First Column - Sticky Filters -->
     <div class="col-md-3 cd-sm-12 cd- sticky-column">
-      <div class="p-4">
+      <div class="p-4 h-100">
         <h3 class="section-title">Property Filters</h3>
         <div class="accordion" id="accordionExample">
           <!-- Accordion Item 1 -->
@@ -367,23 +367,45 @@
 
     <!-- Second Column - Scrollable Content -->
     <div class="col-md-9 scrollable-column">
-      <div class="p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h3 class="section-title">Available Properties</h3>
-          <div class="sort-filter d-flex align-items-center">
-            <label for="sortSelect" class="mb-0">Sort by:</label>
-            <select
-              id="sortSelect"
-              class="form-select"
-              [ngModel]="selectedSort()"
-              (change)="onSelectSortFilter($event)"
-            >
-              <option value="default">Default Sorting</option>
-              <option value="newest">Newest Items</option>
-              <option value="oldest">Oldest Items</option>
-              <option value="highest">Highest Price</option>
-              <option value="lowest">Lowest Price</option>
-            </select>
+      <div class="p-4 h-100">
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h3 class="section-title">Available Properties</h3>
+              @if (filteredProperties().length > 0) {
+                <small class="text-muted">{{ filteredProperties().length }} properties found</small>
+              }
+            </div>
+          @if (filteredProperties().length > 0) {
+            <div class="sort-filter d-flex align-items-center">
+              <label for="sortSelect" class="mb-0 me-2">Sort by:</label>
+              <div class="position-relative">
+                <select
+                  id="sortSelect"
+                  class="form-select"
+                  [ngModel]="selectedSort()"
+                  (change)="onSelectSortFilter($event)"
+                  [disabled]="isSorting()"
+                >
+                  <option value="default">Default Sorting</option>
+                  <option value="newest">Newest Items</option>
+                  <option value="oldest">Oldest Items</option>
+                  <option value="highest">Highest Price</option>
+                  <option value="lowest">Lowest Price</option>
+                </select>
+                @if (isSorting()) {
+                  <div class="position-absolute top-50 end-0 translate-middle-y me-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                      <span class="visually-hidden">Sorting...</span>
+                    </div>
+                  </div>
+                }
+              </div>
+              @if (selectedSort() !== 'default' && !isSorting()) {
+                <small class="text-muted ms-2">{{ getSortDescription() }}</small>
+              }
+            </div>
+          }
           </div>
         </div>
 

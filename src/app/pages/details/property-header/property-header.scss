@@ -30,6 +30,11 @@ h2 {
   text-decoration: none;
 }
 
+.breadcrumb .active {
+  color: #6c757d;
+  font-weight: 500;
+}
+
 .back-btn {
   background: linear-gradient(90deg, rgba(107, 150, 247, 1) 0%, rgba(22, 105, 246, 1) 50%);
   border: none;

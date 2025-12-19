@@ -26,6 +26,7 @@ export class Login implements OnInit {
   isSubmitted = false;
   RoutePath = RoutePath;
   loginForm!: FormGroup;
+  private currentGoogleUser: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -63,13 +64,19 @@ export class Login implements OnInit {
   private setupGoogleAuth() {
     this.socialAuth.authState.subscribe(user => {
       if (user) {
+        this.currentGoogleUser = user; // Store the current Google user
         this.handleGoogleLogin();
       }
     });
   }
 
   private handleGoogleLogin() {
+    // Get Google user info from social auth service
     this.socialAuth.getAccessToken(GoogleLoginProvider.PROVIDER_ID).then(accessToken => {
+      // Use the stored Google user info
+      const googleUser = this.currentGoogleUser;
+      console.log('👤 Google user info from social auth:', googleUser);
+      
       const googleLoginPayload = {
         identifier: environment.applicationId,
         token: accessToken,
@@ -79,7 +86,7 @@ export class Login implements OnInit {
       this.spinner.show();
       this.auth.loginWithGoogle(googleLoginPayload).subscribe({
         next: (res) => {
-          console.log('📥 Google login API response:', res);
+          console.log(' Google login API response:', res);
           const data = res;
           
           if (data.accessToken) {
@@ -94,6 +101,15 @@ export class Login implements OnInit {
             
             if (token) {
               this.notifier.isAuthenticatedSubject.next(true);
+              
+              // If we have Google user info, immediately notify with that data
+              if (googleUser) {
+                console.log('Sending Google user info to notifier:', googleUser);
+                this.session.setUserData(googleUser); // Store in session for persistence
+                this.notifier.notifyUserData(googleUser);
+              }
+              
+              // Also load user profile from server (this might override with server data)
               this.loadUserProfile();
               this.navigateAfterLogin();
             }
@@ -132,8 +148,9 @@ export class Login implements OnInit {
 
   private handleLoginSuccess(response: any) {
     this.spinner.hide();
-    
-    if (response.headers?.statusCode !== 200) {
+    // console.log('Response from login API:', response);
+    if (response.headers.statusCode !== "200") {
+      console.log('Response from login API:', response);
       this.toast.showToast(response.headers?.message || 'Login failed', 'error');
       return;
     }
@@ -157,15 +174,57 @@ export class Login implements OnInit {
   private loadUserProfile() {
     this.userService.loadUserProfile().subscribe({
       next: (profile) => {
-        console.log('📥 User profile API response:', profile);
+        console.log(' User profile API response:', profile);
         if (profile?.[0]) {
-          console.log('📝 Profile data being sent to notifier:', profile[0]);
-          this.notifier.notifyUserData(profile[0]);
+          let profileData = profile[0];
+          
+          // For Google login, merge Google user info with server profile data
+          if (this.session.getLoginMethod() === 'google') {
+            const googleUser = this.currentGoogleUser;
+            if (googleUser) {
+              console.log('Merging Google user data with server profile data');
+              profileData = {
+                ...profileData,
+                // Preserve Google user info if server doesn't have name data
+                name: profileData.firstName ? undefined : googleUser.name,
+                given_name: profileData.firstName ? undefined : googleUser.given_name,
+                family_name: profileData.lastName ? undefined : googleUser.family_name,
+                picture: profileData.profilePicUrl ? undefined : googleUser.photoUrl,
+                email: profileData.email || googleUser.email
+              };
+            }
+          }
+          
+          console.log(' Final profile data being sent to notifier:', profileData);
+          this.session.setUserData(profileData); // Store in session for persistence
+          this.notifier.notifyUserData(profileData);
         } else {
-          console.warn('⚠️ No profile data found in API response');
+          console.warn(' No profile data found in API response');
+          
+          // For Google login, if no server profile, use Google user data
+          if (this.session.getLoginMethod() === 'google') {
+            const googleUser = this.currentGoogleUser;
+            if (googleUser) {
+              console.log(' Using Google user data as fallback:', googleUser);
+              this.session.setUserData(googleUser); // Store in session for persistence
+              this.notifier.notifyUserData(googleUser);
+            }
+          }
         }
       },
-      error: (err) => console.error('❌ Failed to load user profile:', err)
+      error: (err) => {
+        console.error(' Failed to load user profile:', err);
+        
+        // For Google login, if profile loading fails, use Google user data
+        if (this.session.getLoginMethod() === 'google') {
+          const googleUser = this.currentGoogleUser;
+          if (googleUser) {
+            console.log(' Using Google user data due to profile load error:', googleUser);
+            this.session.setUserData(googleUser); // Store in session for persistence
+            this.notifier.notifyUserData(googleUser);
+          }
+        }
+      }
     });
   }
 

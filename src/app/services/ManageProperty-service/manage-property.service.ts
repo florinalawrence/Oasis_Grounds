@@ -36,15 +36,15 @@ export class ManagePropertyService {
       'Content-Type': 'application/json'
     });
     
-    console.log('🔍 ManageProperty getHeaders() called');
-    console.log('🔑 Token exists:', !!token);
-    console.log('🔑 Token length:', token ? token.length : 0);
+    console.log(' ManageProperty getHeaders() called');
+    console.log(' Token exists:', !!token);
+    console.log(' Token length:', token ? token.length : 0);
     
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
-      console.log('✅ Authorization header added successfully');
+      console.log(' Authorization header added successfully');
     } else {
-      console.error('❌ No access token found - user may not be logged in');
+      console.error(' No access token found - user may not be logged in');
     }
     
     return headers;
@@ -126,9 +126,22 @@ export class ManagePropertyService {
 
   // Save feature image gallery
   saveFeatureImageGallery(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_FEATUREDIMAGE_GALLERY}`, data)
+    // For file uploads, we need headers WITHOUT Content-Type (let browser set it)
+    const token = this.session.getToken();
+    
+    if (!token) {
+      console.error(' No authentication token available for featured image upload');
+      return throwError(() => new Error('Authentication required. Please log in again.'));
+    }
+    
+    let headers = new HttpHeaders();
+    headers = headers.set('Authorization', `Bearer ${token}`);
+    console.log(' Featured Image Upload: Token added to headers');
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_FEATUREDIMAGE_GALLERY}`, data, { headers })
       .pipe(
         catchError((err) => {
+          console.error(' Featured image upload API error:', err);
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving feature image gallery';
           return throwError(() => new Error(errorMessage));
         })
@@ -136,17 +149,50 @@ export class ManagePropertyService {
   }
 
    deleteFeatureImage(deleteReq: any): Observable<any> {
-    return this.http.post<any>('/api/property/delete-featured-image', deleteReq);
+    const headers = this.getHeaders();
+    console.log(' Deleting featured image with auth headers');
+    
+    return this.http.post<any>(`${this.baseApiUrl}property/delete/featured-image`, deleteReq, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error(' Delete featured image API error:', err);
+          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting featured image';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
   }
 
     deleteListOfImage(deleteReq: any): Observable<any> {
-    return this.http.post<any>('/api/property/delete-list-of-images', deleteReq);
+    const headers = this.getHeaders();
+    console.log(' Deleting gallery image with auth headers');
+    
+    return this.http.post<any>(`${this.baseApiUrl}property/delete/list-of-images`, deleteReq, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error(' Delete gallery image API error:', err);
+          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting image';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
   }
   // Save list of image gallery
   saveListOfImageGallery(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_LISTOFIMAGE_GALLERY}`, data)
+    // For file uploads, we need headers WITHOUT Content-Type (let browser set it)
+    const token = this.session.getToken();
+    
+    if (!token) {
+      console.error(' No authentication token available for gallery images upload');
+      return throwError(() => new Error('Authentication required. Please log in again.'));
+    }
+    
+    let headers = new HttpHeaders();
+    headers = headers.set('Authorization', `Bearer ${token}`);
+    console.log(' Gallery Images Upload: Token added to headers');
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_LISTOFIMAGE_GALLERY}`, data, { headers })
       .pipe(
         catchError((err) => {
+          console.error(' Gallery images upload API error:', err);
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving list of image gallery';
           return throwError(() => new Error(errorMessage));
         })
@@ -155,9 +201,22 @@ export class ManagePropertyService {
 
   // Save document
   saveDocument(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_DOCUMENT_UPLOAD}`, data)
+    // For file uploads, we need headers WITHOUT Content-Type (let browser set it)
+    const token = this.session.getToken();
+    
+    if (!token) {
+      console.error(' No authentication token available for document upload');
+      return throwError(() => new Error('Authentication required. Please log in again.'));
+    }
+    
+    let headers = new HttpHeaders();
+    headers = headers.set('Authorization', `Bearer ${token}`);
+    console.log(' Document Upload: Token added to headers');
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_DOCUMENT_UPLOAD}`, data, { headers })
       .pipe(
         catchError((err) => {
+          console.error(' Document upload API error:', err);
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving document';
           return throwError(() => new Error(errorMessage));
         })
@@ -166,9 +225,13 @@ export class ManagePropertyService {
 
   // Delete document
   deleteDocument(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_DOCUMENT_UPLOAD}`, data)
+    const headers = this.getHeaders();
+    console.log(' Deleting document with auth headers');
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_DOCUMENT_UPLOAD}`, data, { headers })
       .pipe(
         catchError((err) => {
+          console.error(' Delete document API error:', err);
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting document';
           return throwError(() => new Error(errorMessage));
         })
@@ -215,8 +278,8 @@ export class ManagePropertyService {
   // Get property details with authentication (for my-properties page)
   getPropertyDetails(data: any): Observable<any> {
     const headers = this.getHeaders();
-    console.log('📡 Making getPropertyDetails API call with data:', data);
-    console.log('🔑 Headers include Authorization:', headers.has('Authorization'));
+    console.log(' Making getPropertyDetails API call with data:', data);
+    console.log(' Headers include Authorization:', headers.has('Authorization'));
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.GET_ACTIVE_USER_PROPERTIES}`, data, { 
       headers,
@@ -230,8 +293,8 @@ export class ManagePropertyService {
   // Get user's own properties (for my-properties page) with authentication
   getUserProperties(): Observable<any> {
     const headers = this.getHeaders();
-    console.log('📡 Making getUserProperties API call');
-    console.log('🔑 Headers include Authorization:', headers.has('Authorization'));
+    console.log(' Making getUserProperties API call');
+    console.log(' Headers include Authorization:', headers.has('Authorization'));
     
     // Use POST method with empty body as the API expects POST, not GET
     const requestBody = {};
@@ -249,16 +312,16 @@ export class ManagePropertyService {
    * Centralized error handling for all API calls
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error('❌ ManageProperty API Error:', error);
-    console.error('❌ Error Status:', error.status);
-    console.error('❌ Error Message:', error.error?.headers?.message || error.message);
+    console.error(' ManageProperty API Error:', error);
+    console.error(' Error Status:', error.status);
+    console.error(' Error Message:', error.error?.headers?.message || error.message);
     
     if (error.status === 401) {
-      console.error('❌ 401 Unauthorized - Token may be invalid or expired');
+      console.error(' 401 Unauthorized - Token may be invalid or expired');
     } else if (error.status === 403) {
-      console.error('❌ 403 Forbidden - Insufficient permissions');
+      console.error(' 403 Forbidden - Insufficient permissions');
     } else if (error.status === 0) {
-      console.error('❌ Network error - Check CORS settings or network connection');
+      console.error(' Network error - Check CORS settings or network connection');
     }
     
     const errorMessage = error.error?.headers?.message || error.error?.message || error.message || 'An error occurred while processing your request';
@@ -342,14 +405,14 @@ export class ManagePropertyService {
     const headers = this.getHeaders();
     const endpoint = `${this.baseApiUrl}${AuthEndPoints.DELETE_WISHLIST_PROPERTY}/${propertyId}`;
     
-    console.log('📡 Making delete wishlist API call with headers:', headers.keys());
+    console.log(' Making delete wishlist API call with headers:', headers.keys());
     
     return this.http.delete<any>(endpoint, { headers })
       .pipe(
         catchError((err) => {
-          console.error('❌ Delete Wishlist API Error:', err);
-          console.error('❌ Error Status:', err.status);
-          console.error('❌ Error Message:', err.error?.headers?.message || err.message);
+          console.error(' Delete Wishlist API Error:', err);
+          console.error(' Error Status:', err.status);
+          console.error(' Error Message:', err.error?.headers?.message || err.message);
           
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting wishlist property';
           return throwError(() => new Error(errorMessage));
@@ -360,14 +423,14 @@ export class ManagePropertyService {
   // Get wishlist data
   getWishlistData(): Observable<any> {
     const headers = this.getHeaders();
-    console.log('📡 Making wishlist API call with headers:', headers.keys());
+    console.log(' Making wishlist API call with headers:', headers.keys());
     
     return this.http.get<any>(`${this.baseApiUrl}${AuthEndPoints.GET_WISHLIST_PROPERTY}`, { headers })
       .pipe(
         catchError((err) => {
-          console.error('❌ Wishlist API Error:', err);
-          console.error('❌ Error Status:', err.status);
-          console.error('❌ Error Message:', err.error?.headers?.message || err.message);
+          console.error(' Wishlist API Error:', err);
+          console.error(' Error Status:', err.status);
+          console.error(' Error Message:', err.error?.headers?.message || err.message);
           
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while fetching wishlist data';
           return throwError(() => new Error(errorMessage));
@@ -381,6 +444,103 @@ export class ManagePropertyService {
       .pipe(
         catchError((err) => {
           const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting property';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+
+  // Get property by ID for editing
+  getPropertyById(propertyId: string): Observable<any> {
+    const headers = this.getHeaders();
+    console.log('Getting property by ID:', propertyId);
+    
+    return this.http.get<any>(`${this.baseApiUrl}${AuthEndPoints.GET_PROPERTY_DETAIL_BY_PROP_ID}${propertyId}`, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error(' Get Property By ID Error:', err);
+          const errorMessage = err.error?.headers?.message || err.error?.message || 'An error occurred while fetching property data';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+
+  // Update existing property data
+  updatePropertyData(propertyData: any): Observable<any> {
+    const headers = this.getHeaders();
+    console.log(' Updating property data:', propertyData);
+    console.log(' Property ID for update:', propertyData.propertyId);
+    
+    // Check if we have a property ID for the update
+    if (!propertyData.propertyId) {
+      console.error(' No property ID provided for update');
+      return throwError(() => new Error('Property ID is required for updates'));
+    }
+    
+    // Try different approaches for the update API call
+    // Approach 1: Use POST method (same as create) - many APIs use POST for both create and update
+    console.log(' Attempting update with POST method...');
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}`, propertyData, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error(' Update Property Error (POST method):', err);
+          console.error(' Error details:', {
+            status: err.status,
+            statusText: err.statusText,
+            url: err.url,
+            message: err.message
+          });
+          
+          // If POST fails, try PUT method as fallback
+          if (err.status === 0 || err.status === 405) {
+            console.log(' POST failed, trying PUT method as fallback...');
+            return this.updatePropertyDataWithPUT(propertyData, headers);
+          }
+          
+          if (err.status === 401) {
+            return throwError(() => new Error('You must be logged in to update a property. Please login first.'));
+          }
+          
+          const errorMessage = err.error?.headers?.message || err.error?.message || err.message || 'An error occurred while updating property data';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+
+  // Fallback method using PUT
+  private updatePropertyDataWithPUT(propertyData: any, headers: HttpHeaders): Observable<any> {
+    console.log('🔄 Attempting update with PUT method...');
+    
+    return this.http.put<any>(`${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}`, propertyData, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error(' Update Property Error (PUT method):', err);
+          
+          // If PUT also fails, try with property ID in URL
+          if (err.status === 0 || err.status === 404 || err.status === 405) {
+            console.log('PUT failed, trying with property ID in URL...');
+            return this.updatePropertyDataWithIdInUrl(propertyData, headers);
+          }
+          
+          const errorMessage = err.error?.headers?.message || err.error?.message || err.message || 'An error occurred while updating property data';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+
+  // Fallback method with property ID in URL
+  private updatePropertyDataWithIdInUrl(propertyData: any, headers: HttpHeaders): Observable<any> {
+    console.log(' Attempting update with property ID in URL...');
+    
+    const updateUrl = `${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}/${propertyData.propertyId}`;
+    console.log('Update URL with ID:', updateUrl);
+    
+    return this.http.put<any>(updateUrl, propertyData, { headers })
+      .pipe(
+        catchError((err) => {
+          console.error(' Update Property Error (with ID in URL):', err);
+          
+          const errorMessage = err.error?.headers?.message || err.error?.message || err.message || 'Failed to update property. Please try again or contact support.';
           return throwError(() => new Error(errorMessage));
         })
       );

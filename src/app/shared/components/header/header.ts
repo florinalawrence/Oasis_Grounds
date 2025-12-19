@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SessionService } from '../../../services/Session-service/session.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
+import { ToastService } from '../../../services/Toast-service/toast.service';
 import { RoutePath } from '../../../core/constant/api.constant';
 
 @Component({
@@ -26,6 +27,7 @@ export class Header {
   private readonly router = inject(Router);
   private readonly notifier = inject(NotifierService);
   private readonly session = inject(SessionService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   // Signal-based state management
@@ -37,6 +39,9 @@ export class Header {
   
   // Dropdown state
   showDropdown = false;
+
+  // Expose RoutePath for template
+  readonly RoutePath = RoutePath;
 
   // ViewChild for navbar collapse element
   readonly navbarCollapse = viewChild<ElementRef>('navbarCollapse');
@@ -52,7 +57,8 @@ export class Header {
    */
   private initializeAuthState(): void {
     const token = this.session.getToken();
-    this.hasLoggedIn.set(!!token);
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    this.hasLoggedIn.set(!!token || isLoggedIn);
   }
 
   /**
@@ -64,9 +70,28 @@ export class Header {
       .subscribe((data: any) => {
         this.userProfileData.set(data);
 
-        // Extract user name with fallbacks for different login types
-        const userName = data?.firstName || data?.name || data?.given_name || data?.displayName || '';
-        this.userName.set(userName);
+        // Check if this is a new registration (should show "Welcome" only)
+        if (data?.isNewRegistration) {
+          this.userName.set(''); // Empty name will make getWelcomeText() return "Welcome"
+          return;
+        }
+
+        // Extract FIRST NAME ONLY with fallbacks for different login types
+        let firstName = '';
+        
+        if (data?.firstName) {
+          firstName = data.firstName;
+        } else if (data?.given_name) {
+          firstName = data.given_name;
+        } else if (data?.name) {
+          firstName = data.name.split(' ')[0];
+        } else if (data?.displayName) {
+          firstName = data.displayName.split(' ')[0];
+        } else if (data?.email) {
+          firstName = data.email.split('@')[0];
+        }
+        
+        this.userName.set(firstName);
       });
   }
 
@@ -79,7 +104,8 @@ export class Header {
       .subscribe((authenticated) => {
         const isAuth = 
           authenticated === true || 
-          !!this.session.getToken();
+          !!this.session.getToken() ||
+          localStorage.getItem('isLoggedIn') === 'true';
         this.hasLoggedIn.set(isAuth);
       });
   }
@@ -98,7 +124,7 @@ export class Header {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    const dropdownContainer = target.closest('.user-dropdown-container');
+    const dropdownContainer = target.closest('.user-dropdown-container, .has-dropdown');
     
     if (!dropdownContainer && this.showDropdown) {
       this.showDropdown = false;
@@ -107,21 +133,58 @@ export class Header {
 
   /**
    * Get display text for welcome message
-   * Returns "Hi [FirstName]" if firstName exists, otherwise "Welcome"
+   * Matches old logic: "Hi [FirstName]" if name exists, otherwise "Welcome"
    */
   getWelcomeText(): string {
     return this.userName() ? `Hi ${this.userName()}` : 'Welcome';
   }
 
   /**
-   * Handle logout
+   * Handle logout - matches old implementation
    */
   logOut(): void {
+    console.log('🚪 Header: User logout initiated');
+    
+    // Close dropdown first
     this.showDropdown = false;
-    // this.session.logOut();
+    
+    // Clear session data
+    this.session.removeCredentials();
+    localStorage.setItem('isLoggedIn', 'false');
+    localStorage.setItem('isGoogleUser', 'false');
+    
+    // Clear local component data
     this.hasLoggedIn.set(false);
+    this.userName.set('');
+    this.userProfileData.set({});
+    
+    // Notify other components about logout
+    this.notifier.isAuthenticatedSubject.next(false);
+    this.notifier.notifyUserData(null);
     this.notifier.notifyToHeader(null);
+    
+    // Show logout success message
+    this.toast.showToast('Logged out successfully', 'success');
+    
+    // Scroll to top
+    this.scrollToTop();
+    
+    // Navigate to home page
     this.router.navigate([RoutePath.HOME]);
+    
+    // Reload window (matches old behavior)
+    setTimeout(() => {
+      window.location.reload();
+    }, 200);
+    
+    console.log('✅ Header: User logged out successfully');
+  }
+
+  /**
+   * Scroll to top of page
+   */
+  scrollToTop(): void {
+    window.scrollTo(0, 0);
   }
 
   /**
@@ -132,7 +195,7 @@ export class Header {
     if (navbarEl?.nativeElement?.classList.contains('show')) {
       navbarEl.nativeElement.classList.remove('show');
     }
-    // Also update the collapse state
+    // Update the collapse state
     this.isNavbarCollapsed.set(false);
     // Hide dropdown
     this.showDropdown = false;
@@ -142,6 +205,7 @@ export class Header {
    * Navigate to login page
    */
   navigateToLogin(): void {
+    this.scrollToTop();
     this.router.navigate([RoutePath.LOGIN]);
     this.closeNavbar();
   }
@@ -154,9 +218,13 @@ export class Header {
   }
 
   /**
-   * Toggle dropdown visibility (for mobile/touch devices)
+   * Toggle dropdown visibility
    */
-  toggleDropdown(): void {
+  toggleDropdown(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.showDropdown = !this.showDropdown;
   }
 
@@ -165,30 +233,21 @@ export class Header {
    */
   navigateToAddProperty(): void {
     if (!this.hasLoggedIn()) {
+      // Store the intended route and redirect to login
       localStorage.setItem('routeUrl', '/user-dashboard/add-property');
+      this.toast.showToast('Please login to add a property', 'info');
       this.router.navigate([RoutePath.LOGIN]);
     } else {
+      // User is logged in, navigate to add property page
       this.router.navigate(['/user-dashboard/add-property']);
     }
     this.closeNavbar();
   }
 
   /**
-   * Add property action
+   * Add property action - simplified version
    */
   addProperty(): void {
-    if (!this.hasLoggedIn()) {
-      this.router.navigate([RoutePath.LOGIN]);
-    } else {
-      this.router.navigate(['/user-dashboard/add-property']);
-    }
-  }
-
-  /**
-   * Additional scroll handler for alternative threshold
-   */
-  @HostListener('window:scroll', [])
-  onScroll(): void {
-    this.isScrolled.set(window.scrollY > 100);
+    this.navigateToAddProperty();
   }
 }

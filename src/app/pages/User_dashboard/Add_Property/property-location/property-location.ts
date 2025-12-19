@@ -6,7 +6,6 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 import { RoutePath } from '../../../../core/constant/api.constant';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
-
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
 import Swal from 'sweetalert2';
@@ -28,7 +27,9 @@ import { MapLocation } from '../../../map-location/map-location';
 export class PropertyLocation implements OnInit, OnDestroy {
   @Input() selectedPropertyData: any;
   @Output() promptFromChild: any = new EventEmitter<void>();
-  @ViewChild('mapComponent') mapLocation!: MapLocation;
+  
+  // ViewChild to access the map component
+  @ViewChild('mapLocationComponent') mapLocationComponent!: MapLocation;
 
   addrDetailForm!: FormGroup;
   btnSubmitted: boolean = false;
@@ -57,6 +58,10 @@ export class PropertyLocation implements OnInit, OnDestroy {
     this.initializeForm();
     this.loadInitialData();
     this.setupFormListeners();
+
+    // Clear state validators initially
+    this.addrDetailForm.get('state')?.clearValidators();
+    this.State.clearValidators();
   }
 
   initializeForm(): void {
@@ -110,25 +115,31 @@ export class PropertyLocation implements OnInit, OnDestroy {
   }
 
   setupFormListeners(): void {
+    // Listen to form changes and notify publish button state
     this.addrDetailForm.valueChanges
       .pipe(debounceTime(2000), distinctUntilChanged())
       .subscribe(() => this.onNotifyPublishToSite());
 
+    // Listen to city changes and update map
     this.addrDetailForm.get('city')?.valueChanges
       .pipe(debounceTime(500), distinctUntilChanged())
       .subscribe(() => {
-        if (this.mapLocation) {
-          this.mapLocation.triggerAddressUpdate();
+        if (this.mapLocationComponent) {
+          this.mapLocationComponent.triggerAddressUpdate();
         }
       });
 
+    // Listen to property ID changes
     this.notifier.propertyID$.subscribe(res => {
       console.log(res, "property ID from notifier");
     });
   }
 
+  // Receive location updates from map component
   onLocationUpdate(event: { latitude: number; longitude: number; addressDetails: any }): void {
     console.log('Received from Map Component:', event);
+    
+    // Update form with location data from map
     this.addrDetailForm.patchValue({
       ...event.addressDetails,
       latitude: event.latitude,
@@ -162,6 +173,7 @@ export class PropertyLocation implements OnInit, OnDestroy {
 
     const rawData = this.addrDetailForm.value;
 
+    // Prepare data payload for API
     const formData = {
       ...rawData,
       landmark: rawData.landMark,
@@ -169,6 +181,7 @@ export class PropertyLocation implements OnInit, OnDestroy {
       propertyId: this.propertyId
     };
 
+    // Remove temporary fields
     delete formData.landMark;
     delete formData.zipCode;
 
@@ -203,6 +216,7 @@ export class PropertyLocation implements OnInit, OnDestroy {
   onChangeCountry(event: any): void {
     const value = event.target.value;
     
+    // Clear dependent fields when country changes
     this.addrDetailForm.patchValue({
       city: '',
       state: '',
@@ -210,6 +224,7 @@ export class PropertyLocation implements OnInit, OnDestroy {
       landMark: ''
     });
 
+    // Set state validators based on country selection
     if (value === 'India') {
       this.addrDetailForm.get('state')?.setValidators([Validators.required]);
     } else {
@@ -218,8 +233,9 @@ export class PropertyLocation implements OnInit, OnDestroy {
 
     this.addrDetailForm.get('state')?.updateValueAndValidity();
     
-    if (this.mapLocation) {
-      this.mapLocation.triggerAddressUpdate();
+    // Trigger map update
+    if (this.mapLocationComponent) {
+      this.mapLocationComponent.triggerAddressUpdate();
     }
   }
 
@@ -233,8 +249,9 @@ export class PropertyLocation implements OnInit, OnDestroy {
       landMark: ''
     });
     
-    if (this.mapLocation) {
-      this.mapLocation.triggerAddressUpdate();
+    // Trigger map update
+    if (this.mapLocationComponent) {
+      this.mapLocationComponent.triggerAddressUpdate();
     }
   }
 
@@ -275,8 +292,9 @@ export class PropertyLocation implements OnInit, OnDestroy {
     this.resetFormData();
     this.onNotifyPublishToSite();
 
-    if (this.mapLocation) {
-      this.mapLocation.resetMap();
+    // Reset map component
+    if (this.mapLocationComponent) {
+      this.mapLocationComponent.resetMap();
     }
     console.log('Cleared map and form data');
   }
@@ -284,6 +302,7 @@ export class PropertyLocation implements OnInit, OnDestroy {
   resetFormData(): void {
     this.btnSubmitted = false;
 
+    // Reset all form values
     this.addrDetailForm.reset({
       floor: null,
       addressLine1: '',
@@ -298,6 +317,39 @@ export class PropertyLocation implements OnInit, OnDestroy {
       longitude: null
     });
 
+    // Clear all validators
+    Object.keys(this.addrDetailForm.controls).forEach(controlName => {
+      const control = this.addrDetailForm.get(controlName);
+      control?.clearValidators();
+      control?.updateValueAndValidity();
+    });
+
+    // Re-apply required validators
+    this.addrDetailForm.get('addressLine1')?.setValidators([
+      Validators.required,
+      Validators.pattern('^[a-zA-Z0-9 !@#$&()\\-`.+,/"]*$'),
+      Validators.maxLength(200)
+    ]);
+    this.addrDetailForm.get('city')?.setValidators([
+      Validators.required,
+      Validators.pattern('^[a-zA-Z\\s]*$'),
+      Validators.maxLength(35)
+    ]);
+    this.addrDetailForm.get('country')?.setValidators([Validators.required]);
+    this.addrDetailForm.get('zipCode')?.setValidators([
+      Validators.required,
+      Validators.pattern('^[0-9]{3,7}$')
+    ]);
+    this.addrDetailForm.get('state')?.setValidators(
+      this.Country?.value === 'India' ? [Validators.required] : []
+    );
+
+    // Update validity after setting validators
+    Object.keys(this.addrDetailForm.controls).forEach(controlName => {
+      this.addrDetailForm.get(controlName)?.updateValueAndValidity();
+    });
+
+    // Mark the form as pristine and untouched
     this.addrDetailForm.markAsPristine();
     this.addrDetailForm.markAsUntouched();
     this.addrDetailForm.updateValueAndValidity();

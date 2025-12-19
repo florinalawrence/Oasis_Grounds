@@ -49,18 +49,18 @@ export class UserProfilesService {
 
   /**
    * Load User Profile
-   * @returns Observable<any[]>
+   * @returns Observable<any>
    */
-  loadUserProfile(): Observable<any[]> {
+  loadUserProfile(): Observable<any> {
     const headers = this.getHeaders();
-    console.log('📡 Making /profile API call with headers:', headers.keys());
+    console.log('Making /profile API call with headers:', headers.keys());
     
-    return this.http.get<any[]>(`${this.authApiUrl}${AuthEndPoints.LOAD_USER_PROFILE}`, { headers })
+    return this.http.get<any>(`${this.authApiUrl}${AuthEndPoints.LOAD_USER_PROFILE}`, { headers })
       .pipe(
         catchError((err: any) => {
-          console.error('❌ Profile API Error:', err);
-          console.error('❌ Error Status:', err.status);
-          console.error('❌ Error Message:', err.error?.headers?.message || err.message);
+          console.error('Profile API Error:', err);
+          console.error(' Error Status:', err.status);
+          console.error(' Error Message:', err.error?.headers?.message || err.message);
           
           const errorMessage = err.error?.headers?.message || 'An error occurred';
           return throwError(() => new Error(errorMessage));
@@ -95,19 +95,19 @@ export class UserProfilesService {
     const token = this.session.getToken();
     
     if (!token) {
-      console.error('❌ No authentication token available for profile picture upload');
+      console.error('No authentication token available for profile picture upload');
       return throwError(() => new Error('Authentication required. Please log in again.'));
     }
     
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${token}`);
-    console.log('🔑 Profile Picture Upload: Token added to headers');
+    console.log(' Profile Picture Upload: Token added to headers');
     
     // Don't set Content-Type for FormData - let browser handle it
     const options = { headers };
     
-    console.log('📤 Uploading profile picture to:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
-    console.log('📋 FormData contents:');
+    console.log(' Uploading profile picture to:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
+    console.log(' FormData contents:');
     updateReq.forEach((value, key) => {
       console.log(`  ${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes)` : value);
     });
@@ -115,13 +115,13 @@ export class UserProfilesService {
     return this.http.post<any>(`${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`, updateReq, options)
       .pipe(
         catchError((err: any) => {
-          console.error('❌ Profile picture upload error:', err);
-          console.error('❌ Error status:', err.status);
-          console.error('❌ Error response:', err.error);
-          console.error('❌ Request URL:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
+          console.error(' Profile picture upload error:', err);
+          console.error(' Error status:', err.status);
+          console.error(' Error response:', err.error);
+          console.error(' Request URL:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
           
           // Log FormData contents for debugging
-          console.error('❌ FormData contents:');
+          console.error(' FormData contents:');
           if (updateReq instanceof FormData) {
             updateReq.forEach((value, key) => {
               console.error(`  ${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes, ${value.type})` : value);
@@ -131,18 +131,18 @@ export class UserProfilesService {
           let errorMessage = 'An error occurred while uploading the image';
           
           // Log the complete error structure for debugging
-          console.error('❌ Complete error object:', JSON.stringify(err.error, null, 2));
+          console.error(' Complete error object:', JSON.stringify(err.error, null, 2));
           
           // Specifically log the errorList to understand validation errors
           if (err.error?.errorList) {
-            console.error('❌ API Validation Errors (errorList):', err.error.errorList);
-            console.error('❌ ErrorList type:', typeof err.error.errorList);
-            console.error('❌ ErrorList keys:', Object.keys(err.error.errorList));
+            console.error(' API Validation Errors (errorList):', err.error.errorList);
+            console.error(' ErrorList type:', typeof err.error.errorList);
+            console.error(' ErrorList keys:', Object.keys(err.error.errorList));
           }
           
           // Log headers for additional context
           if (err.error?.headers) {
-            console.error('❌ API Response Headers:', err.error.headers);
+            console.error(' API Response Headers:', err.error.headers);
           }
           
           // Extract error message from various possible locations
@@ -176,7 +176,7 @@ export class UserProfilesService {
               errorMessage = 'Unsupported image format. Please use JPG, PNG, or GIF.';
             }
           } catch (parseError) {
-            console.error('❌ Error parsing error message:', parseError);
+            console.error(' Error parsing error message:', parseError);
             errorMessage = `Upload failed with status ${err.status}. Please try again.`;
           }
           

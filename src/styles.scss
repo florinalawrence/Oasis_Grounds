@@ -2,6 +2,9 @@
 
 @import 'sweetalert2/dist/sweetalert2.min.css';
 
+/* Import Modern Confirmation Dialog Styles */
+@import './app/services/Confirmation-service/confirmation-dialog.scss';
+
 /* Custom SweetAlert2 Styling */
 .custom-swal-popup {
   border-radius: 10px !important;

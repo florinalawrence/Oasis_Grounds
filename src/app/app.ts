@@ -30,7 +30,7 @@ export class App implements OnInit {
         window.scrollTo(0, 0);
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
-      }, 100); // Increased delay for view transitions
+      }, 100); 
     });
   }
 }

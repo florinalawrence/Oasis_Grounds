@@ -108,7 +108,11 @@ export class Properties implements OnInit, AfterViewInit {
 
   // Method to navigate to property details page
   gotoViewDetail(item: any) {
-    this.router.navigate([RoutePath.PUBLISHED_PROPERTY_VIEW_URL + item.id]);
+    if (item?.id) {
+      this.router.navigate(['/details', item.id], {
+        queryParams: { source: 'home' }
+      });
+    }
   }
 
   // Handle image error (fallback image)

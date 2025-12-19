@@ -19,9 +19,10 @@ import { ManagePropertyService } from '../../../services/ManageProperty-service/
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
 import { SessionService } from '../../../services/Session-service/session.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
+import { ConfirmationDialogService } from '../../../services/Confirmation-service/confirmation-dialog.service';
 import { IndianNumberPipe } from '../../../shared/pipes/indianNumber.pipe';
 import { CurrencyStringPipe } from '../../../shared/pipes/currencyStringConvertor.pipe';
-import { Header } from '../../../shared/components/header/header';
+
 import * as currencyData from '../../../../assets/common-currency.json';
 
 interface IsearchMyProperties {
@@ -39,8 +40,7 @@ interface IsearchMyProperties {
     NgxSpinnerModule,
     NgxPaginationModule,
     IndianNumberPipe,
-    CurrencyStringPipe,
-    Header
+    CurrencyStringPipe
   ],
   templateUrl: './my-properties.html',
   styleUrls: ['./my-properties.scss']
@@ -54,6 +54,7 @@ export class MyProperties implements OnInit, AfterViewInit {
   private readonly swalToast = inject(ToastService);
   private readonly session = inject(SessionService);
   private readonly service = inject(ManagePropertyService);
+  private readonly confirmationDialog = inject(ConfirmationDialogService);
   private readonly destroyRef = inject(DestroyRef);
 
   // Route paths
@@ -206,28 +207,38 @@ export class MyProperties implements OnInit, AfterViewInit {
 
   /**
    * Handle status filter selection
-   * Matches old code exactly
    */
   onSelectStatusFilter(event: any): void {
     const selectedValue = (event.target as HTMLSelectElement).value;
     
+    // Update the search filter
+    this.searchFilter.sortFilter = selectedValue;
+    this.searchFilter.pageNo = 1; // Reset to first page
+    this.sortFilterValue.set(selectedValue);
+    
+    // Reset pagination
     this.notifier.sendPaginationNo(1);
-    const queryParams: { [key: string]: any } = { ...this.checkQueryParamValues() };
-
-    // If empty value, clear filters
-    if (selectedValue === '') {
+    this.page.set(1);
+    
+    // Update URL with new filter
+    const queryParams: { [key: string]: any } = {
+      pageNo: 1,
+      limit: this.tableSize()
+    };
+    
+    if (selectedValue && selectedValue !== '') {
       queryParams['sortFilter'] = selectedValue;
-      this.onClearAllFilters();
-      return;
     }
-
-    if (selectedValue && this.searchFilter.sortFilter !== selectedValue) {
-      queryParams['sortFilter'] = selectedValue;
-    } else {
-      delete queryParams['sortFilter'];
-    }
-
-    this.router.navigate(['/profile/my-properties'], { queryParams });
+    
+    // Navigate with updated query params
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: queryParams,
+      queryParamsHandling: 'replace'
+    });
+    
+    // Fetch filtered data
+    this.getPropertyDetails();
   }
 
   /**
@@ -341,11 +352,17 @@ export class MyProperties implements OnInit, AfterViewInit {
   }
 
   /**
-   * Navigate to property detail view
-   * Matches old code exactly
+   * Navigate to main property page
    */
   gotoViewDetail(item: any): void {
-    this.router.navigateByUrl(this.routePath.MYPROPERTIES_VIEW_URL + item.id);
+    if (item?.id) {
+      this.router.navigate(['/details', item.id], {
+        queryParams: { source: 'my-properties' }
+      });
+    } else {
+      console.error('Property ID not found:', item);
+      this.swalToast.showToast('Property ID not found', 'error');
+    }
   }
 
   /**
@@ -367,45 +384,65 @@ export class MyProperties implements OnInit, AfterViewInit {
   }
 
   /**
-   * Delete property with confirmation
-   * Matches old code exactly
+   * Delete property with modern confirmation dialog
    */
-  onDeleteProperty(item: any): void {
-    Swal.fire({
-      title: 'Are you sure want to remove this property?',
-      text: 'You will not be able to recover this!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, keep it',
-      showCloseButton: false
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const propertyId = item.id;
+  async onDeleteProperty(item: any): Promise<void> {
+    try {
+      const confirmed = await this.confirmationDialog.confirmDelete('property');
+      
+      if (confirmed) {
+        const propertyId = item?.id;
+        
+        if (!propertyId) {
+          this.swalToast.showToast('Property ID not found', 'error');
+          return;
+        }
+        
+        this.spinner.show();
         
         this.service.deletePropertyById(propertyId).subscribe({
-          next: res => {
-            if (res.headers.statusCode == 200) {
-              this.swalToast.showToast(res.headers.message, 'success');
-              this.spinner.hide();
+          next: (res) => {
+            console.log('Delete response:', res);
+            
+            // Handle different response structures
+            const statusCode = res?.headers?.statusCode || res?.statusCode;
+            const message = res?.headers?.message || res?.message || 'Property deleted successfully';
+            
+            if (statusCode === 200 || statusCode === '200') {
+              this.swalToast.showToast(message, 'success');
               
+              // Refresh the property list
               setTimeout(() => {
                 this.getPropertyDetails();
               }, 500);
             } else {
-              this.swalToast.showToast(res.headers.message, 'error');
+              this.swalToast.showToast(message || 'Failed to delete property', 'error');
             }
+            
+            this.spinner.hide();
           },
           error: (err) => {
-            const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
-            this.swalToast.showToast(errList, 'error');
+            console.error('Delete property error:', err);
+            
+            let errorMessage = 'Failed to delete property';
+            
+            if (err?.error?.message) {
+              errorMessage = err.error.message;
+            } else if (err?.message) {
+              errorMessage = err.message;
+            } else if (typeof err === 'string') {
+              errorMessage = err;
+            }
+            
+            this.swalToast.showToast(errorMessage, 'error');
             this.spinner.hide();
           }
         });
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        this.swalToast.showToast('Your image is safe.', 'info');
       }
-    });
+    } catch (error) {
+      console.error('Confirmation dialog error:', error);
+      this.swalToast.showToast('Error showing confirmation dialog', 'error');
+    }
   }
 
   /**

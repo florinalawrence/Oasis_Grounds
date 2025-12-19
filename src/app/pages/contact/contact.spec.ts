@@ -7,9 +7,9 @@ import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha';
 import { of } from 'rxjs';
 
 import { Contact } from './contact';
-import { ContactService } from '../../services/contact.service';
-import { ToastService } from '../../services/toast.service';
-import { SessionService } from '../../services/session.service';
+import { ContactService } from '../../services/Contact-service/contact.service';
+import { ToastService } from '../../services/Toast-service/toast.service';
+import { SessionService } from '../../services/Session-service/session.service';
 
 describe('Contact', () => {
   let component: Contact;

@@ -65,7 +65,7 @@ export enum RoutePath {
   // MY_PROPERTIES_EDIT = '/profile/edit-property/',
   OTHER_PROPERTIES = '/properties',
   POST_PROPERTY = '/post-property',
-  EDIT_PROPERTY = '/profile/my-properties/edit-property/',
+  EDIT_PROPERTY = '/user-dashboard/edit-property',
   WISHLIST_PROPERTY = '/profile/favorite-properties',
   WISHLIST_PROPERTY_URL = 'favorite-properties',
   GET_WISHLIST_PROPERTY= '/api/wishlist/get-all',

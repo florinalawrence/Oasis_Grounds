@@ -15,11 +15,11 @@
             formControlName="floor"
             placeholder="Enter floor number"
             min="0"
-            [ngClass]="{'is-invalid': btnSubmitted && getControl('floor')?.errors}"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('floor').errors}"
           />
-          @if (btnSubmitted && getControl('floor')?.errors) {
+          @if (btnSubmitted && getControl('floor').errors) {
             <div class="invalid-feedback d-block">
-              @if (getControl('floor')?.errors?.['pattern']) {
+              @if (getControl('floor').errors?.['pattern']) {
                 <span>Invalid floor value! Maximum 5 digits allowed. Only up to 2 decimals.</span>
               }
             </div>
@@ -27,24 +27,24 @@
         </div>
 
         <div class="col-md-4">
-          <label for="addressLine1" class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+          <label for="addressLine1" class="form-label">Address Line 1</label>
           <input 
             type="text" 
             class="form-control" 
             id="addressLine1"
             formControlName="addressLine1"
             placeholder="Enter address line 1"
-            [ngClass]="{'is-invalid': btnSubmitted && getControl('addressLine1')?.errors}"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('addressLine1').errors}"
           />
-          @if (btnSubmitted && getControl('addressLine1')?.errors) {
+          @if (btnSubmitted && getControl('addressLine1').errors) {
             <div class="invalid-feedback d-block">
-              @if (getControl('addressLine1')?.errors?.['required']) {
+              @if (getControl('addressLine1').errors?.['required']) {
                 <span>Address Line 1 is required</span>
               }
-              @if (getControl('addressLine1')?.errors?.['pattern']) {
-                <span>Alphanumeric with special characters !@#$&()-`.+,/" allowed</span>
+              @if (getControl('addressLine1').errors?.['pattern']) {
+                <span>Alphanumeric with special characters !@#()-`.+,/" allowed</span>
               }
-              @if (getControl('addressLine1')?.errors?.['maxlength']) {
+              @if (getControl('addressLine1').errors?.['maxlength']) {
                 <span>Address cannot be greater than 200 characters long!</span>
               }
             </div>
@@ -59,14 +59,14 @@
             id="addrLine2"
             formControlName="addrLine2"
             placeholder="Enter address line 2"
-            [ngClass]="{'is-invalid': btnSubmitted && getControl('addrLine2')?.errors}"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('addrLine2').errors}"
           />
-          @if (btnSubmitted && getControl('addrLine2')?.errors) {
+          @if (btnSubmitted && getControl('addrLine2').errors) {
             <div class="invalid-feedback d-block">
-              @if (getControl('addrLine2')?.errors?.['pattern']) {
-                <span>Alphanumeric with special characters !@#$&()-`.+,/" allowed</span>
+              @if (getControl('addrLine2').errors?.['pattern']) {
+                <span>Alphanumeric with special characters !@#()-`.+,/" allowed</span>
               }
-              @if (getControl('addrLine2')?.errors?.['maxlength']) {
+              @if (getControl('addrLine2').errors?.['maxlength']) {
                 <span>Address cannot be greater than 200 characters long!</span>
               }
             </div>
@@ -84,14 +84,14 @@
             id="addrLine3"
             formControlName="addrLine3"
             placeholder="Enter address line 3"
-            [ngClass]="{'is-invalid': btnSubmitted && getControl('addrLine3')?.errors}"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('addrLine3').errors}"
           />
-          @if (btnSubmitted && getControl('addrLine3')?.errors) {
+          @if (btnSubmitted && getControl('addrLine3').errors) {
             <div class="invalid-feedback d-block">
-              @if (getControl('addrLine3')?.errors?.['pattern']) {
-                <span>Alphanumeric with special characters !@#$&()-`.+,/" allowed</span>
+              @if (getControl('addrLine3').errors?.['pattern']) {
+                <span>Alphanumeric with special characters !@#()-`.+,/" allowed</span>
               }
-              @if (getControl('addrLine3')?.errors?.['maxlength']) {
+              @if (getControl('addrLine3').errors?.['maxlength']) {
                 <span>Address cannot be greater than 200 characters long!</span>
               }
             </div>
@@ -99,22 +99,22 @@
         </div>
 
         <div class="col-md-4">
-          <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
+          <label for="country" class="form-label">Country</label>
           <select 
             class="form-select" 
             id="country"
             formControlName="country"
             (change)="onChangeCountry($event)"
-            [ngClass]="{'is-invalid': btnSubmitted && getControl('country')?.errors}"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('country').errors}"
           >
             <option value="" disabled>Select country</option>
             @for (country of countryCodes; track country.name) {
               <option [value]="country.name">{{ country.name }}</option>
             }
           </select>
-          @if (btnSubmitted && getControl('country')?.errors) {
+          @if (btnSubmitted && getControl('country').errors) {
             <div class="invalid-feedback d-block">
-              @if (getControl('country')?.errors?.['required']) {
+              @if (getControl('country').errors?.['required']) {
                 <span>Please select a country</span>
               }
             </div>
@@ -122,105 +122,78 @@
         </div>
 
         <div class="col-md-4">
-          @if (Country.value === 'India') {
-            <label for="state" class="form-label">State <span class="text-danger">*</span></label>
-            <select 
-              class="form-select" 
-              id="state"
-              formControlName="state"
-              (change)="onSelectStateChange($event)"
-              [ngClass]="{'is-invalid': btnSubmitted && getControl('state')?.errors}"
-            >
-              <option value="">Select state</option>
-              @for (state of states; track state.name) {
-                <option [value]="state.name">{{ state.name }}</option>
+          <label for="state" class="form-label">State</label>
+          <select 
+            class="form-select" 
+            id="state"
+            formControlName="state"
+            (change)="onSelectStateChange($event)"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('state').errors}"
+          >
+            <option value="">Select state</option>
+            @for (state of states; track state.name) {
+              <option [value]="state.name">{{ state.name }}</option>
+            }
+          </select>
+          @if (btnSubmitted && getControl('state').errors) {
+            <div class="invalid-feedback d-block">
+              @if (getControl('state').errors?.['required']) {
+                <span>State is required</span>
               }
-            </select>
-            @if (btnSubmitted && getControl('state')?.errors) {
-              <div class="invalid-feedback d-block">
-                @if (getControl('state')?.errors?.['required']) {
-                  <span>State is required</span>
-                }
-                @if (getControl('state')?.errors?.['pattern']) {
-                  <span>Only alphabets allowed</span>
-                }
-                @if (getControl('state')?.errors?.['maxlength']) {
-                  <span>Max 35 characters allowed</span>
-                }
-              </div>
-            }
-          } @else {
-            <label for="city" class="form-label">City <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="city"
-              formControlName="city"
-              placeholder="Enter city"
-              [ngClass]="{'is-invalid': btnSubmitted && getControl('city')?.errors}"
-            />
-            @if (btnSubmitted && getControl('city')?.errors) {
-              <div class="invalid-feedback d-block">
-                @if (getControl('city')?.errors?.['required']) {
-                  <span>City is required</span>
-                }
-                @if (getControl('city')?.errors?.['pattern']) {
-                  <span>Only alphabets allowed</span>
-                }
-                @if (getControl('city')?.errors?.['maxlength']) {
-                  <span>Max 35 characters allowed</span>
-                }
-              </div>
-            }
+              @if (getControl('state').errors?.['pattern']) {
+                <span>Only alphabets allowed</span>
+              }
+              @if (getControl('state').errors?.['maxlength']) {
+                <span>Max 35 characters allowed</span>
+              }
+            </div>
           }
         </div>
       </div>
 
       <!-- Third Row -->
       <div class="row g-3 mb-3">
-        @if (Country.value === 'India') {
-          <div class="col-md-4">
-            <label for="cityIndia" class="form-label">City <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="cityIndia"
-              formControlName="city"
-              placeholder="Enter city"
-              [ngClass]="{'is-invalid': btnSubmitted && getControl('city')?.errors}"
-            />
-            @if (btnSubmitted && getControl('city')?.errors) {
-              <div class="invalid-feedback d-block">
-                @if (getControl('city')?.errors?.['required']) {
-                  <span>City is required</span>
-                }
-                @if (getControl('city')?.errors?.['pattern']) {
-                  <span>Only alphabets allowed</span>
-                }
-                @if (getControl('city')?.errors?.['maxlength']) {
-                  <span>Max 35 characters allowed</span>
-                }
-              </div>
-            }
-          </div>
-        }
+        <div class="col-md-4">
+          <label for="city" class="form-label">City</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="city"
+            formControlName="city"
+            placeholder="Enter city"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('city').errors}"
+          />
+          @if (btnSubmitted && getControl('city').errors) {
+            <div class="invalid-feedback d-block">
+              @if (getControl('city').errors?.['required']) {
+                <span>City is required</span>
+              }
+              @if (getControl('city').errors?.['pattern']) {
+                <span>Only alphabets allowed</span>
+              }
+              @if (getControl('city').errors?.['maxlength']) {
+                <span>Max 35 characters allowed</span>
+              }
+            </div>
+          }
+        </div>
 
         <div class="col-md-4">
-          <label for="zipCode" class="form-label">ZIP Code <span class="text-danger">*</span></label>
+          <label for="zipCode" class="form-label">ZIP Code</label>
           <input 
             type="number" 
             class="form-control" 
             id="zipCode"
             formControlName="zipCode"
             placeholder="Enter ZIP code"
-            [ngClass]="{'is-invalid': btnSubmitted && getControl('zipCode')?.errors}"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('zipCode').errors}"
           />
-          @if (btnSubmitted && getControl('zipCode')?.errors) {
+          @if (btnSubmitted && getControl('zipCode').errors) {
             <div class="invalid-feedback d-block">
-              @if (getControl('zipCode')?.errors?.['required']) {
+              @if (getControl('zipCode').errors?.['required']) {
                 <span>Please provide a valid zip code</span>
               }
-              @if (getControl('zipCode')?.errors?.['pattern']) {
+              @if (getControl('zipCode').errors?.['pattern']) {
                 <span>Zip code must be minimum 3 digits and maximum 7 digits long</span>
               }
             </div>
@@ -235,14 +208,14 @@
             id="landMark"
             formControlName="landMark"
             placeholder="Enter landmark"
-            [ngClass]="{'is-invalid': btnSubmitted && getControl('landMark')?.errors}"
+            [ngClass]="{'is-invalid': btnSubmitted && getControl('landMark').errors}"
           />
-          @if (btnSubmitted && getControl('landMark')?.errors) {
+          @if (btnSubmitted && getControl('landMark').errors) {
             <div class="invalid-feedback d-block">
-              @if (getControl('landMark')?.errors?.['pattern']) {
-                <span>Alphanumeric and special characters !@#$&()-`.+,/" allowed</span>
+              @if (getControl('landMark').errors?.['pattern']) {
+                <span>Alphanumeric and special characters !@#()-`.+,/" allowed</span>
               }
-              @if (getControl('landMark')?.errors?.['maxlength']) {
+              @if (getControl('landMark').errors?.['maxlength']) {
                 <span>Landmark cannot exceed 200 characters</span>
               }
             </div>
@@ -254,7 +227,7 @@
       <div class="row mb-3">
         <div class="col-12">
           <app-map-location
-            #mapComponent
+            #mapLocationComponent
             [address]="addrDetailForm.get('addressLine1')?.value"
             [city]="addrDetailForm.get('city')?.value"
             [state]="addrDetailForm.get('state')?.value"
@@ -263,6 +236,7 @@
             [zipCode]="addrDetailForm.get('zipCode')?.value"
             [latitude]="addrDetailForm.get('latitude')?.value"
             [longitude]="addrDetailForm.get('longitude')?.value"
+            [isDraggable]="true"
             (locationUpdated)="onLocationUpdate($event)"
           ></app-map-location>
         </div>

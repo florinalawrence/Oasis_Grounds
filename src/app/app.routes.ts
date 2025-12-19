@@ -19,6 +19,8 @@ import { ForgotPassword } from './pages/forgot-password/forgot-password';
 import { OptVerificationScreen } from './pages/opt-verification-screen/opt-verification-screen';
 import { provideRouter, withViewTransitions } from '@angular/router';
 import { ChangePassword } from './pages/User_dashboard/change-password/change-password';
+import { EditProperty } from './pages/User_dashboard/edit-property/edit-property';
+import { ResetPassword } from './pages/reset-password/reset-password';
 
 export const routes: Routes = [
     {
@@ -26,6 +28,12 @@ export const routes: Routes = [
     },
     {
         path: 'home', component: Dashboard
+    },
+     {
+        path: 'resetPassword', component: ResetPassword
+    },
+    {
+        path: 'resetPassword/:id', component: ResetPassword
     },
     {
         path: 'all-property', component: AllProperty
@@ -43,7 +51,7 @@ export const routes: Routes = [
         path: 'register', component: Register
     },
     {
-        path: 'details', component: MainPropertyPage
+        path: 'details/:id', component: MainPropertyPage
     },
     {
         path: 'design', component: Design
@@ -72,7 +80,8 @@ export const routes: Routes = [
             { path: 'my-property', component: MyProperties },
             { path: 'favourites', component: MyFavourites },
             { path: 'add-property', component: AddProperty },
-            { path: 'change-password', component: ChangePassword }
+            { path: 'edit-property', component: EditProperty },
+        { path: 'change-password', component: ChangePassword }
         ]
     },
     {

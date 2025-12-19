@@ -41,7 +41,7 @@ export class ScriptLoaderService {
       };
 
       script.onerror = (error) => {
-        console.error(`❌ Failed to load script: ${scriptId}`, error);
+        console.error(` Failed to load script: ${scriptId}`, error);
         reject(new Error(`Failed to load script: ${scriptId}`));
       };
 
@@ -60,9 +60,9 @@ export class ScriptLoaderService {
       // Wait a bit for the API to initialize
       await this.waitForGoogleApi();
       
-      console.log('✅ Google APIs loaded successfully');
+      console.log(' Google APIs loaded successfully');
     } catch (error) {
-      console.error('❌ Failed to load Google APIs:', error);
+      console.error(' Failed to load Google APIs:', error);
       throw error;
     }
   }
