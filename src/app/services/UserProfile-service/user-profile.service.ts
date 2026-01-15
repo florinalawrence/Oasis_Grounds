@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ToastService } from '../Toast-service/toast.service';
 import { AuthEndPoints } from '../../core/constant/api.constant';
@@ -16,6 +17,7 @@ export class UserProfilesService {
   private http = inject(HttpClient); 
   private swalToast = inject(ToastService); 
   private session = inject(SessionService);
+  private router = inject(Router);
 
   baseApiUrl: string = environment.baseApiUrl;
   authApiUrl: string = environment.authApiUrl;
@@ -24,11 +26,82 @@ export class UserProfilesService {
 
   constructor() {}
 
+  /**
+   * Check if user is authenticated with valid token
+   */
+  isAuthenticated(): boolean {
+    const token = this.session.getToken();
+    return !!token;
+  }
+
+  /**
+   * Validate current token by making a test API call
+   */
+  validateToken(): Observable<boolean> {
+    if (!this.isAuthenticated()) {
+      return throwError(() => new Error('No token found'));
+    }
+
+    return this.loadUserProfile().pipe(
+      switchMap(() => {
+        console.log('✅ Token is valid');
+        return [true];
+      }),
+      catchError((err) => {
+        console.warn('❌ Token validation failed:', err.message);
+        if (this.isTokenExpired(err)) {
+          this.handleTokenExpiration();
+        }
+        return [false];
+      })
+    );
+  }
+
   // Get Country Codes
   getCountryCodes() {
     return this.countryCodes;
   }
 
+  /**
+   * Handle token expiration and redirect to login
+   */
+  private handleTokenExpiration(): void {
+    console.warn('🔒 Token expired - redirecting to login');
+    this.session.removeCredentials();
+    this.swalToast.showToast('Your session has expired. Please log in again.', 'warning');
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Check if error is due to token expiration
+   */
+  private isTokenExpired(error: any): boolean {
+    const errorMessage = error.error?.headers?.message || error.message || '';
+    return (
+      error.status === 401 || 
+      errorMessage.toLowerCase().includes('expired') ||
+      errorMessage.toLowerCase().includes('invalid') ||
+      errorMessage.toLowerCase().includes('unauthorized')
+    );
+  }
+
+  /**
+   * Handle API errors with token expiration check
+   */
+  private handleApiError(error: any, operation: string = 'API call'): Observable<never> {
+    console.error(`❌ ${operation} error:`, error);
+    console.error('Error Status:', error.status);
+    console.error('Error Message:', error.error?.headers?.message || error.message);
+    
+    // Check if token is expired
+    if (this.isTokenExpired(error)) {
+      this.handleTokenExpiration();
+      return throwError(() => new Error('Session expired. Please log in again.'));
+    }
+    
+    const errorMessage = error.error?.headers?.message || error.error?.message || `An error occurred during ${operation}`;
+    return throwError(() => new Error(errorMessage));
+  }
   /**
    * Get headers with current access token
    * @returns HttpHeaders
@@ -42,6 +115,8 @@ export class UserProfilesService {
       console.log('🔑 UserProfile API: Token found and added to headers');
     } else {
       console.warn('⚠️ UserProfile API: No access token found in localStorage');
+      // If no token, redirect to login immediately
+      this.handleTokenExpiration();
     }
     
     return headers;
@@ -53,18 +128,11 @@ export class UserProfilesService {
    */
   loadUserProfile(): Observable<any> {
     const headers = this.getHeaders();
-    console.log('Making /profile API call with headers:', headers.keys());
+    console.log('📥 Making /profile API call with headers:', headers.keys());
     
     return this.http.get<any>(`${this.authApiUrl}${AuthEndPoints.LOAD_USER_PROFILE}`, { headers })
       .pipe(
-        catchError((err: any) => {
-          console.error('Profile API Error:', err);
-          console.error(' Error Status:', err.status);
-          console.error(' Error Message:', err.error?.headers?.message || err.message);
-          
-          const errorMessage = err.error?.headers?.message || 'An error occurred';
-          return throwError(() => new Error(errorMessage));
-        })
+        catchError((err: any) => this.handleApiError(err, 'Load User Profile'))
       );
   }
 
@@ -77,10 +145,7 @@ export class UserProfilesService {
     const headers = this.getHeaders();
     return this.http.post<any>(`${this.authApiUrl}${AuthEndPoints.UPDATE_USER_PROFILE}`, updateReq, { headers })
       .pipe(
-        catchError((err: any) => {
-          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred on updating user profile';
-          return throwError(() => new Error(errorMessage));
-        })
+        catchError((err: any) => this.handleApiError(err, 'Update User Profile'))
       );
   }
 
@@ -90,72 +155,43 @@ export class UserProfilesService {
    * @returns Observable<any>
    */
   updateProfilePicture(updateReq: FormData): Observable<any> {
-    // For file uploads, we need to get headers WITHOUT Content-Type
-    // Let the browser set the Content-Type with boundary for multipart/form-data
     const token = this.session.getToken();
     
     if (!token) {
-      console.error('No authentication token available for profile picture upload');
+      console.error('❌ No authentication token available for profile picture upload');
+      this.handleTokenExpiration();
       return throwError(() => new Error('Authentication required. Please log in again.'));
     }
     
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${token}`);
-    console.log(' Profile Picture Upload: Token added to headers');
+    console.log('📤 Profile Picture Upload: Token added to headers');
     
-    // Don't set Content-Type for FormData - let browser handle it
     const options = { headers };
     
-    console.log(' Uploading profile picture to:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
-    console.log(' FormData contents:');
-    updateReq.forEach((value, key) => {
-      console.log(`  ${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes)` : value);
-    });
+    console.log('🔄 Uploading profile picture to:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
     
     return this.http.post<any>(`${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`, updateReq, options)
       .pipe(
         catchError((err: any) => {
-          console.error(' Profile picture upload error:', err);
-          console.error(' Error status:', err.status);
-          console.error(' Error response:', err.error);
-          console.error(' Request URL:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
+          console.error('❌ Profile picture upload error:', err);
           
-          // Log FormData contents for debugging
-          console.error(' FormData contents:');
-          if (updateReq instanceof FormData) {
-            updateReq.forEach((value, key) => {
-              console.error(`  ${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes, ${value.type})` : value);
-            });
+          // Check for token expiration first
+          if (this.isTokenExpired(err)) {
+            this.handleTokenExpiration();
+            return throwError(() => new Error('Session expired. Please log in again.'));
           }
           
           let errorMessage = 'An error occurred while uploading the image';
           
-          // Log the complete error structure for debugging
-          console.error(' Complete error object:', JSON.stringify(err.error, null, 2));
-          
-          // Specifically log the errorList to understand validation errors
-          if (err.error?.errorList) {
-            console.error(' API Validation Errors (errorList):', err.error.errorList);
-            console.error(' ErrorList type:', typeof err.error.errorList);
-            console.error(' ErrorList keys:', Object.keys(err.error.errorList));
-          }
-          
-          // Log headers for additional context
-          if (err.error?.headers) {
-            console.error(' API Response Headers:', err.error.headers);
-          }
-          
-          // Extract error message from various possible locations
           try {
             if (err.error?.headers?.message) {
               errorMessage = err.error.headers.message;
             } else if (err.error?.errorList) {
-              // Handle errorList as object or array
               if (typeof err.error.errorList === 'object' && err.error.errorList !== null) {
                 if (Array.isArray(err.error.errorList)) {
                   errorMessage = err.error.errorList.join(', ');
                 } else {
-                  // If errorList is an object, extract its values
                   const errorValues = Object.values(err.error.errorList);
                   errorMessage = errorValues.length > 0 ? errorValues.join(', ') : 'Validation error occurred';
                 }
@@ -166,17 +202,27 @@ export class UserProfilesService {
               errorMessage = err.error.message;
             } else if (err.message) {
               errorMessage = err.message;
-            } else if (err.status === 400) {
-              errorMessage = 'Invalid request. Please check the image file and try again.';
-            } else if (err.status === 401) {
-              errorMessage = 'Authentication failed. Please log in again.';
-            } else if (err.status === 413) {
-              errorMessage = 'Image file is too large. Please choose a smaller image.';
-            } else if (err.status === 415) {
-              errorMessage = 'Unsupported image format. Please use JPG, PNG, or GIF.';
+            } else {
+              // Status-based error messages
+              switch (err.status) {
+                case 400:
+                  errorMessage = 'Invalid request. Please check the image file and try again.';
+                  break;
+                case 401:
+                  errorMessage = 'Authentication failed. Please log in again.';
+                  break;
+                case 413:
+                  errorMessage = 'Image file is too large. Please choose a smaller image.';
+                  break;
+                case 415:
+                  errorMessage = 'Unsupported image format. Please use JPG, PNG, or GIF.';
+                  break;
+                default:
+                  errorMessage = `Upload failed with status ${err.status}. Please try again.`;
+              }
             }
           } catch (parseError) {
-            console.error(' Error parsing error message:', parseError);
+            console.error('❌ Error parsing error message:', parseError);
             errorMessage = `Upload failed with status ${err.status}. Please try again.`;
           }
           
@@ -195,10 +241,7 @@ export class UserProfilesService {
     const options = { headers, body: deleteReq };
     return this.http.delete<any>(`${this.authApiUrl}${AuthEndPoints.DELETE_PROFILE_PICTURE}`, options)
       .pipe(
-        catchError((err: any) => {
-          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred on delete an image';
-          return throwError(() => new Error(errorMessage));
-        })
+        catchError((err: any) => this.handleApiError(err, 'Delete Profile Picture'))
       );
   }
 }

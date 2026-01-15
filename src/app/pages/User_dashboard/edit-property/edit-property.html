@@ -1,76 +1,85 @@
 <!-- Edit Property Container - All sections for the same property ID: {{ propertyId }} -->
-<div class="edit-property-container">
-  
-  @if (propertyId && selectedPropertyData) {
-    <!-- Property ID Debug Info (remove in production) -->
-    <!-- <div class="property-id-info">
+<!-- <div class="edit-property-container"> -->
+
+@if (propertyId && selectedPropertyData) {
+<!-- Property ID Debug Info (remove in production) -->
+<!-- <div class="property-id-info">
       <small class="text-muted">Editing Property ID: <strong>{{ propertyId }}</strong></small>
     </div> -->
-    
-    <!-- Step 1: Basic Property Details -->
-    <div class="property-section">
-      <h4 class="section-title">Basic Property Details</h4>
-      <app-add-property 
-        [selectedPropertyData]="selectedPropertyData"
-        (propertyDataUpdate)="onPropertyDataUpdate($event)">
-      </app-add-property>
-    </div>
-    
-    <!-- Step 2: Property Management -->
-    <div class="property-section">
-      <h4 class="section-title">Property Management</h4>
-      <app-property-management 
-        [selectedPropertyData]="selectedPropertyData"
-        (propertyDataUpdate)="onPropertyDataUpdate($event)">
-      </app-property-management>
-    </div>
-    
-    <!-- Step 3: Nearby Locations -->
-    <div class="property-section">
-      <h4 class="section-title">Nearby Locations</h4>
-      <app-nearby-locations 
-        [selectedPropertyData]="selectedPropertyData"
-        (propertyDataUpdate)="onPropertyDataUpdate($event)">
-      </app-nearby-locations>
-    </div>
-    
-    <!-- Step 4: Property Images -->
-    <div class="property-section">
-      <h4 class="section-title">Property Images</h4>
-      <app-property-images 
-        [selectedPropertyData]="selectedPropertyData"
-        (propertyDataUpdate)="onPropertyDataUpdate($event)">
-      </app-property-images>
-    </div>
-    
-    <!-- Step 5: Document Attachments -->
-    <div class="property-section">
-      <h4 class="section-title">Document Attachments</h4>
-      <app-document-attachment 
-        [selectedPropertyData]="selectedPropertyData"
-        (propertyDataUpdate)="onPropertyDataUpdate($event)">
-      </app-document-attachment>
-    </div>
-    
-    <!-- Step 6: Property Location -->
-    <div class="property-section">
-      <h4 class="section-title">Property Location</h4>
-      <app-property-location 
-        [selectedPropertyData]="selectedPropertyData"
-        (propertyDataUpdate)="onPropertyDataUpdate($event)">
-      </app-property-location>
-    </div>
-  } @else {
-    <!-- Loading or Error State -->
-    <div class="loading-state">
-      <div class="alert alert-info">
+
+<!-- Step 1: Basic Property Details -->
+<!-- <div class="property-section"> -->
+<!-- <h4 class="section-title">Basic Property Details</h4> -->
+<app-add-property
+  [selectedPropertyData]="selectedPropertyData"
+  (propertyDataUpdate)="onPropertyDataUpdate($event)"
+>
+</app-add-property>
+<!-- </div> -->
+
+<!-- Step 2: Property Management -->
+<!-- <div class="property-section">
+      <h4 class="section-title">Property Management</h4> -->
+<app-property-management
+  [selectedPropertyData]="selectedPropertyData"
+  (propertyDataUpdate)="onPropertyDataUpdate($event)"
+>
+</app-property-management>
+<!-- </div> -->
+
+<!-- Step 3: Nearby Locations -->
+<!-- <div class="property-section">
+      <h4 class="section-title">Nearby Locations</h4> -->
+<app-nearby-locations
+  [selectedPropertyData]="selectedPropertyData"
+  (propertyDataUpdate)="onPropertyDataUpdate($event)"
+>
+</app-nearby-locations>
+<!-- </div> -->
+
+<!-- Step 4: Property Images -->
+<!-- <div class="property-section">
+      <h4 class="section-title">Property Images</h4> -->
+<app-property-images
+  [selectedPropertyData]="selectedPropertyData"
+  (propertyDataUpdate)="onPropertyDataUpdate($event)"
+>
+</app-property-images>
+<!-- </div> -->
+
+<!-- Step 5: Document Attachments -->
+<!-- <div class="property-section">
+      <h4 class="section-title">Document Attachments</h4> -->
+<!-- Step 5: Document Attachments -->
+<app-document-attachment
+  [selectedPropertyData]="selectedPropertyData"
+  (promptFromChild)="handlePrompt()"
+>
+</app-document-attachment>
+<!-- </div> -->
+
+<!-- Step 6: Property Location -->
+<!-- <div class="property-section">
+      <h4 class="section-title">Property Location</h4> -->
+<app-property-location
+  [selectedPropertyData]="selectedPropertyData"
+  (propertyDataUpdate)="onPropertyDataUpdate($event)"
+>
+</app-property-location>
+<!-- </div> -->
+} @else {
+<!-- Loading or Error State -->
+<div class="loading-state">
+  <!-- <div class="alert alert-info">
         <h5>Loading Property Data...</h5>
-        <p>Please wait while we load the property information.</p>
-        @if (!propertyId) {
-          <p class="text-warning">⚠️ No property ID found in URL. Please ensure you have a valid property ID.</p>
-        }
-      </div>
-    </div>
+        <p>Please wait while we load the property information.</p> -->
+  @if (!propertyId) {
+  <p class="text-warning">
+    ⚠️ No property ID found in URL. Please ensure you have a valid property ID.
+  </p>
   }
-  
 </div>
+<!-- </div> -->
+}
+
+<!-- </div> -->

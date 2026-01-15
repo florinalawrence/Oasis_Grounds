@@ -11,6 +11,8 @@ import { ToastService } from '../../../../services/Toast-service/toast.service';
 import Swal from 'sweetalert2';
 import { HttpClient } from '@angular/common/http';
 import { MapLocation } from '../../../map-location/map-location';
+import { effect } from '@angular/core';
+
 
 @Component({
   selector: 'app-property-location',
@@ -20,6 +22,7 @@ import { MapLocation } from '../../../map-location/map-location';
     ReactiveFormsModule,
     NgxSpinnerModule,
     MapLocation
+    
   ],
   templateUrl: './property-location.html',
   styleUrls: ['./property-location.scss']
@@ -51,7 +54,11 @@ export class PropertyLocation implements OnInit, OnDestroy {
     private notifier: NotifierService,
     private swalToast: ToastService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+
+    
+
+
   ) {}
 
   ngOnInit() {
@@ -63,6 +70,11 @@ export class PropertyLocation implements OnInit, OnDestroy {
     this.addrDetailForm.get('state')?.clearValidators();
     this.State.clearValidators();
   }
+
+  onCityBlur() {
+  this.mapLocationComponent.triggerAddressUpdate();
+}
+
 
   initializeForm(): void {
     this.addrDetailForm = this.fb.group({
@@ -80,18 +92,18 @@ export class PropertyLocation implements OnInit, OnDestroy {
         Validators.pattern('^[a-zA-Z0-9 !@#$&()\\-`.+,/"]*$'),
         Validators.maxLength(200)
       ]],
-      country: ['', Validators.required],
-      state: ['', Validators.required],
-      city: ['', [
+      country: ['India', Validators.required],
+      state: ['Tamil Nadu', Validators.required],
+      city: ['Nagercoil', [
         Validators.required,
         Validators.pattern('^[a-zA-Z\\s]*$'),
         Validators.maxLength(35)
       ]],
-      landMark: ['', [
+      landMark: ['NH944', [
         Validators.pattern('^[a-zA-Z0-9 !@#$&()\\-`.+,/"]*$'),
         Validators.maxLength(200)
       ]],
-      zipCode: ['', [
+      zipCode: ['629001', [
         Validators.required,
         Validators.pattern('^[0-9]{3,7}$')
       ]],
@@ -109,8 +121,19 @@ export class PropertyLocation implements OnInit, OnDestroy {
       this.canDisablePublishProperty = res;
     });
 
-    if (this.selectedPropertyData?.addressInfo) {
-      this.addrDetailForm.patchValue(this.selectedPropertyData.addressInfo);
+    // Only load existing address data if we're editing an existing property
+    // For new properties, keep addressLine1 empty
+    if (this.selectedPropertyData?.addressInfo && this.propertyId) {
+      // Patch form with existing data but keep addressLine1 empty for user input
+      const addressData = { ...this.selectedPropertyData.addressInfo };
+      
+      // Always keep addressLine1 empty - user should enter their own address
+      delete addressData.addressLine1;
+      
+      console.log('📋 Loading existing address data (excluding addressLine1):', addressData);
+      this.addrDetailForm.patchValue(addressData);
+    } else {
+      console.log('📝 New property - keeping addressLine1 empty');
     }
   }
 
@@ -122,7 +145,7 @@ export class PropertyLocation implements OnInit, OnDestroy {
 
     // Listen to city changes and update map
     this.addrDetailForm.get('city')?.valueChanges
-      .pipe(debounceTime(500), distinctUntilChanged())
+      .pipe(debounceTime(1500), distinctUntilChanged())
       .subscribe(() => {
         if (this.mapLocationComponent) {
           this.mapLocationComponent.triggerAddressUpdate();
@@ -217,12 +240,12 @@ export class PropertyLocation implements OnInit, OnDestroy {
     const value = event.target.value;
     
     // Clear dependent fields when country changes
-    this.addrDetailForm.patchValue({
-      city: '',
-      state: '',
-      zipCode: '',
-      landMark: ''
-    });
+    // this.addrDetailForm.patchValue({
+    //   city: '',
+    //   state: '',
+    //   zipCode: '',
+    //   landMark: ''
+    // });
 
     // Set state validators based on country selection
     if (value === 'India') {
@@ -302,20 +325,22 @@ export class PropertyLocation implements OnInit, OnDestroy {
   resetFormData(): void {
     this.btnSubmitted = false;
 
-    // Reset all form values
+    // Reset all form values with addressLine1 kept empty
     this.addrDetailForm.reset({
       floor: null,
-      addressLine1: '',
+      addressLine1: '', // Keep empty - user should enter their own address
       addrLine2: '',
       addrLine3: '',
-      country: '',
-      state: '',
-      city: '',
-      landMark: '',
-      zipCode: '',
+      country: 'India',
+      state: 'Tamil Nadu',
+      city: 'Nagercoil',
+      landMark: 'NH944',
+      zipCode: '629001',
       latitude: null,
       longitude: null
     });
+
+    console.log('🔄 Form reset - addressLine1 kept empty');
 
     // Clear all validators
     Object.keys(this.addrDetailForm.controls).forEach(controlName => {
@@ -390,5 +415,34 @@ export class PropertyLocation implements OnInit, OnDestroy {
 
   get Longitude(): FormControl {
     return this.addrDetailForm.get('longitude') as FormControl;
+  }
+
+  // Reactive getters for map component bindings
+  get currentCity(): string {
+    return this.addrDetailForm.get('city')?.value || 'Nagercoil';
+  }
+
+  get currentState(): string {
+    return this.addrDetailForm.get('state')?.value || 'Tamil Nadu';
+  }
+
+  get currentCountry(): string {
+    return this.addrDetailForm.get('country')?.value || 'India';
+  }
+
+  get currentLandmark(): string {
+    return this.addrDetailForm.get('landMark')?.value || 'NH944';
+  }
+
+  get currentZipCode(): string {
+    return this.addrDetailForm.get('zipCode')?.value || '629001';
+  }
+
+  get currentLatitude(): number {
+    return this.addrDetailForm.get('latitude')?.value || 8.1906;
+  }
+
+  get currentLongitude(): number {
+    return this.addrDetailForm.get('longitude')?.value || 77.4356;
   }
 }

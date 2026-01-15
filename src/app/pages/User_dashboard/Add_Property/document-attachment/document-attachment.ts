@@ -16,7 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   standalone: true,
   imports: [CommonModule, NgxSpinnerModule, MatTooltipModule]
 })
-export class DocumentAttachmentComponent implements OnInit {
+export class DocumentAttachment implements OnInit {
   @Input() selectedPropertyData: any;
   @Output() promptFromChild = new EventEmitter<void>();
   
@@ -48,6 +48,8 @@ export class DocumentAttachmentComponent implements OnInit {
     'image/gif'
   ]);
   readonly maxFileSize = signal<number>(2); // MB
+  readonly maxCompressedSize = signal<number>(1); // MB - target size after compression
+  readonly imageQuality = signal<number>(0.8); // Image compression quality (0.1 to 1.0)
 
   ngOnInit(): void {
     this.initializeComponent();
@@ -97,7 +99,7 @@ export class DocumentAttachmentComponent implements OnInit {
   }
 
   /**
-   * Handle file selection for document upload
+   * Handle file selection for document upload - enhanced with compression
    */
   onSelectBrouchure(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -106,36 +108,85 @@ export class DocumentAttachmentComponent implements OnInit {
     if (!files || files.length === 0) return;
     
     const fileArray = Array.from(files);
-    this.selectedAttachments.set(fileArray);
-    
-    const formData = new FormData();
-    let validFilesCount = 0;
-    
-    fileArray.forEach((file) => {
-      const fileSize = file.size / 1024 / 1024; // Convert to MB
-      
-      if (this.isValidFileType(file.type)) {
-        if (fileSize <= this.maxFileSize()) {
-          formData.append('documentUploads', file);
-          validFilesCount++;
-        } else {
-          this.swalToast.showToast(`File "${file.name}" exceeds ${this.maxFileSize()}MB limit`, 'warning');
-        }
-      } else {
-        this.swalToast.showToast(
-          `Invalid file format for "${file.name}". Valid formats: PDF, JPEG, JPG, PNG, GIF`,
-          'warning'
-        );
-      }
-    });
-    
-    // Only proceed if we have valid files
-    if (validFilesCount > 0) {
-      this.uploadDocuments(formData);
-    }
+    this.processFilesWithCompression(fileArray);
     
     // Clear the input
     target.value = '';
+  }
+
+  /**
+   * Process files with compression before upload
+   */
+  private async processFilesWithCompression(files: File[]): Promise<void> {
+    this.isLoading.set(true);
+    this.spinner.show();
+    
+    const formData = new FormData();
+    let validFilesCount = 0;
+    let processedCount = 0;
+    
+    try {
+      for (const file of files) {
+        const fileSize = file.size / 1024 / 1024; // Convert to MB
+        
+        if (!this.isValidFileType(file.type)) {
+          this.swalToast.showToast(
+            `Invalid file format for "${file.name}". Valid formats: PDF, JPEG, JPG, PNG, GIF`,
+            'warning'
+          );
+          processedCount++;
+          continue;
+        }
+
+        if (fileSize > this.maxFileSize()) {
+          this.swalToast.showToast(
+            `File "${file.name}" exceeds ${this.maxFileSize()}MB limit`,
+            'warning'
+          );
+          processedCount++;
+          continue;
+        }
+
+        // Compress file if it's an image and larger than target size
+        let processedFile = file;
+        if (this.isImageFile(file.type) && fileSize > this.maxCompressedSize()) {
+          console.log(`🗜️ Compressing image: ${file.name} (${fileSize.toFixed(2)}MB)`);
+          
+          try {
+            processedFile = await this.compressImage(file);
+            const compressedSize = processedFile.size / 1024 / 1024;
+            console.log(`✅ Compressed ${file.name}: ${fileSize.toFixed(2)}MB → ${compressedSize.toFixed(2)}MB`);
+            
+            this.swalToast.showToast(
+              `Compressed "${file.name}" from ${fileSize.toFixed(1)}MB to ${compressedSize.toFixed(1)}MB`,
+              'info'
+            );
+          } catch (error) {
+            console.warn(`⚠️ Failed to compress ${file.name}, using original:`, error);
+            // Use original file if compression fails
+          }
+        }
+
+        formData.append(`documentUploads[${validFilesCount}]`, processedFile);
+        validFilesCount++;
+        processedCount++;
+      }
+
+      // Upload if we have valid files
+      if (validFilesCount > 0) {
+        this.appendDocumentUploadsData(formData);
+      } else {
+        this.isLoading.set(false);
+        this.spinner.hide();
+        this.swalToast.showToast('No valid files to upload', 'warning');
+      }
+      
+    } catch (error) {
+      console.error('Error processing files:', error);
+      this.isLoading.set(false);
+      this.spinner.hide();
+      this.swalToast.showToast('Error processing files. Please try again.', 'error');
+    }
   }
 
   /**
@@ -143,6 +194,142 @@ export class DocumentAttachmentComponent implements OnInit {
    */
   private isValidFileType(fileType: string): boolean {
     return this.allowedFileTypes().includes(fileType);
+  }
+
+  /**
+   * Check if file is an image type that can be compressed
+   */
+  private isImageFile(fileType: string): boolean {
+    return (
+      fileType === 'image/jpeg' ||
+      fileType === 'image/jpg' ||
+      fileType === 'image/jpe' ||
+      fileType === 'image/jif' ||
+      fileType === 'image/jfif' ||
+      fileType === 'image/png'
+      // Note: GIF compression is more complex, so we skip it
+    );
+  }
+
+  /**
+   * Compress image file to reduce size
+   */
+  private compressImage(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        try {
+          // Calculate new dimensions to reduce file size
+          const maxWidth = 1920; // Max width for documents
+          const maxHeight = 1080; // Max height for documents
+          
+          let { width, height } = img;
+          
+          // Calculate scaling factor
+          const scaleX = maxWidth / width;
+          const scaleY = maxHeight / height;
+          const scale = Math.min(scaleX, scaleY, 1); // Don't upscale
+          
+          const newWidth = Math.floor(width * scale);
+          const newHeight = Math.floor(height * scale);
+          
+          // Set canvas dimensions
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+          
+          // Draw and compress image
+          if (ctx) {
+            // Enable image smoothing for better quality
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            // Draw the image
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+            
+            // Determine compression quality based on file size
+            const fileSizeMB = file.size / 1024 / 1024;
+            let quality = this.imageQuality();
+            
+            // More aggressive compression for larger files
+            if (fileSizeMB > 1.5) {
+              quality = 0.6; // Higher compression
+            } else if (fileSizeMB > 1) {
+              quality = 0.7; // Medium compression
+            }
+            
+            // Convert to blob with compression
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  // Create new file with compressed data
+                  const compressedFile = new File(
+                    [blob],
+                    file.name,
+                    {
+                      type: file.type,
+                      lastModified: Date.now()
+                    }
+                  );
+                  resolve(compressedFile);
+                } else {
+                  reject(new Error('Failed to compress image'));
+                }
+              },
+              file.type,
+              quality // Compression quality
+            );
+          } else {
+            reject(new Error('Canvas context not available'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+
+      // Load the image
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  /**
+   * Upload documents to server - enhanced to accept FormData parameter
+   */
+  private appendDocumentUploadsData(formData: FormData): void {
+    const propId = this.propertyId();
+    if (!propId) {
+      this.swalToast.showToast('Property ID is required for upload', 'error');
+      this.isLoading.set(false);
+      this.spinner.hide();
+      return;
+    }
+
+    if (formData !== null && formData !== undefined) {
+      formData.append('propertyId', propId);
+      
+      // Only show spinner if not already loading
+      if (!this.isLoading()) {
+        this.isLoading.set(true);
+        this.spinner.show();
+      }
+      
+      setTimeout(() => {
+        this.service.saveDocument(formData).subscribe({
+          next: res => {
+            this.handleUploadResponse(res);
+          },
+          error: (err) => {
+            this.handleUploadError(err);
+          }
+        });
+      }, 1200);
+    }
   }
 
   /**
@@ -161,7 +348,7 @@ export class DocumentAttachmentComponent implements OnInit {
     
     this.service.saveDocument(formData).subscribe({
       next: (res: any) => {
-        this.handleUploadSuccess(res);
+        this.handleUploadResponse(res);
       },
       error: (err) => {
         this.handleUploadError(err);
@@ -170,22 +357,35 @@ export class DocumentAttachmentComponent implements OnInit {
   }
 
   /**
-   * Handle successful upload response
+   * Handle upload response - enhanced to refresh property data from server
    */
-  private handleUploadSuccess(res: any): void {
-    this.isLoading.set(false);
-    this.spinner.hide();
-    
-    if (res.headers.statusCode === "200") {
-      this.swalToast.showToast(res.headers.message || 'Documents uploaded successfully', 'success');
-      this.promptFromChild.emit();
+  private handleUploadResponse(res: any): void {
+    if (res.headers.statusCode == 200) {
+      this.swalToast.showToast(res.headers.message, 'success');
+      this.isLoading.set(false);
+      this.spinner.hide();
       
-      // Refresh attachment list
-      setTimeout(() => {
+      // Check if response contains updated document data
+      if (res.data?.documentFileUploads) {
+        console.log('✅ Upload response contains document data, updating immediately');
+        
+        // Ensure selectedPropertyData is initialized
+        if (!this.selectedPropertyData) {
+          this.selectedPropertyData = {};
+        }
+        
+        this.selectedPropertyData.documentFileUploads = res.data.documentFileUploads;
         this.mapAttachmentsToState();
-      }, 500);
+      } else {
+        // Fetch fresh property data from server to update UI immediately
+        this.refreshPropertyData();
+      }
+      
+      this.promptFromChild.emit();
     } else {
-      this.swalToast.showToast(res.headers.message || 'Upload failed', 'error');
+      this.swalToast.showToast(res.headers.message, 'error');
+      this.isLoading.set(false);
+      this.spinner.hide();
     }
   }
 
@@ -206,6 +406,48 @@ export class DocumentAttachmentComponent implements OnInit {
     }
     
     this.swalToast.showToast(errorMessage, 'error');
+  }
+
+  /**
+   * Refresh property data from server to get updated document list
+   */
+  private refreshPropertyData(): void {
+    const propId = this.propertyId();
+    if (!propId) {
+      console.warn('No property ID available for refresh');
+      return;
+    }
+
+    console.log('🔄 Refreshing property data from server...');
+    
+    this.service.getPropertyDetailById(propId).subscribe({
+      next: (res: any) => {
+        if (res.headers?.statusCode === "200" && res.data) {
+          console.log('✅ Property data refreshed successfully');
+          
+          // Update the selectedPropertyData with fresh data
+          this.selectedPropertyData = res.data;
+          
+          // Update the attachment list with fresh data
+          this.mapAttachmentsToState();
+          
+          console.log('📄 Updated document list:', this.otherAttachmentList());
+        } else {
+          console.warn('Failed to refresh property data:', res);
+          // Fallback to old method if API fails
+          setTimeout(() => {
+            this.mapAttachmentsToState();
+          }, 500);
+        }
+      },
+      error: (err) => {
+        console.error('Error refreshing property data:', err);
+        // Fallback to old method if API fails
+        setTimeout(() => {
+          this.mapAttachmentsToState();
+        }, 500);
+      }
+    });
   }
 
   /**
@@ -243,7 +485,7 @@ export class DocumentAttachmentComponent implements OnInit {
     this.isLoading.set(true);
     this.spinner.show();
     
-    this.service.deleteDocument(deleteReq).subscribe({
+    this.service.deleteDocumentUpload(deleteReq).subscribe({
       next: (res: any) => {
         this.handleDeleteSuccess();
       },
@@ -256,23 +498,28 @@ export class DocumentAttachmentComponent implements OnInit {
   /**
    * Handle successful delete response
    */
-  private handleDeleteSuccess(): void {
-    this.isLoading.set(false);
-    this.spinner.hide();
+ /**
+ * Handle successful delete response
+ */
+private handleDeleteSuccess(): void {
+  this.isLoading.set(false);
+  this.spinner.hide();
+  
+  this.swalToast.showToast('Your file has been deleted', 'success');
+  
+  // Emit to parent - parent will refresh selectedPropertyData
+  this.promptFromChild.emit();
+  
+  // Wait for parent to update selectedPropertyData, then refresh UI
+  setTimeout(() => {
+    this.mapAttachmentsToState();
     
-    this.swalToast.showToast('Your file has been deleted', 'success');
-    this.promptFromChild.emit();
-    
-    // Refresh attachment list
-    setTimeout(() => {
-      this.mapAttachmentsToState();
-      
-      // Clear list if no attachments remain
-      if (!this.selectedPropertyData?.documentFileUploads?.length) {
-        this.otherAttachmentList.set([]);
-      }
-    }, 500);
-  }
+    // Clear list if no attachments remain
+    if (!this.selectedPropertyData?.documentFileUploads?.length) {
+      this.otherAttachmentList.set([]);
+    }
+  }, 500);
+}
 
   /**
    * Handle delete error
@@ -307,3 +554,5 @@ export class DocumentAttachmentComponent implements OnInit {
     return this.getFileType(documentType) === 'pdf';
   }
 }
+
+

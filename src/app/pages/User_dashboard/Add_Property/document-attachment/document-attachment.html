@@ -1,94 +1,112 @@
-<div class="card shadow-sm mt-4" style="max-width: 1200px">
-  <h3 class="card-title mb-0 p-3 border-bottom">Attachments</h3>
+  <div class="card shadow-sm mt-4" style="max-width: 1200px">
+    <h3 class="card-title mb-0 p-3 border-bottom">Attachments</h3>
 
-  <div class="card-body p-3">
-    <div class="mb-4">
-      <label for="fileInput" class="section-label">Documents / Brochure Attachments</label>
-      <div class="mt-2">
-        <input 
-          id="fileInput" 
-          type="file" 
-          class="form-control" 
-          (change)="onSelectBrouchure($event)" 
-          multiple
-          accept=".jpg,.jpeg,.gif,.pdf,.png"
-          [disabled]="isLoading()"
-          style="max-width: 400px;"
-          aria-describedby="fileInputHelp">
-        <small id="fileInputHelp" class="text-muted d-block mt-1">
-          Accepted formats: PDF, JPG, JPEG, PNG, GIF (Max size: {{ maxFileSize() }}MB per file)
-        </small>
-        @if (isLoading()) {
-          <small class="text-primary d-block mt-1">
-            <i class="bi bi-upload"></i> Uploading files...
+    <div class="card-body p-3">
+      <div class="mb-4">
+        <label for="fileInput" class="section-label">Documents / Brochure Attachments</label>
+        <div class="mt-2">
+          <input 
+            id="fileInput" 
+            type="file" 
+            class="form-control" 
+            (change)="onSelectBrouchure($event)" 
+            multiple
+            accept=".jpg,.jpeg,.gif,.pdf,.png"
+            [disabled]="isLoading()"
+            style="max-width: 400px;"
+            aria-describedby="fileInputHelp">
+          <small id="fileInputHelp" class="text-muted d-block mt-1">
+            Accepted formats: PDF, JPG, JPEG, PNG, GIF (Max size: {{ maxFileSize() }}MB per file)<br>
           </small>
-        }
-      </div>
-    </div>
-
-    <!-- Document Gallery -->
-    @if (hasAttachments()) {
-      <div class="document-gallery mt-5">
-        <div class="row g-3">
-          @for (item of otherAttachmentList(); track item.identifierId || $index) {
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-              <div class="document-card card h-100 position-relative" 
-                   matTooltipPosition="above"  
-                   [matTooltip]="'File Name: ' + (item?.documentName || 'Unknown')">
-                
-                <!-- Delete Button -->
-                <button 
-                  class="btn-delete position-absolute top-0 end-0 m-2 btn btn-sm btn-danger rounded-circle"
-                  (click)="deleteDocumentUpload(item)"
-                  type="button"
-                  [disabled]="isLoading()"
-                  aria-label="Delete document">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-
-                <!-- Document Preview -->
-                <a [href]="item?.documentUrl" target="_blank" class="text-decoration-none">
-                  <div class="card-body text-center p-3">
-                    <!-- PDF Icon -->
-                    @if (isPdfFile(item?.documentType)) {
-                      <div class="document-preview mb-2">
-                        <img 
-                          class="img-fluid" 
-                          src="assets/images/pdf_svg.svg" 
-                          alt="PDF Document"
-                          style="max-height: 120px; width: auto;">
-                      </div>
-                    } @else {
-                      <!-- Image Preview -->
-                      <div class="document-preview mb-2">
-                        <img 
-                          class="img-fluid rounded" 
-                          [src]="item?.documentUrl" 
-                          alt="Document preview"
-                          style="max-height: 120px; width: 100%; object-fit: cover;"
-                          loading="lazy">
-                      </div>
-                    }
-
-                    <!-- Document Name -->
-                    <p class="document-name small text-truncate mb-0" [title]="item?.documentName">
-                      {{ item?.documentName || 'Untitled Document' }}
-                    </p>
-                  </div>
-                </a>
-              </div>
-            </div>
+          @if (isLoading()) {
+            <small class="text-primary d-block mt-1">
+              <i class="bi bi-upload"></i> Processing and uploading files...
+            </small>
           }
         </div>
       </div>
-    } @else {
-      <!-- Empty State -->
-      <div class="text-center py-4 text-muted">
-        <i class="bi bi-file-earmark-text" style="font-size: 3rem; opacity: 0.3;"></i>
-        <p class="mb-0 mt-2">No documents uploaded yet</p>
-        <small class="text-muted">Upload PDF, JPG, PNG, or GIF files to get started</small>
-      </div>
-    }
+
+      <!-- Document Gallery -->
+      @if (hasAttachments() || isLoading()) {
+        <div class="document-gallery mt-4">
+         
+          
+          <!-- Scrollable Container -->
+          <div class="documents-scroll-container">
+            <!-- Loading State -->
+            @if (isLoading()) {
+              <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Processing documents...</p>
+              </div>
+            }
+            
+            <!-- Document Grid -->
+            @if (hasAttachments()) {
+              <div class="documents-grid">
+                @for (item of otherAttachmentList(); track item.identifierId || $index) {
+                  <div class="document-item">
+                    <div class="document-card position-relative" 
+                         matTooltipPosition="above"  
+                         [matTooltip]="'File Name: ' + (item?.documentName || 'Unknown')">
+                      
+                      <!-- Delete Button -->
+                      <button 
+                        class="btn-delete position-absolute"
+                        (click)="deleteDocumentUpload(item)"
+                        type="button"
+                        [disabled]="isLoading()"
+                        >
+                        <i class="bi bi-x-circle-fill"></i>
+                      </button>
+
+                      <!-- Document Preview -->
+                      <a [href]="item?.documentUrl" target="_blank" class="text-decoration-none">
+                        <div class="document-preview">
+                          <!-- PDF Icon -->
+                          @if (isPdfFile(item?.documentType)) {
+                            <div class="document-thumbnail">
+                              <img 
+                                class="img-fluid" 
+                                src="assets/images/pdf_svg.svg" 
+                                alt="PDF Document">
+                            </div>
+                          } @else {
+                            <!-- Image Preview -->
+                            <div class="document-thumbnail">
+                              <img 
+                                class="img-fluid" 
+                                [src]="item?.documentUrl" 
+                                alt="Document preview"
+                                loading="lazy">
+                            </div>
+                          }
+
+                          <!-- Document Name -->
+                          <div class="document-name">
+                            <span [title]="item?.documentName">
+                              {{ item?.documentName || 'Untitled Document' }}
+                            </span>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <!-- Empty State -->
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-file-earmark-text" style="font-size: 3rem; opacity: 0.3;"></i>
+          <p class="mb-0 mt-2">No documents uploaded yet</p>
+          <small class="text-muted">Upload PDF, JPG, PNG, or GIF files to get started</small>
+        </div>
+      }
+    </div>
   </div>
-</div>
 

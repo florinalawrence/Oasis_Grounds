@@ -33,8 +33,6 @@
     box-shadow: 0 2px 6px rgba(46, 110, 233, 0.3);
 }
 
-
-
 /* Custom User Dropdown Styling */
 .user-dropdown-container {
   position: relative;
@@ -160,6 +158,12 @@
     white-space: nowrap;
 }
 
+.btn-pop .plus-icon {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
 .btn-pop:hover {
     background: white;
     color: #0d6efd;
@@ -176,11 +180,13 @@
     background: rgb(64, 139, 235);
     background: linear-gradient(90deg, rgba(64, 139, 235, 1) 0%, rgba(97, 160, 241, 1) 31%, rgba(97, 160, 241, 1) 59%, rgba(64, 139, 235, 1) 100%);
     text-align: center;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 14px !important;
+    font-weight: 400;
     // line-height: 40px;
     text-transform: uppercase;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-right: 0;
     cursor: pointer;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -205,6 +211,22 @@
 
 /* Mobile-specific styles (0-767px) */
 @media (max-width: 767px) {
+    .main-header {
+        background: #fff;
+    }
+
+    .navbar {
+        background-color: #fff !important;
+    }
+
+    .navbar-toggler {
+        border-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 0.7)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
     .navbar-brand img {
         width: 120px;
         margin-right: 15px;
@@ -213,10 +235,15 @@
     .navbar-collapse {
         margin-top: 1rem;
         text-align: center;
+        background: linear-gradient(183deg, #739aff, #84ddff);
+        margin-left: -1rem;
+        margin-right: -1rem;
+        padding: 1rem;
     }
 
     .navbar-nav {
         padding: 1rem 0;
+        flex-direction: column;
     }
 
     .nav-item {
@@ -224,61 +251,179 @@
     }
 
     .nav-link {
+        color: #fff !important;
         margin: 0;
         padding: 0.5rem 1rem;
     }
 
-    .header-buttons {
-        flex-direction: column;
-        width: 100%;
-        gap: 1rem !important;
-        padding: 1rem 0;
+    .nav-link:hover,
+    .nav-link.active {
+        background: -webkit-linear-gradient(#2a62ff, #042b55);
+        background: linear-gradient(#2a62ff, #042b55);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 600;
     }
 
-    .header-buttons .btn {
-        width: 100%;
-        margin: 0.25rem 0;
+    .user-welcome-link {
+        color: #fff !important;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+    }
+
+    .user-welcome-link:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        color: #fff !important;
+    }
+
+    .btn-outline-primary {
+        color: #fff !important;
+        border-color: #fff !important;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #fff !important;
+        color: #739aff !important;
+    }
+
+    /* Show user info and add property button side by side */
+    .navbar-collapse > .d-flex {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1rem;
+        padding: 0;
+        gap: 1rem;
     }
 
     .module-property {
-        width: 100%;
+        width: auto !important;
+        margin-left: 0 !important;
     }
 
-    .module-property a {
-        width: 100%;
-        text-align: center;
+    .module-property .btn,
+    .module-property a,
+    .btn-pop {
+        width: auto !important;
+        min-width: 140px;
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        height: 38px;
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #5a8fff !important;
+        border: none !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .btn-pop .plus-icon {
+        font-size: 18px;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .module-property .btn:hover,
+    .module-property a:hover,
+    .btn-pop:hover {
+        background: #fff !important;
+        color: #4a7fff !important;
     }
 
     /* Mobile dropdown adjustments */
     .user-dropdown-container {
-        width: 100%;
-        text-align: center;
+        width: auto !important;
+        text-align: left !important;
     }
 
+    /* Hide dropdown menu on mobile */
     .custom-dropdown-menu {
-        position: static;
-        display: block !important;
-        opacity: 1 !important;
-        transform: none !important;
-        box-shadow: none;
-        border: none;
-        background-color: transparent;
-        padding: 0;
-        margin-top: 0.5rem;
-    }
-
-    .custom-dropdown-menu .dropdown-item {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .custom-dropdown-menu .dropdown-item:last-child {
-        border-bottom: none;
+        display: none !important;
     }
 }
 
 /* Tablet-specific styles (768px-1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
+    .main-header {
+        background: #fff;
+    }
+
+    .navbar {
+        background-color: #fff !important;
+    }
+
+    .navbar-toggler {
+        border-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 0.7)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    .navbar-brand img {
+        width: 140px;
+    }
+
+    .navbar-collapse {
+        margin-top: 1rem;
+        background: linear-gradient(183deg, #739aff, #84ddff);
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+        padding: 1rem 1.5rem;
+    }
+
+    .navbar-nav {
+        margin: 0 auto;
+    }
+
+    .nav-link {
+        color: #fff !important;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+        background: -webkit-linear-gradient(#2a62ff, #042b55);
+        background: linear-gradient(#2a62ff, #042b55);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 600;
+    }
+
+    .user-welcome-link {
+        color: #fff !important;
+    }
+
+    .user-welcome-link:hover {
+        color: #e0e0e0 !important;
+    }
+
+    .btn-outline-primary {
+        color: #fff !important;
+        border-color: #fff !important;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #fff !important;
+        color: #739aff !important;
+    }
+
     .main-header .d-flex.align-items-center.gap-3 {
         display: none !important;
     }
@@ -291,11 +436,6 @@
         margin: 0 auto;
     }
 
-    .nav-link {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-    }
-
     .header-buttons {
         gap: 1rem !important;
     }
@@ -303,6 +443,34 @@
     .btn-pop, .btn-outline-primary {
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
+    }
+
+    /* Make login and Add Property buttons appear side by side */
+    .navbar-collapse > .d-flex {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 0.75rem !important;
+        margin-left: auto;
+    }
+
+    .module-property {
+        margin-left: 0 !important;
+    }
+
+    .module-property .btn {
+        width: auto;
+        min-width: 130px;
+        height: 38px;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .btn-outline-primary {
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 

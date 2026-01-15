@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ToastService } from '../Toast-service/toast.service';
 import { SessionService } from '../Session-service/session.service';
@@ -18,6 +19,7 @@ export class ManagePropertyService {
   private http = inject(HttpClient);  
   private swalToast = inject(ToastService);
   private session = inject(SessionService);
+  private router = inject(Router);
   
   baseApiUrl: string = environment.baseApiUrl;
   countryCodes: any = countryData;
@@ -25,6 +27,45 @@ export class ManagePropertyService {
   states: any = stateData;  
 
   constructor() {}
+
+  /**
+   * Handle token expiration and redirect to login
+   */
+  private handleTokenExpiration(): void {
+    console.warn('🔒 Token expired - redirecting to login');
+    this.session.removeCredentials();
+    this.swalToast.showToast('Your session has expired. Please log in again.', 'warning');
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Check if error is due to token expiration
+   */
+  private isTokenExpired(error: any): boolean {
+    const errorMessage = error.error?.headers?.message || error.message || '';
+    return (
+      error.status === 401 || 
+      errorMessage.toLowerCase().includes('expired') ||
+      errorMessage.toLowerCase().includes('invalid') ||
+      errorMessage.toLowerCase().includes('unauthorized')
+    );
+  }
+
+  /**
+   * Handle API errors with token expiration check
+   */
+  private handleApiError(error: any, operation: string = 'API call'): Observable<never> {
+    console.error(`❌ ${operation} error:`, error);
+    
+    // Check if token is expired
+    if (this.isTokenExpired(error)) {
+      this.handleTokenExpiration();
+      return throwError(() => new Error('Session expired. Please log in again.'));
+    }
+    
+    const errorMessage = error.error?.headers?.message || error.error?.message || `An error occurred during ${operation}`;
+    return throwError(() => new Error(errorMessage));
+  }
 
   /**
    * Get headers with current access token
@@ -36,15 +77,15 @@ export class ManagePropertyService {
       'Content-Type': 'application/json'
     });
     
-    console.log(' ManageProperty getHeaders() called');
-    console.log(' Token exists:', !!token);
-    console.log(' Token length:', token ? token.length : 0);
+    console.log('🔑 ManageProperty getHeaders() called');
+    console.log('🔑 Token exists:', !!token);
     
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
-      console.log(' Authorization header added successfully');
+      console.log('✅ Authorization header added successfully');
     } else {
-      console.error(' No access token found - user may not be logged in');
+      console.error('❌ No access token found - redirecting to login');
+      this.handleTokenExpiration();
     }
     
     return headers;
@@ -205,38 +246,102 @@ export class ManagePropertyService {
     const token = this.session.getToken();
     
     if (!token) {
-      console.error(' No authentication token available for document upload');
+      console.error('❌ No authentication token available for document upload');
+      this.handleTokenExpiration();
       return throwError(() => new Error('Authentication required. Please log in again.'));
     }
     
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${token}`);
-    console.log(' Document Upload: Token added to headers');
+    console.log('📤 Document Upload: Token added to headers');
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_DOCUMENT_UPLOAD}`, data, { headers })
       .pipe(
-        catchError((err) => {
-          console.error(' Document upload API error:', err);
-          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving document';
-          return throwError(() => new Error(errorMessage));
-        })
+        catchError((err) => this.handleApiError(err, 'Save Document'))
       );
   }
 
   // Delete document
-  deleteDocument(data: any): Observable<any> {
-    const headers = this.getHeaders();
-    console.log(' Deleting document with auth headers');
+  // deleteDocumentUpload(data: any): Observable<any> {
+  //   const headers = this.getHeaders();
+  //   console.log('🗑️ Deleting document with auth headers');
+  //   console.log('🌐 Base API URL:', this.baseApiUrl);
+  //   console.log('🔗 Full delete URL:', `${this.baseApiUrl}${AuthEndPoints.DELETE_DOCUMENT_UPLOAD}`);
+  //   console.log('📤 Delete request data:', data);
     
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_DOCUMENT_UPLOAD}`, data, { headers })
-      .pipe(
-        catchError((err) => {
-          console.error(' Delete document API error:', err);
-          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting document';
-          return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
+  //   return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_DOCUMENT_UPLOAD}`, data, { headers })
+  //     .pipe(
+  //       catchError((err) => this.handleApiError(err, 'Delete Document'))
+  //     );
+  // }
+
+//   deleteDocumentUpload(deleteReq: { propertyId: string; identifierId: string }) {
+//   const formData = new FormData();
+//   formData.append('propertyId', deleteReq.propertyId);
+//   formData.append('identifierId', deleteReq.identifierId);
+
+//   return this.http.post(
+//     `${this.baseApiUrl}/property/delete/upload/file`,
+//     formData
+//   );
+// }
+
+
+// deleteDocumentUpload(deleteReq: { propertyId: string; identifierId: string }): Observable<any> {
+//   const formData = new FormData();
+//   formData.append('propertyId', deleteReq.propertyId);
+//   formData.append('identifierId', deleteReq.identifierId);
+
+//   const headers = new HttpHeaders().set('Authorization', `Bearer ${this.session.getToken()}`);
+
+//   return this.http.post(this.baseApiUrl + AuthEndPoints.DELETE_DOCUMENT_UPLOAD, formData, { headers })
+//     .pipe(
+//       catchError(err => this.handleApiError(err, 'Delete Document'))
+//     );
+// }
+
+
+// deleteDocumentUpload(fileData: any): Observable<any> {
+//   const url = `${this.baseApiUrl}property/delete/upload/file`;
+  
+  
+//   return this.http.delete(url, {
+//     body: fileData,
+//     headers: new HttpHeaders({
+//       'Content-Type': 'application/json'
+//     })
+//   }).pipe(
+//     catchError(this.handleError)
+//   );
+// }
+
+
+deleteDocumentUpload(fileData: any): Observable<any> {
+  const url = `${this.baseApiUrl}property/delete/upload/file`;
+   const headers = this.getHeaders();
+   let options = {
+    headers: headers,
+    body: fileData
+  };
+  
+  // Get token from storage
+  const token = localStorage.getItem('authToken'); 
+  
+  /*const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}` 
+  });*/
+  
+  return this.http.delete(url,  options ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+
+
+
+
+
 
   // Save nearby details
   saveNearByDetails(data: any): Observable<any> {
@@ -312,9 +417,8 @@ export class ManagePropertyService {
    * Centralized error handling for all API calls
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error(' ManageProperty API Error:', error);
-    console.error(' Error Status:', error.status);
-    console.error(' Error Message:', error.error?.headers?.message || error.message);
+   
+    
     
     if (error.status === 401) {
       console.error(' 401 Unauthorized - Token may be invalid or expired');

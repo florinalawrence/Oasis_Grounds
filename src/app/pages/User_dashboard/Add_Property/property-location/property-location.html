@@ -160,6 +160,7 @@
             class="form-control" 
             id="city"
             formControlName="city"
+            (blur)="onCityBlur()"
             placeholder="Enter city"
             [ngClass]="{'is-invalid': btnSubmitted && getControl('city').errors}"
           />
@@ -228,14 +229,13 @@
         <div class="col-12">
           <app-map-location
             #mapLocationComponent
-            [address]="addrDetailForm.get('addressLine1')?.value"
-            [city]="addrDetailForm.get('city')?.value"
-            [state]="addrDetailForm.get('state')?.value"
-            [landMark]="addrDetailForm.get('landMark')?.value"
-            [country]="addrDetailForm.get('country')?.value"
-            [zipCode]="addrDetailForm.get('zipCode')?.value"
-            [latitude]="addrDetailForm.get('latitude')?.value"
-            [longitude]="addrDetailForm.get('longitude')?.value"
+            [city]="currentCity"
+            [state]="currentState"
+            [landMark]="currentLandmark"
+            [country]="currentCountry"
+            [zipCode]="currentZipCode"
+            [latitude]="currentLatitude"
+            [longitude]="currentLongitude"
             [isDraggable]="true"
             (locationUpdated)="onLocationUpdate($event)"
           ></app-map-location>
@@ -243,7 +243,7 @@
       </div>
 
       <!-- Submit Buttons -->
-      <div class="justify-content-end gap-3 pt-4 module-property d-flex align-items-center">
+      <div class="justify-content-end gap-3 pt-2 module-property d-flex align-items-center">
         <button 
           type="button" 
           class="btn btn-outline-secondary"

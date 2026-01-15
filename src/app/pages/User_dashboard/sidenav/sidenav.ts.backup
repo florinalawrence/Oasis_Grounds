@@ -28,6 +28,26 @@ export class Sidenav implements OnInit, OnDestroy {
   // Login method tracking
   showChangePassword: boolean = true;
 
+  /**
+   * Convert relative image URL to absolute URL if needed
+   */
+  private getAbsoluteImageUrl(imageUrl: string): string {
+    if (!imageUrl) return '';
+    
+    // If it's already an absolute URL, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('data:')) {
+      return imageUrl;
+    }
+    
+    // If it's a relative URL, prepend the API base URL
+    const baseUrl = this.userProfileService.authApiUrl || this.userProfileService.baseApiUrl;
+    if (baseUrl && imageUrl.startsWith('/')) {
+      return baseUrl + imageUrl;
+    }
+    
+    return imageUrl;
+  }
+  
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
@@ -68,36 +88,14 @@ export class Sidenav implements OnInit, OnDestroy {
     console.log('🔍 Sidenav: Current token:', !!this.session.getToken());
     console.log('🔍 Sidenav: Current login method:', this.session.getLoginMethod());
   }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
-  /**
-   * Convert relative image URL to absolute URL if needed
-   */
-  private getAbsoluteImageUrl(imageUrl: string): string {
-    if (!imageUrl) return '';
-    
-    // If it's already an absolute URL, return as is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('data:')) {
-      return imageUrl;
-    }
-    
-    // If it's a relative URL, prepend the API base URL
-    const baseUrl = this.userProfileService.authApiUrl || this.userProfileService.baseApiUrl;
-    if (baseUrl && imageUrl.startsWith('/')) {
-      return baseUrl + imageUrl;
-    }
-    
-    return imageUrl;
-  }
-
+  
   loadProfileData() {
     // Profile data should come from NotifierService or be loaded from API
+    // This method can be removed or simplified since profile data 
+    // is now managed through the user profile service and notifier
     this.profileName = 'User'; // Default name
   }
-
+  
   subscribeToUserRoleChanges() {
     // Listen for user role changes from the notifier service
     const roleSubscription = this.notifier.userRole$.subscribe((role: string) => {
@@ -209,16 +207,16 @@ export class Sidenav implements OnInit, OnDestroy {
           this.profileImageUrl = this.getAbsoluteImageUrl(imageUrl);
           console.log('📸 Sidenav: Profile image loaded from user data:', this.profileImageUrl);
         }
-      }
-    });
-    this.subscriptions.add(userDataSubscription);
-  }
 
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+  
   onEditProfileImage() {
     // Trigger file input click
     this.fileInput.nativeElement.click();
   }
-
+  
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
@@ -387,6 +385,7 @@ export class Sidenav implements OnInit, OnDestroy {
       }
     });
   }
+
   private loadUserProfileFromServer() {
     // Check if user has a valid token before making API call
     if (!this.session.getToken()) {
@@ -529,7 +528,6 @@ export class Sidenav implements OnInit, OnDestroy {
       this.breadcrumbHtml = '<a [routerLink]="[\'/home\']">Home</a>&nbsp;/&nbsp;<span class="active">My Profile</span>';
     }
   }
-
   /**
    * Handle user logout
    */

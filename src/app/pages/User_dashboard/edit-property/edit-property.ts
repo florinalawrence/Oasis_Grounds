@@ -8,9 +8,8 @@ import { AddProperty } from '../Add_Property/add-property/add-property';
 import { PropertyManagement } from '../Add_Property/property-management/property-management';
 import { NearbyLocationsComponent } from '../Add_Property/nearby-locations/nearby-locations';
 import { PropertyImages } from '../Add_Property/property-images/property-images';
-import { DocumentAttachmentComponent } from '../Add_Property/document-attachment/document-attachment';
+import { DocumentAttachment } from '../Add_Property/document-attachment/document-attachment';
 import { PropertyLocation } from '../Add_Property/property-location/property-location';
-
 
 @Component({
   selector: 'app-edit-property',
@@ -19,8 +18,8 @@ import { PropertyLocation } from '../Add_Property/property-location/property-loc
     PropertyManagement,
     NearbyLocationsComponent,
     PropertyImages,
-    DocumentAttachmentComponent,
-    PropertyLocation
+    DocumentAttachment,
+    PropertyLocation,
   ],
   templateUrl: './edit-property.html',
   styleUrl: './edit-property.scss',
@@ -40,16 +39,19 @@ export class EditProperty implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Get property ID from query parameters
     this.subscription.add(
-      this.route.queryParams.subscribe(params => {
+      this.route.queryParams.subscribe((params) => {
         this.propertyId = params['id'] || null;
         console.log('🔧 Edit Property - Property ID from URL:', this.propertyId);
-        
+
         // Load property data if we have an ID
         if (this.propertyId) {
           this.loadPropertyData();
         } else {
           console.warn('⚠️ No property ID found in URL query parameters');
-          this.swalToast.showToast('Property ID is missing. Please select a property to edit.', 'warning');
+          this.swalToast.showToast(
+            'Property ID is missing. Please select a property to edit.',
+            'warning'
+          );
         }
       })
     );
@@ -63,19 +65,19 @@ export class EditProperty implements OnInit, OnDestroy {
       console.error(' Cannot load property data: No property ID available');
       return;
     }
-    
+
     console.log(' Loading property data for edit-property, ID:', this.propertyId);
     this.spinner.show();
-    
+
     this.service.getPropertyDetailById(this.propertyId).subscribe({
       next: (res) => {
         console.log(' Property data loaded in edit-property:', res);
         console.log(' Response structure:', {
           hasRecordInfo: !!res?.recordInfo,
           hasDirectData: !!res,
-          keys: res ? Object.keys(res) : []
+          keys: res ? Object.keys(res) : [],
         });
-        
+
         if (res && res.recordInfo) {
           this.selectedPropertyData = res.recordInfo;
           console.log(' Using res.recordInfo as selectedPropertyData');
@@ -83,16 +85,16 @@ export class EditProperty implements OnInit, OnDestroy {
           this.selectedPropertyData = res;
           console.log(' Using res directly as selectedPropertyData');
         }
-        
+
         // Ensure property ID is included in the data
         if (this.selectedPropertyData && !this.selectedPropertyData.id) {
           this.selectedPropertyData.id = this.propertyId;
           console.log(' Added property ID to selectedPropertyData');
         }
-        
+
         // Verify property ID consistency
         this.verifyPropertyIdConsistency();
-        
+
         console.log(' Final selectedPropertyData:', this.selectedPropertyData);
         this.spinner.hide();
       },
@@ -100,8 +102,20 @@ export class EditProperty implements OnInit, OnDestroy {
         console.error(' Failed to load property data in edit-property:', err);
         this.swalToast.showToast('Failed to load property data. Please try again.', 'error');
         this.spinner.hide();
-      }
+      },
     });
+  }
+
+  handlePrompt(): void {
+    console.log('🔄 Child component triggered refresh - reloading property data');
+
+    if (!this.propertyId) {
+      console.error('❌ Cannot refresh: Property ID not available');
+      return;
+    }
+
+    // Reload the property data from API
+    this.loadPropertyData();
   }
 
   ngOnDestroy(): void {
@@ -114,15 +128,15 @@ export class EditProperty implements OnInit, OnDestroy {
    */
   onPropertyDataUpdate(data: any): void {
     console.log('📋 Edit Property - Property data updated by child component:', data);
-    
+
     // Update the shared property data
     this.selectedPropertyData = { ...this.selectedPropertyData, ...data };
-    
+
     // Ensure property ID is always maintained
     if (this.propertyId && !this.selectedPropertyData.id) {
       this.selectedPropertyData.id = this.propertyId;
     }
-    
+
     console.log(' Updated selectedPropertyData for all components:', this.selectedPropertyData);
   }
 
@@ -141,34 +155,25 @@ export class EditProperty implements OnInit, OnDestroy {
     console.log('  - URL Property ID:', this.propertyId);
     console.log('  - Data Property ID:', this.selectedPropertyData?.id);
     console.log('  - Data Property ID (alternative):', this.selectedPropertyData?.propertyId);
-    
+
     // Ensure all possible ID fields are consistent
     if (this.selectedPropertyData) {
       if (!this.selectedPropertyData.id && this.propertyId) {
         this.selectedPropertyData.id = this.propertyId;
         console.log(' Set selectedPropertyData.id to:', this.propertyId);
       }
-      
+
       if (!this.selectedPropertyData.propertyId && this.propertyId) {
         this.selectedPropertyData.propertyId = this.propertyId;
         console.log(' Set selectedPropertyData.propertyId to:', this.propertyId);
       }
     }
-    
+
     console.log(' Property ID consistency verified');
   }
 
   /**
    * Debug method to check property ID in all components
    */
-  debugPropertyIdDistribution(): void {
-    console.log(' Property ID Distribution Debug:');
-    console.log('  - Edit Property Component ID:', this.propertyId);
-    console.log('  - Selected Property Data:', this.selectedPropertyData);
-    console.log('  - Data ID field:', this.selectedPropertyData?.id);
-    console.log('  - Data propertyId field:', this.selectedPropertyData?.propertyId);
-    
-    // This method can be called from browser console for debugging
-    // Just type: angular.getComponent(document.querySelector('app-edit-property')).debugPropertyIdDistribution()
-  }
+  
 }

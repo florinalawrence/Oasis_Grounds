@@ -53,8 +53,8 @@
          
         </ul>
 
-        <!-- Login / Logout / Profile Section -->
-        <div class="d-flex">
+        <!-- Login / Logout / Profile Section and Add Property Button -->
+        <div class="d-flex align-items-center">
           @if (hasLoggedIn()) {
             <div class="user-dropdown-container" 
                  (mouseenter)="showDropdown = true" 
@@ -77,11 +77,11 @@
               <a class="btn btn-outline-primary" [routerLink]="['/login']" (click)="closeNavbar()">Login</a>
             </div>
           }
-        </div>
-
-        <!-- Add Property Button -->
-        <div class="module module-property pull-right ms-5">
-          <a class="btn btn-pop" (click)="navigateToAddProperty()">Add Property</a>
+          
+          <!-- Add Property Button -->
+          <div class="module module-property pull-right ms-3">
+            <a class="btn btn-pop" (click)="navigateToAddProperty()"><span class="plus-icon">+</span> Add Property</a>
+          </div>
         </div>
       </div>
     </div>

@@ -35,7 +35,7 @@ interface LocationUpdate {
   selector: 'app-map-location',
   standalone: true,
   imports: [],
-  template: `<div id="leafletMap" class="map-container"></div>`,
+  template: `<div id="leafletMap" class="map-container" style="background: #f8f9fa !important;"></div>`,
   styles: [
     `
       :host {
@@ -49,6 +49,50 @@ interface LocationUpdate {
         margin-bottom: 32px;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 2px solid #e0e0e0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Ensure Leaflet controls are visible */
+      .map-container :global(.leaflet-control-zoom) {
+        z-index: 1000;
+      }
+
+      .map-container :global(.leaflet-control-attribution) {
+        z-index: 1000;
+      }
+
+      /* Loading indicator */
+      .map-container::before {
+        content: '🗺️ Loading map...';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 500;
+        color: #495057;
+        font-size: 16px;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Hide loading indicator when map is loaded */
+      .map-container.loaded::before {
+        display: none;
+      }
+
+      /* Prevent blue background from showing through */
+      .map-container :global(.leaflet-container) {
+        background: #f8f9fa !important;
+      }
+
+      .map-container :global(.leaflet-tile-pane) {
+        background: #f8f9fa !important;
       }
     `,
   ],
@@ -68,6 +112,8 @@ export class MapLocation {
   readonly latitude = input<number>();
   readonly longitude = input<number>();
   readonly isDraggable = input<boolean>(true);
+  readonly isDynamic = input<boolean>(false);
+
 
   // Signal-based output 
   readonly locationUpdated = output<LocationUpdate>();
@@ -96,8 +142,16 @@ export class MapLocation {
   private readonly addressChange$ = new Subject<void>();
 
   constructor() {
-    // Configure Leaflet icons early
-    this.configureLeafletIconsGlobally();
+    console.log('🗺️ MapLocation component constructor called');
+    
+    // Check if Leaflet is available
+    if (typeof L !== 'undefined') {
+      console.log('✅ Leaflet library is available');
+      // Configure Leaflet icons early
+      this.configureLeafletIconsGlobally();
+    } else {
+      console.error('❌ Leaflet library is not available! Check if it\'s loaded in index.html');
+    }
 
     // Subscribe to debounced address changes
     this.addressChange$
@@ -106,7 +160,11 @@ export class MapLocation {
 
     // Initialize map after render
     afterNextRender(() => {
-      this.initMap();
+      // Add a small delay to ensure DOM is fully ready
+      setTimeout(() => {
+        console.log('🚀 Attempting to initialize map...');
+        this.initMap();
+      }, 100);
     });
 
     // Effect to handle address field changes
@@ -194,9 +252,18 @@ export class MapLocation {
    * Initialize the Leaflet map
    */
   private initMap(): void {
+    console.log('🗺️ Initializing Leaflet map...');
+    
     if (this.map) {
       this.map.remove();
       this.map = null;
+    }
+
+    // Check if Leaflet is available
+    if (typeof L === 'undefined') {
+      console.error('❌ Leaflet library is not loaded! Map will not work.');
+      this.showLeafletError();
+      return;
     }
 
     this.configureLeafletIcons();
@@ -208,23 +275,41 @@ export class MapLocation {
     this.currentLat.set(initialLat);
     this.currentLng.set(initialLng);
 
-    // Create map instance
-    this.map = L.map('leafletMap').setView([initialLat, initialLng], 15);
+    console.log('📍 Creating map with coordinates:', { lat: initialLat, lng: initialLng });
 
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19,
-    }).addTo(this.map);
+    // Create map instance with better error handling
+    try {
+      this.map = L.map('leafletMap', {
+        preferCanvas: true,
+        zoomControl: true,
+        attributionControl: true
+      }).setView([initialLat, initialLng], 15);
+
+      // Add loaded class to hide loading indicator
+      const mapContainer = document.getElementById('leafletMap');
+      if (mapContainer) {
+        setTimeout(() => {
+          mapContainer.classList.add('loaded');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('❌ Failed to create map instance:', error);
+      this.showLeafletError();
+      return;
+    }
+
+    // Add reliable tile layer immediately
+    this.addReliableTileLayer();
 
     // Add marker
     this.marker = L.marker([initialLat, initialLng], {
       draggable: this.isDraggable(),
     }).addTo(this.map);
 
-    // Marker drag event
-    this.marker.on('dragend', (event: any) => this.onMarkerDragEnd(event));
+    // Only add drag event listener if marker is draggable
+    if (this.isDraggable()) {
+      this.marker.on('dragend', (event: any) => this.onMarkerDragEnd(event));
+    }
 
     // Show initial popup
     if (this.landMark() && this.city()) {
@@ -237,6 +322,7 @@ export class MapLocation {
     }
 
     this.mapInitialized.set(true);
+    console.log('✅ Map initialized successfully');
   }
 
   /**
@@ -313,26 +399,108 @@ export class MapLocation {
   private getLocalCoordinates(address: string): { lat: number; lng: number; address: string } | null {
     const normalizedAddress = address.toLowerCase();
     
-    // Local coordinate database for common locations in Tamil Nadu
+    // Enhanced local coordinate database for form-based address matching
     const localDatabase = [
+      // Nagercoil area locations
       {
-        keywords: ['vasan', 'eye', 'care', 'hospital', 'vadasery', 'nagercoil'],
+        keywords: ['vasan', 'eye', 'care', 'hospital', 'vadasery'],
         lat: 8.1906,
         lng: 77.4356,
         address: 'Vasan Eye Care Hospital, Vadasery, Nagercoil, Tamil Nadu'
       },
       {
-        keywords: ['nagercoil', 'kanyakumari'],
+        keywords: ['railway', 'station', 'nagercoil'],
+        lat: 8.1800,
+        lng: 77.4300,
+        address: 'Near Railway Station, Nagercoil, Tamil Nadu'
+      },
+      {
+        keywords: ['bus', 'stand', 'nagercoil'],
+        lat: 8.1750,
+        lng: 77.4250,
+        address: 'Near Bus Stand, Nagercoil, Tamil Nadu'
+      },
+      {
+        keywords: ['kottar', 'nagercoil'],
+        lat: 8.1700,
+        lng: 77.4200,
+        address: 'Kottar, Nagercoil, Tamil Nadu'
+      },
+      {
+        keywords: ['asaripallam', 'nagercoil'],
+        lat: 8.1850,
+        lng: 77.4450,
+        address: 'Asaripallam, Nagercoil, Tamil Nadu'
+      },
+      {
+        keywords: ['nh944', 'nagercoil'],
+        lat: 8.1774,
+        lng: 77.4349,
+        address: 'NH944, Nagercoil, Tamil Nadu'
+      },
+      // City-specific matches (most important for city field changes)
+      {
+        keywords: ['nagercoil'],
         lat: 8.1774,
         lng: 77.4349,
         address: 'Nagercoil, Kanyakumari District, Tamil Nadu'
       },
       {
-        keywords: ['kanyakumari', 'cape', 'comorin'],
+        keywords: ['kanyakumari'],
         lat: 8.0883,
         lng: 77.5385,
         address: 'Kanyakumari, Tamil Nadu'
       },
+      {
+        keywords: ['marthandam'],
+        lat: 8.3100,
+        lng: 77.2300,
+        address: 'Marthandam, Kanyakumari District, Tamil Nadu'
+      },
+      {
+        keywords: ['colachel'],
+        lat: 8.1700,
+        lng: 77.2400,
+        address: 'Colachel, Kanyakumari District, Tamil Nadu'
+      },
+      {
+        keywords: ['tirunelveli'],
+        lat: 8.7139,
+        lng: 77.7567,
+        address: 'Tirunelveli, Tamil Nadu'
+      },
+      {
+        keywords: ['tuticorin', 'thoothukudi'],
+        lat: 8.7642,
+        lng: 78.1348,
+        address: 'Tuticorin (Thoothukudi), Tamil Nadu'
+      },
+      // Kerala locations
+      {
+        keywords: ['parassala', 'thiruvananthapuram'],
+        lat: 8.2000,
+        lng: 77.4400,
+        address: 'Parassala, Thiruvananthapuram, Kerala'
+      },
+      {
+        keywords: ['thiruvananthapuram', 'trivandrum'],
+        lat: 8.5241,
+        lng: 76.9366,
+        address: 'Thiruvananthapuram, Kerala'
+      },
+      {
+        keywords: ['kollam'],
+        lat: 8.8932,
+        lng: 76.6141,
+        address: 'Kollam, Kerala'
+      },
+      {
+        keywords: ['kochi', 'cochin'],
+        lat: 9.9312,
+        lng: 76.2673,
+        address: 'Kochi, Kerala'
+      },
+      // Major Tamil Nadu cities
       {
         keywords: ['chennai', 'madras'],
         lat: 13.0827,
@@ -350,24 +518,62 @@ export class MapLocation {
         lat: 9.9252,
         lng: 78.1198,
         address: 'Madurai, Tamil Nadu'
+      },
+      {
+        keywords: ['salem'],
+        lat: 11.6643,
+        lng: 78.1460,
+        address: 'Salem, Tamil Nadu'
+      },
+      {
+        keywords: ['erode'],
+        lat: 11.3410,
+        lng: 77.7172,
+        address: 'Erode, Tamil Nadu'
+      },
+      {
+        keywords: ['vellore'],
+        lat: 12.9165,
+        lng: 79.1325,
+        address: 'Vellore, Tamil Nadu'
+      },
+      {
+        keywords: ['tiruchirappalli', 'trichy'],
+        lat: 10.7905,
+        lng: 78.7047,
+        address: 'Tiruchirappalli (Trichy), Tamil Nadu'
       }
     ];
     
-    // Find matching location
+    // Find matching location with improved matching logic
     for (const location of localDatabase) {
       const matchCount = location.keywords.filter(keyword => 
         normalizedAddress.includes(keyword)
       ).length;
       
-      if (matchCount >= 2) { // Require at least 2 keyword matches
-        console.log(`🎯 Found local match for "${address}":`, location.address);
-        return location;
+      // For single keyword matches, require exact match for city names
+      if (matchCount >= 1) {
+        const hasExactCityMatch = location.keywords.some(keyword => {
+          const cityKeywords = [
+            'nagercoil', 'kanyakumari', 'chennai', 'coimbatore', 'madurai', 
+            'thiruvananthapuram', 'marthandam', 'colachel', 'tirunelveli',
+            'tuticorin', 'thoothukudi', 'kollam', 'kochi', 'cochin',
+            'salem', 'erode', 'vellore', 'tiruchirappalli', 'trichy'
+          ];
+          return cityKeywords.includes(keyword) && normalizedAddress.includes(keyword);
+        });
+        
+        if (matchCount >= 2 || hasExactCityMatch) {
+          console.log(`🎯 Found local match for "${address}":`, location.address);
+          return location;
+        }
       }
     }
     
     console.log(`📍 No local match found for "${address}"`);
     return null;
   }
+  
 
   /**
    * Use default coordinates when geocoding fails
@@ -395,7 +601,7 @@ export class MapLocation {
       state: 'Tamil Nadu',
       city: 'Nagercoil',
       landMark: `Near Vasan Eye Care Hospital, Vadasery (${lat.toFixed(6)}, ${lng.toFixed(6)})`,
-      zipCode: '629003',
+      zipCode: '629001',
     };
 
     // Emit location update with fallback data
@@ -453,7 +659,7 @@ export class MapLocation {
           state: 'Tamil Nadu',
           city: 'Nagercoil',
           landMark: 'Vasan Eye Care Hospital, Vadasery',
-          zipCode: '629003'
+          zipCode: '629001'
         }
       },
       {
@@ -553,5 +759,186 @@ export class MapLocation {
     this.currentLat.set(defaultLat);
     this.currentLng.set(defaultLng);
     this.performReverseGeocoding(defaultLat, defaultLng);
+  }
+
+  /**
+   * Add a reliable tile layer that works consistently
+   */
+  private addReliableTileLayer(): void {
+    console.log('🗺️ Adding reliable tile layer...');
+    
+    // Use OpenStreetMap directly - this is what's working in your screenshot
+    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      subdomains: ['a', 'b', 'c']
+    });
+
+    // Add to map immediately
+    tileLayer.addTo(this.map);
+    
+    // Set up success handler
+    tileLayer.on('tileload', () => {
+      console.log('✅ Tiles loaded successfully');
+      const mapContainer = document.getElementById('leafletMap');
+      if (mapContainer) {
+        mapContainer.classList.add('loaded');
+      }
+    });
+
+    // If tiles fail, try CartoDB as backup
+    tileLayer.on('tileerror', () => {
+      console.warn('⚠️ OpenStreetMap failed, trying CartoDB...');
+      this.tryCartoDBTiles();
+    });
+
+    // Force map refresh after a short delay
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+        console.log('🔄 Map refreshed');
+      }
+    }, 1000);
+  }
+
+  /**
+   * Fallback to CartoDB tiles if OpenStreetMap fails
+   */
+  private tryCartoDBTiles(): void {
+    // Remove existing tile layers
+    this.map.eachLayer((layer: any) => {
+      if (layer instanceof L.TileLayer) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+    // Add CartoDB Voyager tiles (very reliable)
+    const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    });
+
+    cartoLayer.addTo(this.map);
+    
+    cartoLayer.on('tileload', () => {
+      console.log('✅ CartoDB tiles loaded successfully');
+      const mapContainer = document.getElementById('leafletMap');
+      if (mapContainer) {
+        mapContainer.classList.add('loaded');
+      }
+    });
+
+    // Force refresh
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 500);
+  }
+
+
+
+  /**
+   * Use offline mode with better styling and visual feedback
+   */
+  private useOfflineMode(): void {
+    console.log('📍 Using offline mode - map will show with basic styling');
+    
+    // Remove all tile layers
+    this.map.eachLayer((layer: any) => {
+      if (layer instanceof L.TileLayer) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+    // Create a simple grid pattern as background
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // Light gray background
+      ctx.fillStyle = '#f8f9fa';
+      ctx.fillRect(0, 0, 256, 256);
+      
+      // Grid lines
+      ctx.strokeStyle = '#e9ecef';
+      ctx.lineWidth = 1;
+      
+      // Vertical lines
+      for (let x = 0; x <= 256; x += 32) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 256);
+        ctx.stroke();
+      }
+      
+      // Horizontal lines
+      for (let y = 0; y <= 256; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(256, y);
+        ctx.stroke();
+      }
+      
+      // Add "OFFLINE" text
+      ctx.fillStyle = '#6c757d';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('OFFLINE MODE', 128, 128);
+    }
+
+    // Convert canvas to data URL
+    const dataUrl = canvas.toDataURL();
+
+    // Add offline tile layer
+    const offlineLayer = L.tileLayer(dataUrl, {
+      attribution: 'Offline Mode - Map tiles unavailable',
+      opacity: 0.8,
+      maxZoom: 19
+    });
+
+    offlineLayer.addTo(this.map);
+
+    // Show notification to user
+    if (this.marker) {
+      this.marker.bindPopup(`
+        <div style="text-align: center; padding: 10px;">
+          <strong>⚠️ Offline Mode</strong><br>
+          <small>Map tiles are unavailable.<br>
+          Location marker is still functional.</small>
+        </div>
+      `).openPopup();
+    }
+  }
+
+  /**
+   * Show error when Leaflet library is not available
+   */
+  private showLeafletError(): void {
+    const mapContainer = document.getElementById('leafletMap');
+    if (mapContainer) {
+      mapContainer.innerHTML = `
+        <div style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          background-color: #f8f9fa;
+          border: 2px dashed #dee2e6;
+          border-radius: 8px;
+          color: #6c757d;
+          text-align: center;
+          padding: 20px;
+        ">
+          <div>
+            <h5>Map Unavailable</h5>
+            <p>The map library failed to load.<br>Please refresh the page or check your internet connection.</p>
+          </div>
+        </div>
+      `;
+    }
   }
 }
