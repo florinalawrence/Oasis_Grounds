@@ -183,17 +183,17 @@ input[type="number"] {
   }
 
   .row[style*="margin"] {
-    margin: 10px !important;
+    margin: 5px !important;
   }
 
   .container-fluid {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
   .px-4 {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
   }
 
   .contact-panel {
@@ -230,6 +230,17 @@ input[type="number"] {
 
   .form-box {
     padding: 20px 15px;
+  }
+
+  .card-body {
+    padding: 10px;
+  }
+
+  /* Stack phone fields vertically in mobile */
+  .col-3.mb-3.propBlock,
+  .col-9.mb-3.propBlock {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
   }
 
   .form-control,

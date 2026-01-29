@@ -131,8 +131,8 @@ h3{
 
   .card {
     max-width: 100%;
-    margin-left: 5px;
-    margin-right: 5px;
+    // margin-left: 5px;
+    // margin-right: 5px;
   }
 }
 
@@ -162,8 +162,8 @@ h3{
 
 @media (max-width: 768px) {
   .card {
-    margin-left: 5px;
-    margin-right: 5px;
+    margin-left: 0px;
+    margin-right: 0px;
   }
 
   .management-container {

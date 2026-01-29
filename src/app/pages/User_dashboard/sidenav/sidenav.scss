@@ -267,6 +267,14 @@ body {
   }
 }
 
+/* Specific 1024px Laptop View - Reduced Sidenav Margin */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .sidebar-container {
+    width: 250px;
+    margin-left: 5px;
+  }
+}
+
 @media (max-width: 991px) {
   .sidebar-container {
     width: 100%;
@@ -279,16 +287,31 @@ body {
   .nav-menu {
     display: flex;
     flex-direction: row;
-    overflow-x: auto;
+    justify-content: space-between; /* Distribute items evenly */
     padding: 5px 10px;
+    overflow-x: visible; /* Remove scrolling */
+    flex-wrap: nowrap; /* Keep items in single row */
+    gap: 2px; /* Small gap between items */
   }
 
   .nav-item {
+    flex: 1; /* Equal width for all items */
     flex-shrink: 0;
-    padding: 10px 15px;
+    padding: 10px 8px; /* Reduced horizontal padding */
     margin-bottom: 0;
-    margin-right: 5px;
+    margin-right: 2px; /* Reduced margin */
     white-space: nowrap;
+    text-align: center; /* Center align content */
+    font-size: 12px; /* Smaller font for better fit */
+  }
+
+  .nav-item:last-child {
+    margin-right: 0; /* Remove margin from last item */
+  }
+
+  .nav-item i {
+    margin-right: 6px; /* Reduced icon margin */
+    font-size: 14px;
   }
 
   .profile-section {
@@ -334,6 +357,20 @@ body {
     margin-right: auto;
   }
 
+  .nav-menu {
+    gap: 1px; /* Smaller gap for tablet */
+  }
+
+  .nav-item {
+    font-size: 11px; /* Slightly smaller font */
+    padding: 8px 6px; /* Adjusted padding */
+
+    i {
+      font-size: 14px;
+      margin-right: 4px; /* Smaller margin */
+    }
+  }
+
   .profile-section {
     padding: 10px;
   }
@@ -369,15 +406,6 @@ body {
   .profile-role {
     font-size: 11px;
   }
-
-  .nav-item {
-    font-size: 13px;
-    padding: 8px 12px;
-
-    i {
-      font-size: 14px;
-    }
-  }
 }
 
 @media (max-width: 576px) {
@@ -385,6 +413,35 @@ body {
     border-radius: 3px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .nav-menu {
+    padding: 5px 5px; /* Reduced padding for more space */
+  }
+
+  .nav-item {
+    flex: 1; /* Equal width for all items */
+    font-size: 10px; /* Smaller font */
+    padding: 8px 4px; /* Reduced padding */
+    text-align: center;
+    flex-direction: column; /* Stack icon and text vertically */
+    justify-content: center;
+    align-items: center;
+    min-height: 50px; /* Ensure consistent height */
+
+    i {
+      font-size: 16px; /* Larger icons for better visibility */
+      margin-right: 0; /* Remove right margin */
+      margin-bottom: 2px; /* Add bottom margin for spacing */
+    }
+
+    span {
+      display: block; /* Show text labels */
+      font-size: 9px; /* Very small text */
+      line-height: 1.1;
+      text-align: center;
+      word-break: break-word; /* Allow text wrapping if needed */
+    }
   }
 
   .profile-section {
@@ -425,18 +482,53 @@ body {
   .profile-role {
     font-size: 10px;
   }
+}
 
+/* Handle 6 navigation items (when Change Password is visible) */
+@media (max-width: 991px) {
+  .nav-menu:has(.password-icon) .nav-item {
+    font-size: 11px; /* Smaller font when 6 items */
+    padding: 8px 6px; /* Reduced padding */
+  }
+}
+
+@media (max-width: 576px) {
+  .nav-menu:has(.password-icon) .nav-item {
+    padding: 6px 3px; /* Even smaller padding for 6 items */
+    
+    span {
+      font-size: 8px; /* Smaller text for 6 items */
+    }
+  }
+}
+
+/* Extra small screens - handle 6 items when Change Password is visible */
+@media (max-width: 480px) {
   .nav-item {
-    font-size: 12px;
-    padding: 6px 10px;
-
+    padding: 6px 2px; /* Even smaller padding */
+    
     i {
-      font-size: 12px;
-      margin-right: 8px;
+      font-size: 14px; /* Slightly smaller icons */
     }
 
     span {
-      display: none;
+      font-size: 8px; /* Even smaller text */
+    }
+  }
+}
+
+/* Ultra small screens - minimal layout */
+@media (max-width: 360px) {
+  .nav-item {
+    padding: 4px 1px; /* Minimal padding */
+    
+    i {
+      font-size: 12px; /* Smaller icons */
+    }
+
+    span {
+      font-size: 7px; /* Tiny text */
+      line-height: 1;
     }
   }
 }

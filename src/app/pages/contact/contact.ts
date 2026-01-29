@@ -12,7 +12,7 @@ import { RoutePath } from '../../core/constant/api.constant';
 import { environment } from '../../../environments/environment';
 import { Meta, Title } from '@angular/platform-browser';
 
-import { MapLocation } from '../map-location/map-location';
+import { MapLocationComponent } from '../map-location/map-location';
 
 interface ContactData {
   name: string;
@@ -48,7 +48,7 @@ interface CountryCode {
     ReactiveFormsModule,
     NgxSpinnerModule,
     RecaptchaV3Module,
-    MapLocation
+    MapLocationComponent
   ],
 })
 export class Contact implements OnInit {

@@ -78,6 +78,33 @@
   transform: translateY(0);
 }
 
+/* Base navbar behavior */
+/* navbar-toggler: hidden by default, show on mobile/tablet */
+.navbar-toggler {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .navbar-toggler {
+    display: block !important;
+  }
+}
+
+/* navbar-collapse: hidden by default on mobile/tablet, always visible on desktop */
+.navbar-collapse {
+  display: none;
+}
+
+.navbar-collapse.show {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .navbar-collapse {
+    display: flex !important;
+  }
+}
+
 .custom-dropdown-menu .dropdown-item {
   display: block;
   width: 100%;
@@ -233,17 +260,28 @@
     }
 
     .navbar-collapse {
+        display: none !important; /* Hide by default */
         margin-top: 1rem;
-        text-align: center;
+        text-align: left;
         background: linear-gradient(183deg, #739aff, #84ddff);
         margin-left: -1rem;
         margin-right: -1rem;
         padding: 1rem;
+        transition: all 0.3s ease-in-out;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    .navbar-collapse.show {
+        display: block !important; /* Show when 'show' class is present */
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .navbar-nav {
         padding: 1rem 0;
         flex-direction: column;
+        align-items: flex-start;
     }
 
     .nav-item {
@@ -254,6 +292,7 @@
         color: #fff !important;
         margin: 0;
         padding: 0.5rem 1rem;
+        position: relative;
     }
 
     .nav-link:hover,
@@ -266,24 +305,82 @@
         font-weight: 600;
     }
 
+    /* Add white divider after Contact nav item */
+    .nav-item:last-of-type .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 0;
+        width: 100vw;
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.3);
+        margin-left: -1rem;
+    }
+
+    /* Mobile user welcome link with aligned arrow */
     .user-welcome-link {
         color: #fff !important;
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: transparent;
         padding: 8px 16px;
-        border-radius: 4px;
+        border-radius: 0;
         text-decoration: none;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         font-weight: 500;
+        position: relative;
+        border: none;
+    }
+
+    .user-welcome-link::after {
+        content: '>';
+        margin-left: 8px;
+        font-size: 14px;
+        color: #fff;
+        line-height: 1;
+        display: inline-block;
     }
 
     .user-welcome-link:hover {
+        background-color: transparent;
+        color: #e0e0e0 !important;
+        text-decoration: underline;
+    }
+
+    .user-welcome-link:hover::after {
+        color: #e0e0e0;
+    }
+
+    /* Add white divider after Hi Florina */
+    .user-dropdown-container::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 0;
+        width: 100vw;
+        height: 1px;
         background-color: rgba(255, 255, 255, 0.3);
-        color: #fff !important;
+        margin-left: -1rem;
     }
 
     .btn-outline-primary {
         color: #fff !important;
         border-color: #fff !important;
+        align-self: flex-start !important;
+        margin-left: 0 !important;
+        width: auto !important;
+        position: relative;
+    }
+
+    /* Add white divider after Login button */
+    .btn-outline-primary::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 0;
+        width: 100vw;
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.3);
+        margin-left: -1rem;
     }
 
     .btn-outline-primary:hover {
@@ -291,12 +388,12 @@
         color: #739aff !important;
     }
 
-    /* Show user info and add property button side by side */
+    /* Show user info and add property button in separate rows */
     .navbar-collapse > .d-flex {
         display: flex !important;
-        flex-direction: row !important;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column !important;
+        align-items: flex-start;
+        justify-content: flex-start;
         margin-top: 1rem;
         padding: 0;
         gap: 1rem;
@@ -305,6 +402,7 @@
     .module-property {
         width: auto !important;
         margin-left: 0 !important;
+        align-self: flex-start;
     }
 
     .module-property .btn,
@@ -314,10 +412,10 @@
         min-width: 140px;
         padding: 8px 16px !important;
         font-size: 14px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important;
         height: 38px;
-        background: rgba(255, 255, 255, 0.9) !important;
-        color: #5a8fff !important;
+        background: linear-gradient(90deg, rgba(64, 139, 235, 1) 0%, rgba(97, 160, 241, 1) 31%, rgba(97, 160, 241, 1) 59%, rgba(64, 139, 235, 1) 100%) !important;
+        color: #fff !important;
         border: none !important;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -325,6 +423,7 @@
         align-items: center !important;
         justify-content: center !important;
         text-align: center !important;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     }
 
     .btn-pop .plus-icon {
@@ -336,19 +435,53 @@
     .module-property .btn:hover,
     .module-property a:hover,
     .btn-pop:hover {
-        background: #fff !important;
-        color: #4a7fff !important;
+        color: #000 !important;
+        background: #ffffff !important;
+        border: 0.5px solid #b1b1b1 !important;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     }
 
     /* Mobile dropdown adjustments */
     .user-dropdown-container {
         width: auto !important;
         text-align: left !important;
+        position: relative;
+        align-self: flex-start;
     }
 
-    /* Hide dropdown menu on mobile */
+    /* Show dropdown menu on mobile when active */
     .custom-dropdown-menu {
-        display: none !important;
+        position: static !important;
+        display: none;
+        opacity: 0;
+        transform: none !important;
+        box-shadow: none;
+        border: none;
+        background-color: transparent;
+        padding: 0;
+        margin-top: 0.5rem;
+        margin-left: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .custom-dropdown-menu.show {
+        display: block !important;
+        opacity: 1;
+    }
+
+    .custom-dropdown-menu .dropdown-item {
+        padding: 0.5rem 1rem;
+        color: #fff !important;
+        background-color: transparent;
+        border: none;
+        text-align: left;
+        font-size: 14px;
+        margin: 0.25rem 0;
+    }
+
+    .custom-dropdown-menu .dropdown-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #e0e0e0 !important;
     }
 }
 
@@ -364,6 +497,13 @@
 
     .navbar-toggler {
         border-color: rgba(0, 0, 0, 0.3);
+        display: block !important;
+        z-index: 1051;
+        position: relative;
+    }
+
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
 
     .navbar-toggler-icon {
@@ -375,11 +515,21 @@
     }
 
     .navbar-collapse {
+        display: none !important; /* Hide by default */
         margin-top: 1rem;
         background: linear-gradient(183deg, #739aff, #84ddff);
         margin-left: -1.5rem;
         margin-right: -1.5rem;
         padding: 1rem 1.5rem;
+        transition: all 0.3s ease-in-out;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    .navbar-collapse.show {
+        display: block !important; /* Show when 'show' class is present */
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .navbar-nav {
@@ -402,11 +552,77 @@
         font-weight: 600;
     }
 
+    /* Tablet user welcome link with aligned arrow */
     .user-welcome-link {
         color: #fff !important;
+        background-color: transparent;
+        padding: 8px 16px;
+        border-radius: 0;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+        position: relative;
+        border: none;
+    }
+
+    .user-welcome-link::after {
+        content: '>';
+        margin-left: 8px;
+        font-size: 14px;
+        color: #fff;
+        line-height: 1;
+        display: inline-block;
     }
 
     .user-welcome-link:hover {
+        background-color: transparent;
+        color: #e0e0e0 !important;
+        text-decoration: underline;
+    }
+
+    .user-welcome-link:hover::after {
+        color: #e0e0e0;
+    }
+
+    .user-dropdown-container {
+        width: auto !important;
+        position: relative;
+        align-self: flex-start;
+    }
+
+    /* Show dropdown menu on tablet when active */
+    .custom-dropdown-menu {
+        position: static !important;
+        display: none;
+        opacity: 0;
+        transform: none !important;
+        box-shadow: none;
+        border: none;
+        background-color: transparent;
+        padding: 0;
+        margin-top: 0.5rem;
+        margin-left: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .custom-dropdown-menu.show {
+        display: block !important;
+        opacity: 1;
+    }
+
+    .custom-dropdown-menu .dropdown-item {
+        padding: 0.5rem 1rem;
+        color: #fff !important;
+        background-color: transparent;
+        border: none;
+        text-align: left;
+        font-size: 14px;
+        margin: 0.25rem 0;
+    }
+
+    .custom-dropdown-menu .dropdown-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
         color: #e0e0e0 !important;
     }
 
@@ -458,12 +674,40 @@
         margin-left: 0 !important;
     }
 
-    .module-property .btn {
-        width: auto;
-        min-width: 130px;
+    .module-property .btn,
+    .module-property a,
+    .btn-pop {
+        width: auto !important;
+        min-width: 140px;
         height: 38px;
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        padding: 8px 16px !important;
+        background: linear-gradient(90deg, rgba(64, 139, 235, 1) 0%, rgba(97, 160, 241, 1) 31%, rgba(97, 160, 241, 1) 59%, rgba(64, 139, 235, 1) 100%) !important;
+        color: #fff !important;
+        border: none !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    }
+
+    .btn-pop .plus-icon {
+        font-size: 18px;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .module-property .btn:hover,
+    .module-property a:hover,
+    .btn-pop:hover {
+        color: #000 !important;
+        background: #ffffff !important;
+        border: 0.5px solid #b1b1b1 !important;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     }
 
     .btn-outline-primary {
@@ -592,4 +836,62 @@
     .navbar-expand-lg .navbar-nav {
         flex-direction: row;
     }
+}
+
+
+/* ===== TABLET NAVBAR : FORCE 2 COLUMN LAYOUT ===== */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+  /* Make navbar-collapse a row with 2 columns ONLY when it has 'show' class */
+  .navbar-collapse.show {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 2rem;
+  }
+
+  /* Ensure navbar-collapse is hidden by default (override any other styles) */
+  .navbar-collapse:not(.show) {
+    display: none !important;
+  }
+
+  /* LEFT COLUMN - Navigation links */
+  .navbar-collapse .navbar-nav {
+    width: 65% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+  }
+
+  .navbar-collapse .nav-item {
+    width: 100%;
+  }
+
+  /* RIGHT COLUMN - User + Add Property */
+  .navbar-collapse > .d-flex {
+    width: 35% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    margin-left: auto !important;
+  }
+
+  /* Hi Florina */
+  .user-dropdown-container {
+    width: 100% !important;
+  }
+
+  /* Add Property Button */
+  .module-property {
+    width: auto !important;
+  }
+
+  .module-property .btn,
+  .btn-pop {
+    width: 100% !important;
+    justify-content: center !important;
+  }
 }

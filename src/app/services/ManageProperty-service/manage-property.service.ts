@@ -156,12 +156,14 @@ export class ManagePropertyService {
 
   // Save address details
   saveAddressDetail(addressData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.ADDRESS_DETAILS}`, addressData)
+    const headers = this.getHeaders();
+    console.log('📍 Saving address details with auth headers');
+    console.log('📡 Address API URL:', `${this.baseApiUrl}${AuthEndPoints.ADDRESS_DETAILS}`);
+    console.log('📤 Address data:', addressData);
+    
+    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.ADDRESS_DETAILS}`, addressData, { headers })
       .pipe(
-        catchError((err) => {
-          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while saving address details';
-          return throwError(() => new Error(errorMessage));
-        })
+        catchError((err) => this.handleApiError(err, 'Save Address Details'))
       );
   }
 

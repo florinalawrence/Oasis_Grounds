@@ -119,15 +119,35 @@ export class Header {
   }
 
   /**
+   * Handle escape key to close navbar and dropdown
+   */
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isNavbarCollapsed()) {
+      this.closeNavbar();
+    }
+    if (this.showDropdown) {
+      this.showDropdown = false;
+    }
+  }
+
+  /**
    * Handle document click to close dropdown when clicking outside
    */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
     const dropdownContainer = target.closest('.user-dropdown-container, .has-dropdown');
+    const navbarContainer = target.closest('.navbar-collapse, .navbar-toggler');
     
+    // Close dropdown if clicking outside
     if (!dropdownContainer && this.showDropdown) {
       this.showDropdown = false;
+    }
+    
+    // Close navbar if clicking outside and it's currently open
+    if (!navbarContainer && this.isNavbarCollapsed()) {
+      this.closeNavbar();
     }
   }
 
@@ -214,7 +234,23 @@ export class Header {
    * Toggle navbar collapse state
    */
   toggleNavbar(): void {
-    this.isNavbarCollapsed.update(collapsed => !collapsed);
+    const navbarEl = this.navbarCollapse();
+    const isCurrentlyOpen = this.isNavbarCollapsed();
+    
+    if (isCurrentlyOpen) {
+      // Close the navbar
+      if (navbarEl?.nativeElement?.classList.contains('show')) {
+        navbarEl.nativeElement.classList.remove('show');
+      }
+      this.isNavbarCollapsed.set(false);
+      this.showDropdown = false;
+    } else {
+      // Open the navbar
+      if (navbarEl?.nativeElement) {
+        navbarEl.nativeElement.classList.add('show');
+      }
+      this.isNavbarCollapsed.set(true);
+    }
   }
 
   /**
