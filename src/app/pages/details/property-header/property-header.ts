@@ -20,11 +20,10 @@ export class PropertyHeader implements OnInit, OnChanges {
   @Input() propertyData: any = null;
   @Input() navigationSource: string = 'all-properties';
 
-  // Dependency injection
+ 
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
-  // Signals for reactive state
   readonly breadcrumbs = signal<BreadcrumbItem[]>([]);
 
   ngOnInit(): void {
@@ -57,7 +56,7 @@ export class PropertyHeader implements OnInit, OnChanges {
         break;
       case 'all-properties':
       default:
-        // Default for all-properties or any other source
+        
         breadcrumbItems = [
           { label: 'Home', route: '/home' },
           { label: 'All Properties', route: '/all-property' },
@@ -67,7 +66,7 @@ export class PropertyHeader implements OnInit, OnChanges {
     }
 
     this.breadcrumbs.set(breadcrumbItems);
-    console.log('🧭 Updated breadcrumbs for source:', this.navigationSource, breadcrumbItems);
+   
   }
 
   /**

@@ -1,5 +1,4 @@
 body {
-  // font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f5f5f5;
   margin: 0;
   padding: 0;
@@ -15,7 +14,6 @@ body {
   border: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  // padding: 5px 0;
   border-radius: 5px;
   margin-left: 10px;
   margin-top: 19px;
@@ -201,7 +199,6 @@ body {
   border-radius: 5px;
 }
 
-/* Add Property Section */
 .container {
   margin-left: 230px;
 }
@@ -287,30 +284,41 @@ body {
   .nav-menu {
     display: flex;
     flex-direction: row;
-    justify-content: space-between; /* Distribute items evenly */
+    justify-content: space-between; 
+    
     padding: 5px 10px;
-    overflow-x: visible; /* Remove scrolling */
-    flex-wrap: nowrap; /* Keep items in single row */
-    gap: 2px; /* Small gap between items */
+    overflow-x: visible; 
+    
+    flex-wrap: nowrap; 
+    
+    gap: 2px;
+    
   }
 
   .nav-item {
-    flex: 1; /* Equal width for all items */
+    flex: 1; 
+    
     flex-shrink: 0;
-    padding: 10px 8px; /* Reduced horizontal padding */
+    padding: 10px 8px; 
+    
     margin-bottom: 0;
-    margin-right: 2px; /* Reduced margin */
+    margin-right: 2px; 
+    
     white-space: nowrap;
-    text-align: center; /* Center align content */
-    font-size: 12px; /* Smaller font for better fit */
+    text-align: center; 
+    
+    font-size: 12px; 
+    
   }
 
   .nav-item:last-child {
-    margin-right: 0; /* Remove margin from last item */
+    margin-right: 0; 
+    
   }
 
   .nav-item i {
-    margin-right: 6px; /* Reduced icon margin */
+    margin-right: 6px; 
+    
     font-size: 14px;
   }
 
@@ -358,16 +366,20 @@ body {
   }
 
   .nav-menu {
-    gap: 1px; /* Smaller gap for tablet */
+    gap: 1px;
+    
   }
 
   .nav-item {
-    font-size: 11px; /* Slightly smaller font */
-    padding: 8px 6px; /* Adjusted padding */
+    font-size: 11px; 
+    
+    padding: 8px 6px; 
+    
 
     i {
       font-size: 14px;
-      margin-right: 4px; /* Smaller margin */
+      margin-right: 4px; 
+      
     }
   }
 
@@ -416,31 +428,41 @@ body {
   }
 
   .nav-menu {
-    padding: 5px 5px; /* Reduced padding for more space */
+    padding: 5px 5px;
+    
   }
 
   .nav-item {
-    flex: 1; /* Equal width for all items */
-    font-size: 10px; /* Smaller font */
-    padding: 8px 4px; /* Reduced padding */
+    flex: 1; 
+    
+    font-size: 10px; 
+    
+    padding: 8px 4px; 
+    
     text-align: center;
-    flex-direction: column; /* Stack icon and text vertically */
+    flex-direction: column; 
+    
     justify-content: center;
     align-items: center;
-    min-height: 50px; /* Ensure consistent height */
+    min-height: 50px; 
+    
 
     i {
-      font-size: 16px; /* Larger icons for better visibility */
-      margin-right: 0; /* Remove right margin */
-      margin-bottom: 2px; /* Add bottom margin for spacing */
+      font-size: 16px; 
+      
+      margin-right: 0; 
+      margin-bottom: 2px; 
     }
 
     span {
-      display: block; /* Show text labels */
-      font-size: 9px; /* Very small text */
+      display: block; 
+      
+      font-size: 9px; 
+      
       line-height: 1.1;
       text-align: center;
-      word-break: break-word; /* Allow text wrapping if needed */
+      word-break: break-word; 
+      
     }
   }
 
@@ -484,20 +506,22 @@ body {
   }
 }
 
-/* Handle 6 navigation items (when Change Password is visible) */
+
+
 @media (max-width: 991px) {
   .nav-menu:has(.password-icon) .nav-item {
-    font-size: 11px; /* Smaller font when 6 items */
-    padding: 8px 6px; /* Reduced padding */
+    font-size: 11px;
+    
+    padding: 8px 6px; 
   }
 }
 
 @media (max-width: 576px) {
   .nav-menu:has(.password-icon) .nav-item {
-    padding: 6px 3px; /* Even smaller padding for 6 items */
+    padding: 6px 3px;
     
     span {
-      font-size: 8px; /* Smaller text for 6 items */
+      font-size: 8px;
     }
   }
 }
@@ -505,14 +529,16 @@ body {
 /* Extra small screens - handle 6 items when Change Password is visible */
 @media (max-width: 480px) {
   .nav-item {
-    padding: 6px 2px; /* Even smaller padding */
+    padding: 6px 2px; 
     
     i {
-      font-size: 14px; /* Slightly smaller icons */
+      font-size: 14px; 
+      
     }
 
     span {
-      font-size: 8px; /* Even smaller text */
+      font-size: 8px; 
+      
     }
   }
 }
@@ -520,14 +546,17 @@ body {
 /* Ultra small screens - minimal layout */
 @media (max-width: 360px) {
   .nav-item {
-    padding: 4px 1px; /* Minimal padding */
+    padding: 4px 1px; 
+    
     
     i {
-      font-size: 12px; /* Smaller icons */
+      font-size: 12px;
+      
     }
 
     span {
-      font-size: 7px; /* Tiny text */
+      font-size: 7px; 
+      
       line-height: 1;
     }
   }

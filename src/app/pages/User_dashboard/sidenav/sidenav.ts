@@ -25,7 +25,8 @@ export class Sidenav implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   private currentUserData: any = null;
 
-  // Login method tracking
+
+  
   showChangePassword: boolean = true;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -39,7 +40,6 @@ export class Sidenav implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    console.log('🚀 Sidenav: Component initializing...');
     
     this.updateBreadcrumb();
     this.router.events.pipe(
@@ -48,43 +48,33 @@ export class Sidenav implements OnInit, OnDestroy {
       this.updateBreadcrumb();
     });
     
-    // Load profile data from session
     this.loadProfileData();
     
-    // Subscribe to user role and name changes
     this.subscribeToUserRoleChanges();
     
-    // Subscribe to user profile data changes
     this.subscribeToUserProfileData();
     
-    // Check login method to determine if change password should be shown
     this.checkLoginMethod();
     
-    // Initialize profile data after component loads
     this.initializeProfileData();
     
-    // Debug: Log current session data
-    console.log('🔍 Sidenav: Current session data:', this.session.getUserData());
-    console.log('🔍 Sidenav: Current token:', !!this.session.getToken());
-    console.log('🔍 Sidenav: Current login method:', this.session.getLoginMethod());
+  
+    
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
 
-  /**
-   * Convert relative image URL to absolute URL if needed
-   */
+
+  
   private getAbsoluteImageUrl(imageUrl: string): string {
     if (!imageUrl) return '';
     
-    // If it's already an absolute URL, return as is
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('data:')) {
       return imageUrl;
     }
     
-    // If it's a relative URL, prepend the API base URL
     const baseUrl = this.userProfileService.authApiUrl || this.userProfileService.baseApiUrl;
     if (baseUrl && imageUrl.startsWith('/')) {
       return baseUrl + imageUrl;
@@ -94,42 +84,39 @@ export class Sidenav implements OnInit, OnDestroy {
   }
 
   loadProfileData() {
-    // Profile data should come from NotifierService or be loaded from API
-    this.profileName = 'User'; // Default name
+  
+    
+    this.profileName = 'User'; 
+    
   }
 
   subscribeToUserRoleChanges() {
-    // Listen for user role changes from the notifier service
     const roleSubscription = this.notifier.userRole$.subscribe((role: string) => {
-      console.log('👤 Sidenav: Received role update from notifier:', role);
+    
+      
       if (role) {
         this.profileRole = role;
-        console.log('✅ Sidenav: Profile role updated to:', this.profileRole);
+       
+        
       } else {
         console.warn('⚠️ Sidenav: Received empty role from notifier');
       }
     });
     this.subscriptions.add(roleSubscription);
 
-    // Listen for user name changes from the notifier service
     const nameSubscription = this.notifier.userName$.subscribe((name: string) => {
       if (name) {
-        // Extract only first name from the received name
         const firstName = name.split(' ')[0].trim();
         
-        // Don't use default/placeholder names - keep "User" instead
         const defaultNames = ['florina', 'lawrence', 'john', 'jane', 'test', 'user', 'default'];
         const isDefaultName = defaultNames.some(defaultName => 
           firstName.toLowerCase() === defaultName
         );
         
-        // Show the user's first name if available
         if (firstName && !isDefaultName && firstName !== 'User') {
           this.profileName = firstName;
-          console.log('👤 Sidenav: Name updated via notifier to first name:', firstName);
         } else {
           this.profileName = 'User';
-          console.log('👤 Sidenav: Using default "User" name from notifier');
         }
       }
     });
@@ -137,54 +124,34 @@ export class Sidenav implements OnInit, OnDestroy {
   }
 
   subscribeToUserProfileData() {
-    // Listen for user profile data changes from the notifier service
     const userDataSubscription = this.notifier.userProfileData$.subscribe((userData: any) => {
-      console.log('👤 Sidenav: Received user data from notifier:', userData);
       
-      // Store the current user data for use in other methods
       this.currentUserData = userData;
       
       if (userData) {
-        // Check login method to determine name display behavior
-        const loginMethod = this.session.getLoginMethod();
-        console.log('🔍 Sidenav: Login method for name display:', loginMethod);
+      const loginMethod = this.session.getLoginMethod();
         
-        // Extract FIRST NAME ONLY with fallbacks for different login types
         let firstName = '';
         
-        // Try different name field combinations based on login type - FIRST NAME ONLY
         if (userData.firstName) {
-          // Standard profile with first name - use only first name
           firstName = userData.firstName.trim();
-          console.log('👤 Sidenav: Using firstName field:', firstName);
         } else if (userData.given_name) {
-          // Google login 'given_name' field - use only given name (first name)
           firstName = userData.given_name.trim();
-          console.log('👤 Sidenav: Using given_name field:', firstName);
         } else if (userData.name) {
-          // Google login often provides 'name' field - extract first name from full name
           firstName = userData.name.split(' ')[0].trim();
-          console.log('👤 Sidenav: Using name field (first part):', firstName);
         } else if (userData.displayName) {
-          // Alternative display name field - extract first name
           firstName = userData.displayName.split(' ')[0].trim();
-          console.log('👤 Sidenav: Using displayName field (first part):', firstName);
         } else if (userData.email) {
-          // Fallback to email username part
           firstName = userData.email.split('@')[0];
-          console.log('👤 Sidenav: Using email username part:', firstName);
         }
         
-        // Don't use default/placeholder names - keep "User" instead
         const defaultNames = ['florina', 'lawrence', 'john', 'jane', 'test', 'user', 'default'];
         const isDefaultName = defaultNames.some(defaultName => 
           firstName.toLowerCase() === defaultName
         );
         
-        // Show the user's first name if available, regardless of login method
         if (firstName && !isDefaultName && firstName !== 'User') {
           this.profileName = firstName;
-          console.log('✅ Sidenav: Profile name set to first name:', firstName);
           
           // Also notify the header component to ensure consistency
           this.notifier.notifyUserNameChange(firstName);
@@ -304,9 +271,7 @@ export class Sidenav implements OnInit, OnDestroy {
     
     // Use the exact same field name as edit-profile component
     formData.append('profilePicture', file);
-    console.log('📋 Sidenav: Added file with field name "profilePicture"');
     
-    // Get userId for logging but don't add it yet
     const currentUserData = this.currentUserData;
     let userId = null;
     
@@ -318,53 +283,40 @@ export class Sidenav implements OnInit, OnDestroy {
     
     if (userId) {
       formData.append('userId', userId);
-      console.log('📋 Sidenav: Added userId to FormData:', userId);
     } else {
-      console.error('❌ Sidenav: No userId available - this is required for upload');
       this.toast.showToast('Unable to get user ID. Please refresh the page and try again.', 'error');
       return;
     }
     
-    console.log('📋 FormData prepared for upload with fields:', Array.from(formData.keys()));
-    console.log('🔍 Sidenav: About to call API with FormData containing:');
     formData.forEach((value, key) => {
-      console.log(`  ${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes, ${value.type})` : value);
     });
     
     this.userProfileService.updateProfilePicture(formData).subscribe({
       next: (response) => {
-        console.log('✅ Profile image uploaded successfully:', response);
         
-        // Check if the response contains the new image URL
         if (response?.profilePicUrl || response?.profileImageUrl || response?.imageUrl) {
           const serverImageUrl = response.profilePicUrl || response.profileImageUrl || response.imageUrl;
           this.profileImageUrl = serverImageUrl;
-          console.log('📸 Sidenav: Updated profile image URL from server response:', serverImageUrl);
         } else {
-          // Fallback: Use FileReader for immediate display, but rely on server reload for persistence
           const reader = new FileReader();
           reader.onload = (e: ProgressEvent<FileReader>) => {
             if (e.target?.result) {
               this.profileImageUrl = e.target.result as string;
-              console.log('📸 Sidenav: Using temporary FileReader URL (will be replaced by server URL)');
             }
           };
           reader.readAsDataURL(file);
         }
         
-        // Always reload user profile to get the latest data from server
-        // This ensures the profile picture URL is properly persisted
+
         this.loadUserProfileFromServer();
         
         this.toast.showToast('Profile image updated successfully', 'success');
       },
       error: (error) => {
         console.error('❌ Failed to upload profile image:', error);
-        console.error('❌ Sidenav: Full error object:', JSON.stringify(error, null, 2));
         
         let errorMessage = 'Failed to upload profile image';
         
-        // Extract the actual error message from the service
         if (error.message && error.message !== '[object Object]') {
           errorMessage = error.message;
         } else if (error.status === 400) {
@@ -379,77 +331,52 @@ export class Sidenav implements OnInit, OnDestroy {
         
         this.toast.showToast(errorMessage, 'error');
         
-        // If still getting 400 error, let's try different field names
         if (error.status === 400) {
-          console.log('🔄 Sidenav: 400 error received. The API might expect a different field name.');
-          console.log('💡 Sidenav: Consider trying "profilePicture", "profileImage", or "image" as field names.');
         }
       }
     });
   }
   private loadUserProfileFromServer() {
-    // Check if user has a valid token before making API call
     if (!this.session.getToken()) {
       console.warn('⚠️ Sidenav: No authentication token available, skipping profile load');
       return;
     }
 
-    console.log('📡 Sidenav: Loading user profile from server...');
     this.userProfileService.loadUserProfile().subscribe({
       next: (response) => {
-        console.log('✅ Sidenav: Profile API response received:', response);
-        console.log('🔍 Sidenav: Response type:', typeof response);
-        console.log('🔍 Sidenav: Is array:', Array.isArray(response));
+     
         
         let profileData = null;
         
-        // Handle different response structures comprehensively
         if (response && typeof response === 'object') {
-          // Method 1: Direct recordInfo property (most common in edit-profile)
           if (response.recordInfo) {
             profileData = response.recordInfo;
-            console.log('📋 Sidenav: Found recordInfo structure:', profileData);
           }
-          // Method 2: Array response with recordInfo in first element
           else if (Array.isArray(response) && response.length > 0) {
             const firstElement = response[0];
             if (firstElement && firstElement.recordInfo) {
               profileData = firstElement.recordInfo;
-              console.log('📋 Sidenav: Found recordInfo in array[0]:', profileData);
             } else if (firstElement && (firstElement.firstName || firstElement.name || firstElement.email || firstElement.id)) {
               profileData = firstElement;
-              console.log('📋 Sidenav: Using array[0] directly as profile data:', profileData);
             }
           }
-          // Method 3: Direct object with profile fields
           else if (response.firstName || response.name || response.email || response.id) {
             profileData = response;
-            console.log('📋 Sidenav: Using response directly as profile data:', profileData);
           }
-          // Method 4: Check for nested data structures
           else if (response.data) {
             if (response.data.recordInfo) {
               profileData = response.data.recordInfo;
-              console.log('📋 Sidenav: Found recordInfo in response.data:', profileData);
             } else if (response.data.firstName || response.data.name || response.data.email) {
               profileData = response.data;
-              console.log('📋 Sidenav: Using response.data as profile data:', profileData);
             }
           }
         }
         
         if (profileData && typeof profileData === 'object') {
-          console.log('✅ Sidenav: Valid profile data found, updating notifier');
-          console.log('📋 Sidenav: Profile data keys:', Object.keys(profileData));
-          console.log('📋 Sidenav: Profile data values:', profileData);
-          console.log('📋 Sidenav: firstName value:', profileData.firstName);
-          console.log('📋 Sidenav: name value:', profileData.name);
-          console.log('📋 Sidenav: given_name value:', profileData.given_name);
           
-          // Store user data in session for persistence across page refreshes
+          
           this.session.setUserData(profileData);
           
-          // Also directly update the profile image URL to ensure it's set immediately
           const possibleImageFields = [
             profileData.profilePicUrl,
             profileData.profileImageUrl, 
@@ -463,22 +390,23 @@ export class Sidenav implements OnInit, OnDestroy {
           const imageUrl = possibleImageFields.find(url => url && url.trim() !== '');
           if (imageUrl) {
             this.profileImageUrl = this.getAbsoluteImageUrl(imageUrl);
-            console.log('📸 Sidenav: Profile image URL set directly from server data:', this.profileImageUrl);
           } else {
             console.log('📸 Sidenav: No profile image found in server data');
           }
           
-          // Apply the loaded data to the current profile display
+          
+          
           const loginMethod = this.session.getLoginMethod();
           this.applyUserDataToProfile(profileData, loginMethod || 'email');
           
-          // Notify other components about the loaded profile data
+        
+          
           this.notifier.notifyUserData(profileData);
           
-          // Also update authentication state to ensure consistency
+         
+          
           this.notifier.isAuthenticatedSubject.next(true);
           
-          console.log('✅ Sidenav: Profile data successfully loaded and notified');
         } else {
           console.warn('⚠️ Sidenav: No valid profile data found in response structure');
           console.warn('📋 Sidenav: Full response structure:', JSON.stringify(response, null, 2));
@@ -496,19 +424,14 @@ export class Sidenav implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('❌ Sidenav: Failed to reload user profile:', err);
-        console.error('❌ Sidenav: Error status:', err.status);
-        console.error('❌ Sidenav: Error message:', err.message);
+      
         
-        // If it's a 401 error, the token might be expired
         if (err.status === 401) {
           console.warn('🔒 Sidenav: Authentication failed - token may be expired');
-          // Clear the session and redirect to login
           this.session.removeCredentials();
           this.notifier.isAuthenticatedSubject.next(false);
           this.router.navigate(['/login']);
         } else {
-          // For other errors, try to maintain the current state
           console.warn('⚠️ Sidenav: Profile load failed, maintaining current state');
         }
       }
@@ -530,48 +453,35 @@ export class Sidenav implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Handle user logout
-   */
+ 
+  
   logout() {
-    console.log('🚪 Sidenav: User logout initiated');
     
-    // Clear session data (this will also clear user data via removeCredentials)
     this.session.removeCredentials();
     
-    // Clear local component data
     this.profileName = 'User';
     this.profileRole = 'Home Buyer';
     this.profileImageUrl = null;
     this.currentUserData = null;
     
-    // Notify other components about logout (use both methods for comprehensive cleanup)
     this.notifier.isAuthenticatedSubject.next(false);
     this.notifier.notifyUserData(null);
     this.notifier.notifyToHeader(null);
     
-    // Show logout success message
     this.toast.showToast('Logged out successfully', 'success');
     
-    // Navigate to home page
     this.router.navigate(['/home']);
     
-    console.log('✅ Sidenav: User logged out successfully');
   }
 
-  /**
-   * Initialize profile data on component load
-   */
+ 
   private initializeProfileData(): void {
     const token = this.session.getToken();
     const loginMethod = this.session.getLoginMethod();
     
-    console.log('🚀 Sidenav: Initializing profile data...');
-    console.log('🔍 Sidenav: Token available:', !!token);
-    console.log('🔍 Sidenav: Login method:', loginMethod);
+   
     
     if (!token) {
-      console.log('⚠️ Sidenav: No token available, using defaults');
       this.profileName = 'User';
       this.profileRole = 'Home Buyer';
       this.profileImageUrl = null;
@@ -581,34 +491,23 @@ export class Sidenav implements OnInit, OnDestroy {
     // Check if we have cached user data in session storage
     const cachedUserData = this.session.getUserData();
     if (cachedUserData) {
-      console.log('📋 Sidenav: Found cached user data, applying immediately');
       this.applyUserDataToProfile(cachedUserData, loginMethod || 'email');
     }
     
-    // Always load fresh data from server to ensure consistency
-    console.log('🔄 Sidenav: Loading fresh profile data from server...');
+  
     setTimeout(() => {
       this.loadUserProfileFromServer();
     }, 300);
   }
   
-  /**
-   * Apply user data to profile display
-   */
+
   private applyUserDataToProfile(userData: any, loginMethod: string): void {
     if (!userData) {
-      console.log('⚠️ Sidenav: No user data provided to applyUserDataToProfile');
       return;
     }
     
-    console.log('👤 Sidenav: Applying user data to profile:', userData);
-    console.log('👤 Sidenav: User data keys:', Object.keys(userData));
-    console.log('👤 Sidenav: firstName:', userData.firstName);
-    console.log('👤 Sidenav: given_name:', userData.given_name);
-    console.log('👤 Sidenav: name:', userData.name);
-    console.log('👤 Sidenav: displayName:', userData.displayName);
+   
     
-    // Extract first name with fallbacks
     let firstName = '';
     if (userData.firstName) {
       firstName = userData.firstName.trim();
@@ -620,11 +519,9 @@ export class Sidenav implements OnInit, OnDestroy {
       firstName = userData.displayName.split(' ')[0].trim();
     }
     
-    // Apply name - show first name if available
     this.profileName = firstName || 'User';
-    console.log('👤 Sidenav: Name set to:', this.profileName);
     
-    // Set profile role
+    
     if (userData.userType) {
       this.profileRole = userData.userType;
     } else if (userData.role) {
@@ -645,28 +542,22 @@ export class Sidenav implements OnInit, OnDestroy {
     const imageUrl = possibleImageFields.find(url => url && url.trim() !== '');
     if (imageUrl) {
       this.profileImageUrl = this.getAbsoluteImageUrl(imageUrl);
-      console.log('📸 Sidenav: Profile image set from cached data:', this.profileImageUrl);
     }
   }
 
-  /**
-   * Check login method and set change password visibility
-   */
+
+  
   private checkLoginMethod(): void {
     const loginMethod = this.session.getLoginMethod();
-    console.log('🔍 Sidenav: Login method detected:', loginMethod);
     
-    // Show change password only for email/password login, hide for Google login
+  
+    
     this.showChangePassword = loginMethod === 'email';
     
-    console.log('🔑 Sidenav: Change password visibility:', this.showChangePassword);
   }
 
-  /**
-   * Force refresh profile data - useful for debugging
-   */
+ 
   public refreshProfile(): void {
-    console.log('🔄 Sidenav: Force refreshing profile data...');
     this.loadUserProfileFromServer();
   }
 }

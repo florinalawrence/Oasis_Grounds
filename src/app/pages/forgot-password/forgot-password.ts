@@ -78,23 +78,23 @@ export class ForgotPassword implements OnInit {
           if (res.headers.statusCode == 200) {
             this.swalToast.showToast(res.headers.message || 'Verification email sent successfully!', 'success');
             
-            // Navigate to reset password screen after successful verification
+           
             setTimeout(() => {
               this.resetFormData();
               
               // Check if response contains a password reset key/token
               if (res.data?.passwordResetKey || res.passwordResetKey || res.data?.resetKey || res.resetKey) {
                 const resetKey = res.data?.passwordResetKey || res.passwordResetKey || res.data?.resetKey || res.resetKey;
-                console.log('Navigating to reset password with key:', resetKey);
+               
                 this.router.navigate(['/resetPassword', resetKey]);
               } else if (res.data?.token || res.token) {
                 // Handle case where token is provided instead of resetKey
                 const token = res.data?.token || res.token;
-                console.log('Navigating to reset password with token:', token);
+                
                 this.router.navigate(['/resetPassword', token]);
               } else {
                 // If no reset key in response, navigate to generic reset password page
-                console.log('No reset key found in response, navigating to generic reset page');
+           
                 this.swalToast.showToast('Please check your email for the reset link or continue with password reset', 'info');
                 this.router.navigate(['/resetPassword']);
               }
@@ -105,7 +105,7 @@ export class ForgotPassword implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('Forgot password error:', err);
+        
           
           let errorMessage = 'Failed to send verification email';
           if (err.error?.headers?.message) {

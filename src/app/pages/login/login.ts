@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { LoaderService } from '../../services/loader.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+
 import { SocialAuthService, GoogleLoginProvider, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
 import { RoutePath } from '../../core/constant/api.constant';
@@ -19,7 +20,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule, RouterLink, GoogleSigninButtonModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule]
 })
 export class Login implements OnInit {
   showPassword = false;
@@ -30,7 +31,7 @@ export class Login implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private spinner: NgxSpinnerService,
+    private loader: LoaderService,
     private router: Router,
     private auth: AuthService,
     private toast: ToastService,
@@ -55,7 +56,7 @@ export class Login implements OnInit {
   }
 
   private checkExistingAuth() {
-    // Check if user is already authenticated but don't auto-navigate
+   
     if (this.session.getToken()) {
       this.notifier.isAuthenticatedSubject.next(true);
     }
@@ -64,18 +65,18 @@ export class Login implements OnInit {
   private setupGoogleAuth() {
     this.socialAuth.authState.subscribe(user => {
       if (user) {
-        this.currentGoogleUser = user; // Store the current Google user
+        this.currentGoogleUser = user; 
         this.handleGoogleLogin();
       }
     });
   }
 
   private handleGoogleLogin() {
-    // Get Google user info from social auth service
+   
     this.socialAuth.getAccessToken(GoogleLoginProvider.PROVIDER_ID).then(accessToken => {
       // Use the stored Google user info
       const googleUser = this.currentGoogleUser;
-      console.log('👤 Google user info from social auth:', googleUser);
+      
       
       const googleLoginPayload = {
         identifier: environment.applicationId,
@@ -83,10 +84,10 @@ export class Login implements OnInit {
         attemptingFrom: "login"
       };
       
-      this.spinner.show();
+      this.loader.show();
       this.auth.loginWithGoogle(googleLoginPayload).subscribe({
         next: (res) => {
-          console.log(' Google login API response:', res);
+         
           const data = res;
           
           if (data.accessToken) {
@@ -97,14 +98,15 @@ export class Login implements OnInit {
             this.toast.showToast(res.headers.message || 'Google login successful!', 'success');
             
             const token = this.session.getToken();
-            this.spinner.hide();
+            this.loader.hide();
             
             if (token) {
               this.notifier.isAuthenticatedSubject.next(true);
               
               // If we have Google user info, immediately notify with that data
               if (googleUser) {
-                console.log('Sending Google user info to notifier:', googleUser);
+              
+                
                 this.session.setUserData(googleUser); // Store in session for persistence
                 this.notifier.notifyUserData(googleUser);
               }
@@ -115,13 +117,13 @@ export class Login implements OnInit {
             }
           } else {
             this.toast.showToast(data.headers.message || 'Google login failed', "error");
-            this.spinner.hide();
+            this.loader.hide();
           }
         },
         error: (err: any) => {
           const errorMsg = err !== null || err !== undefined ? err : 'Invalid login';
           this.toast.showToast(errorMsg, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     });
@@ -139,7 +141,7 @@ export class Login implements OnInit {
       password
     };
 
-    this.spinner.show();
+    this.loader.show();
     this.auth.loginUser(payload).subscribe({
       next: (res) => this.handleLoginSuccess(res),
       error: (err) => this.handleLoginError(err)
@@ -147,10 +149,10 @@ export class Login implements OnInit {
   }
 
   private handleLoginSuccess(response: any) {
-    this.spinner.hide();
-    // console.log('Response from login API:', response);
+    this.loader.hide();
+   
     if (response.headers.statusCode !== "200") {
-      console.log('Response from login API:', response);
+     
       this.toast.showToast(response.headers?.message || 'Login failed', 'error');
       return;
     }
@@ -166,7 +168,7 @@ export class Login implements OnInit {
   }
 
   private handleLoginError(error: any) {
-    this.spinner.hide();
+    this.loader.hide();
     const message = error?.message || 'Login failed';
     this.toast.showToast(message, 'error');
   }
@@ -174,7 +176,8 @@ export class Login implements OnInit {
   private loadUserProfile() {
     this.userService.loadUserProfile().subscribe({
       next: (profile) => {
-        console.log(' User profile API response:', profile);
+       
+        
         if (profile?.[0]) {
           let profileData = profile[0];
           
@@ -182,7 +185,8 @@ export class Login implements OnInit {
           if (this.session.getLoginMethod() === 'google') {
             const googleUser = this.currentGoogleUser;
             if (googleUser) {
-              console.log('Merging Google user data with server profile data');
+             
+              
               profileData = {
                 ...profileData,
                 // Preserve Google user info if server doesn't have name data
@@ -195,17 +199,20 @@ export class Login implements OnInit {
             }
           }
           
-          console.log(' Final profile data being sent to notifier:', profileData);
+         
+          
           this.session.setUserData(profileData); // Store in session for persistence
           this.notifier.notifyUserData(profileData);
         } else {
-          console.warn(' No profile data found in API response');
+         
+          
           
           // For Google login, if no server profile, use Google user data
           if (this.session.getLoginMethod() === 'google') {
             const googleUser = this.currentGoogleUser;
             if (googleUser) {
-              console.log(' Using Google user data as fallback:', googleUser);
+             
+              
               this.session.setUserData(googleUser); // Store in session for persistence
               this.notifier.notifyUserData(googleUser);
             }
@@ -213,13 +220,15 @@ export class Login implements OnInit {
         }
       },
       error: (err) => {
-        console.error(' Failed to load user profile:', err);
+       
+        
         
         // For Google login, if profile loading fails, use Google user data
         if (this.session.getLoginMethod() === 'google') {
           const googleUser = this.currentGoogleUser;
           if (googleUser) {
-            console.log(' Using Google user data due to profile load error:', googleUser);
+           
+            
             this.session.setUserData(googleUser); // Store in session for persistence
             this.notifier.notifyUserData(googleUser);
           }

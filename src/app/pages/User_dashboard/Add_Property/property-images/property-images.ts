@@ -1,9 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { LoaderService } from '../../../../services/loader.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+
 import { ConfirmationDialogService } from '../../../../services/Confirmation-service/confirmation-dialog.service';
 import Swal from 'sweetalert2';
 
@@ -30,7 +31,7 @@ export class PropertyImages implements OnInit, OnDestroy {
   constructor(
     private service: ManagePropertyService,
     private swalToast: ToastService,
-    private spinner: NgxSpinnerService,
+    private loader: LoaderService,
     private confirmationDialog: ConfirmationDialogService
   ) {}
 
@@ -57,15 +58,17 @@ export class PropertyImages implements OnInit, OnDestroy {
 
   // Handling Featured Image Upload
  onSelectFeaturedImage(event: any): void {
-  const file = event.target.files[0] as File; // Type-cast to File
+  const file = event.target.files[0] as File; 
   if (file) {
-    const fileSize = file.size / 1024 / 1024; // MB
+    const fileSize = file.size / 1024 / 1024; 
     if (file.type.includes('image') && fileSize < 2) {
-      // Clear previous FormData and create new one
+      
+      
       this.featureImgUpload = new FormData();
       this.featureImgUpload.append('featuredImage', file);
       this.featureImgUrl = URL.createObjectURL(file);
-      event.target.value = ''; // Reset input
+      event.target.value = ''; 
+      
       this.saveFeaturedImage();
     } else {
       this.swalToast.showToast('File size must be less than 2 MB and image format should be valid', 'warning');
@@ -81,48 +84,48 @@ export class PropertyImages implements OnInit, OnDestroy {
     }
     
     this.featureImgUpload.append('propertyId', this.propertyId);
-    this.spinner.show();
+    this.loader.show();
     
-    console.log(' Uploading featured image for property:', this.propertyId);
     
     this.service.saveFeatureImageGallery(this.featureImgUpload).subscribe({
       next: res => {
-        console.log(' Featured image upload response:', res);
         if (res.status === 200 || res.success) {
           this.swalToast.showToast('Featured Image saved successfully', 'success');
-          // Update the featured image URL from response if available
+
           if (res.body?.featuredImage || res.data?.featuredImage) {
             this.featureImgUrl = res.body?.featuredImage || res.data?.featuredImage;
           }
         } else {
           this.swalToast.showToast('Error saving image', 'error');
         }
-        this.spinner.hide();
+        this.loader.hide();
       },
       error: err => {
-        console.error(' Featured image upload error:', err);
+
         this.swalToast.showToast('Error uploading image: ' + (err.message || 'Unknown error'), 'error');
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }
 
   // Handling List of Images Upload
  onSelectListOfImages(event: any): void {
-  const files = Array.from(event.target.files) as File[]; // Type-cast to File[]
+  const files = Array.from(event.target.files) as File[]; 
+  
   
   if (files.length === 0) {
     return;
   }
   
-  // Clear previous FormData and create new one
+
   this.listOfImgUpload = new FormData();
   let validFiles = 0;
   
   files.forEach((file, index) => {
-    const fileSize = file.size / 1024 / 1024; // MB
+    const fileSize = file.size / 1024 / 1024; 
     if (file.type.includes('image') && fileSize < 2) {
-      this.listOfImgUpload.append(`listOfImage`, file); // Use consistent naming
+      this.listOfImgUpload.append(`listOfImage`, file); 
+      
       validFiles++;
     } else {
       this.swalToast.showToast(`File "${file.name}" size must be less than 2 MB and image format should be valid`, 'warning');
@@ -132,7 +135,8 @@ export class PropertyImages implements OnInit, OnDestroy {
   if (validFiles > 0) {
     this.saveListOfImages();
   }
-  event.target.value = ''; // Reset input
+  event.target.value = ''; 
+  
 }
 
   // Save List of Images
@@ -143,32 +147,33 @@ export class PropertyImages implements OnInit, OnDestroy {
     }
     
     this.listOfImgUpload.append('propertyId', this.propertyId);
-    this.spinner.show();
+    this.loader.show();
     
-    console.log('📸 Uploading gallery images for property:', this.propertyId);
+
     
     this.service.saveListOfImageGallery(this.listOfImgUpload).subscribe({
       next: res => {
-        console.log('Gallery images upload response:', res);
+
         if (res.status === 200 || res.success) {
           this.swalToast.showToast('Images saved successfully', 'success');
-          // Update the image list from response
+          
+          
           if (res.body?.listOfImage) {
             this.listOfImagePath = res.body.listOfImage;
           } else if (res.data?.listOfImage) {
             this.listOfImagePath = res.data.listOfImage;
           }
-          // Refresh the property data to get updated image list
+
           this.promptFromChild.emit();
         } else {
           this.swalToast.showToast('Error saving images', 'error');
         }
-        this.spinner.hide();
+        this.loader.hide();
       },
       error: err => {
-        console.error(' Gallery images upload error:', err);
+
         this.swalToast.showToast('Error uploading images: ' + (err.message || 'Unknown error'), 'error');
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }
@@ -189,21 +194,21 @@ export class PropertyImages implements OnInit, OnDestroy {
           return;
         }
         
-        this.spinner.show();
-        console.log('🗑️ Deleting featured image:', { propertyId: this.propertyId, filePath: url });
+        this.loader.show();
+
         
         this.service.deleteFeatureImage({ propertyId: this.propertyId, filePath: url }).subscribe({
           next: res => {
-            console.log('Featured image delete response:', res);
+
             this.swalToast.showToast('Image deleted successfully', 'success');
             this.featureImgUrl = '';
             this.promptFromChild.emit();
-            this.spinner.hide();
+            this.loader.hide();
           },
           error: err => {
-            console.error(' Featured image delete error:', err);
+
             this.swalToast.showToast('Error deleting image: ' + (err.message || 'Unknown error'), 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         });
       }
@@ -226,20 +231,20 @@ export class PropertyImages implements OnInit, OnDestroy {
           return;
         }
         
-        this.spinner.show();
-        console.log('🗑️ Deleting gallery image:', { propertyId: this.propertyId, filePath: url });
+        this.loader.show();
+
         
         this.service.deleteListOfImage({ propertyId: this.propertyId, filePath: url }).subscribe({
           next: res => {
-            console.log(' Gallery image delete response:', res);
+
             this.swalToast.showToast('Image deleted successfully', 'success');
             this.listOfImagePath = this.listOfImagePath.filter(image => image !== url);
-            this.spinner.hide();
+            this.loader.hide();
           },
           error: err => {
-            console.error(' Gallery image delete error:', err);
+
             this.swalToast.showToast('Error deleting image: ' + (err.message || 'Unknown error'), 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         });
       }

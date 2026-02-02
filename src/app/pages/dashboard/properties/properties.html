@@ -11,7 +11,7 @@
     @if (isLoading()) {
     <div class="d-flex justify-content-center align-items-center py-5">
       <div class="spinner-border text-primary" role="status">
-        <!-- <span class="visually-hidden">Loading featured properties...</span> -->
+       
       </div>
     </div>
     } @else { @if (hasFeaturedProperties()) {
@@ -123,15 +123,7 @@
         }
       </div>
     </div>
-    } @else {
-    <!-- <div class="text-center py-5">
-          <div class="no-data-container">
-            <i class="fas fa-star fa-2x text-muted mb-3"></i>
-            <h5 class="text-muted mb-3">NO DATA FOUND</h5>
-           
-          </div>
-        </div> -->
-    } }
+    }  }
 
     <!-- Latest Properties Section - Always show title and description -->
     <div class="container mt-5">
@@ -146,7 +138,7 @@
       @if (isLoading()) {
       <div class="d-flex justify-content-center align-items-center py-5">
         <div class="spinner-border text-primary" role="status">
-          <!-- <span class="visually-hidden">Loading latest properties...</span> -->
+          
         </div>
       </div>
       } @else if (hasLatestProperties()) {
@@ -203,7 +195,7 @@
                 <div>
                   <span class="price-label">Property price</span>
                   <div class="property-price">
-                    <!-- Use old-style price display logic -->
+                    
                     @if (item?.currency === 'INR') {
                     <div class="d-inline-flex align-items-center">
                       @for (currency of currencyDetails(); track currency.code) { @if (currency.code
@@ -261,14 +253,7 @@
           }
         </div>
       </div>
-      } @else {
-      <!-- <div class="text-center py-5">
-          <div class="no-data-container">
-            <i class="fas fa-home fa-2x text-muted mb-3"></i>
-            <h5 class="text-muted mb-3">NO DATA FOUND</h5> 
-           </div>
-        </div> -->
-      }
+      } 
     </div>
   </div>
 </section>

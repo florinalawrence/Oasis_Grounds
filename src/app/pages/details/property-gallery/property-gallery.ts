@@ -9,10 +9,6 @@ import { Component } from '@angular/core';
   styleUrl: './property-gallery.scss',
 })
 export class PropertyGallery {
-  
-
-
-
   public currentIndex: number = 0;
   public isFullscreen: boolean = false;
 
@@ -21,7 +17,7 @@ export class PropertyGallery {
     'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80',
     'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80',
     'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80',
-    'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1200&q=80'
+    'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1200&q=80',
   ];
 
   public nextImage(): void {
@@ -44,5 +40,3 @@ export class PropertyGallery {
     this.isFullscreen = false;
   }
 }
-
-

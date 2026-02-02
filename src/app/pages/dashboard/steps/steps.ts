@@ -19,11 +19,11 @@ interface Step {
   styleUrl: './steps.scss',
 })
 export class Steps implements OnInit {
-  // dependency injection using inject()
+  
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
-  // signals for reactive state management
+  
   readonly steps = signal<Step[]>([
     {
       id: 1,
@@ -51,7 +51,7 @@ export class Steps implements OnInit {
     }
   ]);
 
-  // Computed signals for enhanced functionality
+  
   readonly pageMetadata = computed(() => ({
     title: 'Simple Steps - JMR Real Estate | How to Find Your Property',
     description: 'Follow our simple 3-step process to find your dream property: Search for real estates, select your favorite, and take your key.',

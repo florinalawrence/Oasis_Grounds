@@ -1,9 +1,10 @@
 import { Component, HostListener, OnInit, inject, signal, computed } from '@angular/core';
+import { LoaderService } from '../../services/loader.service';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha';
 import { ContactService } from '../../services/Contact-service/contact.service';
 import { ToastService } from '../../services/Toast-service/toast.service';
@@ -46,25 +47,24 @@ interface CountryCode {
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    NgxSpinnerModule,
     RecaptchaV3Module,
     MapLocationComponent
   ],
 })
 export class Contact implements OnInit {
-  // Angular 20 dependency injection using inject()
+ 
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly contactService = inject(ContactService);
   private readonly recaptchaService = inject(ReCaptchaV3Service);
   private readonly swalToast = inject(ToastService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly session = inject(SessionService);
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
-  // Angular 20 signals for reactive state management
+  
   readonly contactForm = signal<FormGroup>(this.createForm());
   readonly countryCodes = signal<CountryCode[]>([]);
   readonly btnSubmitted = signal<boolean>(false);
@@ -195,7 +195,7 @@ export class Contact implements OnInit {
           this.saveContactFormData();
         } else {
           this.swalToast.showToast('Invalid Captcha', 'error');
-          console.error('Invalid Captcha');
+         
         }
       },
       error: (err: any) => {
@@ -203,7 +203,7 @@ export class Contact implements OnInit {
           err?.Error ? err.Error : 'Error on validating Captcha',
           'error'
         );
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }
@@ -219,7 +219,7 @@ export class Contact implements OnInit {
   }
 
   private saveContactFormData(): void {
-    this.spinner.show();
+    this.loader.show();
     this.mapFormData();
 
     this.contactService.saveUserContact(this.contactData()).subscribe({
@@ -234,15 +234,15 @@ export class Contact implements OnInit {
             this.swalToast.showToast(errorMessages, 'error');
           }
         }
-        this.spinner.hide();
+        this.loader.hide();
       },
       error: (err: HttpErrorResponse) => {
         const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
         this.swalToast.showToast(errList, 'error');
-        this.spinner.hide();
+        this.loader.hide();
       },
       complete: () => {
-        // Optional: any cleanup after completion
+       
       }
     });
   }

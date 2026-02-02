@@ -58,7 +58,7 @@
         }
       </div>
 
-      <!-- Company Information (shown when Company is selected) -->
+
       @if (UserType.value === 'Company') {
         <div class="mb-4">
           <h4 class="h5 border-bottom pb-3">Company Information</h4>
@@ -166,7 +166,7 @@
         </div>
       }
 
-      <!-- Personal Information (shown for Individual and Broker) -->
+
       @if (UserType.value !== 'Company') {
         <div class="mb-4">
           <h4 class="h5 border-bottom pb-3">Personal Information</h4>
@@ -328,5 +328,6 @@
   </div>
 </div>
 
-<!-- Spinner -->
-<ngx-spinner></ngx-spinner>
+
+
+

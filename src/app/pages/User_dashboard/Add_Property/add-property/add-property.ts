@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, HostListener, AfterViewInit, Input } from '@angular/core';
+import { LoaderService } from '../../../../services/loader.service';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
@@ -15,7 +16,7 @@ import * as currencyData from '../../../../../assets/common-currency.json';
   templateUrl: './add-property.html',
   styleUrls: ['./add-property.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule],
+  imports: [CommonModule, ReactiveFormsModule],
   providers: [DatePipe]
 })
 export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
@@ -51,7 +52,6 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     description: '',
     readyToMove: false,
     availableDate: '',
-    // Lease-specific fields
     leaseDuration: '',
     securityDeposit: '',
     leaseType: ''
@@ -80,7 +80,6 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     description: new FormControl(''),
     isReadyToMove: new FormControl(''),
     transferDate: new FormControl(''),
-    // Lease-specific form controls
     leaseDuration: new FormControl(''),
     securityDeposit: new FormControl(''),
     leaseType: new FormControl('')
@@ -92,7 +91,7 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private service: ManagePropertyService,
     private swalToast: ToastService,
-    private spinner: NgxSpinnerService,
+    private loader: LoaderService,
     private notifier: NotifierService,
     private datePipe: DatePipe
   ) {
@@ -193,7 +192,7 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     return this.basicDetailForm.get('transferDate') as FormControl;
   }
 
-  // Lease-specific form control getters
+  
   public get LeaseDuration(): FormControl {
     return this.basicDetailForm.get('leaseDuration') as FormControl;
   }
@@ -210,15 +209,15 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     this.PropertyType.setValue(event.target.value);
   }
 
-  /**
-   * Handle status change (Sell, Rent, Lease)
-   * Add specific functionality for different status types
-   */
+  
+  
   onChangeStatus(event: any) {
     const selectedStatus = event.target.value;
-    console.log('📋 Status changed to:', selectedStatus);
     
-    // Handle specific logic for different status types
+    
+    
+   
+    
     switch (selectedStatus) {
       case 'Sell':
         this.handleSellStatus();
@@ -234,54 +233,47 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * Handle Sell status specific functionality
-   */
+ 
+  
   private handleSellStatus(): void {
-    console.log('🏠 Sell status selected');
-    // Clear lease-specific fields when sell is selected
+    
+    
     this.clearLeaseSpecificFields();
     
-    // Set per value unit back to area-based for selling
+  
+    
     if (this.PerValueUnit.value === 'month' || this.PerValueUnit.value === 'year') {
       this.PerValueUnit.setValue('sqft');
     }
   }
 
-  /**
-   * Handle Rent status specific functionality
-   */
+ 
+  
   private handleRentStatus(): void {
-    console.log('🏠 Rent status selected');
-    // Clear lease-specific fields when rent is selected
+ 
+    
     this.clearLeaseSpecificFields();
     
-    // Set per value unit to monthly for rent
+   
+    
     if (!this.PerValueUnit.value || this.PerValueUnit.value === 'sqft') {
       this.PerValueUnit.setValue('month');
     }
   }
 
-  /**
-   * Handle Lease status specific functionality
-   */
+ 
+  
   private handleLeaseStatus(): void {
-    console.log('🏠 Lease status selected');
-    // Add lease-specific logic here
-    // For example: show lease duration fields, lease terms, etc.
+
     
-    // You can add specific validations or field modifications for lease
-    // Example: Set minimum lease duration, show lease-specific fields
     this.setLeaseSpecificFields();
   }
 
-  /**
-   * Set lease-specific form fields and validations
-   */
+ 
+  
   private setLeaseSpecificFields(): void {
-    console.log('⚙️ Setting lease-specific fields and validations');
+  
     
-    // Set lease duration as required when lease is selected
     this.LeaseDuration.setValidators([
       Validators.required,
       Validators.min(1),
@@ -290,83 +282,99 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     ]);
     this.LeaseDuration.updateValueAndValidity();
     
-    // Set default per value unit for lease
+   
+    
     if (!this.PerValueUnit.value || this.PerValueUnit.value === 'sqft') {
       this.PerValueUnit.setValue('month');
     }
     
-    // Set security deposit validators
+   
+    
     this.SecurityDeposit.setValidators([
       Validators.min(0),
       Validators.pattern("^[0-9]+(\.([0-9]{1,2}))?$")
     ]);
     this.SecurityDeposit.updateValueAndValidity();
     
-    console.log('✅ Lease-specific validations set');
+  
+    
   }
 
-  /**
-   * Clear lease-specific validations when other status is selected
-   */
+ 
+  
   private clearLeaseSpecificFields(): void {
-    console.log('🧹 Clearing lease-specific fields and validations');
     
-    // Clear lease duration validators
+    
     this.LeaseDuration.clearValidators();
     this.LeaseDuration.setValue('');
     this.LeaseDuration.updateValueAndValidity();
     
-    // Clear security deposit value
+   
+    
     this.SecurityDeposit.setValue('');
     
-    // Clear lease type
+    
+    
     this.LeaseType.setValue('');
     
-    // Reset per value unit to default
+   
+    
     this.PerValueUnit.setValue('sqft');
     
-    console.log('✅ Lease-specific fields cleared');
+   
+    
   }
 
   ngOnInit() {
-    // Load currency data
+   
+    
     this.currencyDetails = Object.values(currencyData).map(x => x);
 
-    // Check if we're in edit mode by looking for property ID in query params
+   
+    
     this.route.queryParams.subscribe(params => {
       if (params['id']) {
         this.isEdit = true;
         this.propertyId = params['id'];
-        console.log('🔧 Edit mode detected, property ID:', this.propertyId);
+        
+        
       } else {
         this.isEdit = false;
-        console.log('➕ Add mode detected');
+      
+        
       }
     });
 
-    // Initialize form with validators
+   
+    
     this.basicDetailForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(50)]],
       status: ['', [Validators.required]],
       listPropAs: ['', Validators.required],
-      type: ['Plots', [Validators.required]], // Default value
+      type: ['Plots', [Validators.required]], 
+      
       areaSize: [null, [Validators.required, Validators.pattern("^[0-9]+(\.([0-9]{1,2}))?$")]],
-      areaUnit: ['Sq.Ft', [Validators.required]], // Default value
+      areaUnit: ['Sq.Ft', [Validators.required]], 
+      
       currency: ['', [Validators.required]],
       price: [null, [Validators.required, Validators.pattern("^[0-9]+(\.([0-9]{1,2}))?$")]],
-      facing: ['North'], // Default value
+      facing: ['North'], 
+      
       developerName: ['', [Validators.maxLength(100)]],
       propertyAgeMin: [null, [Validators.pattern("^([0-9]{1,3})(\.[0-9]{1,2})?$"), Validators.max(100)]],
       propertyAgeMax: [null, [Validators.pattern("^([0-9]{1,3})(\.[0-9]{1,2})?$"), Validators.max(100)]],
-      parking: [''], // Default empty to avoid validation issues
+      parking: [''], 
+      
       videoUrl: ['', Validators.pattern(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|vimeo\.com|dailymotion\.com)(\/.*)?$/)],
       noOfBedrooms: new FormControl(null, [Validators.pattern("^([0-9]{1,3})?$")]),
       noOfBathrooms: new FormControl(null, [Validators.pattern("^([0-9]{1,3})?$")]),
       description: ['', [Validators.maxLength(1500)]],
-      perValueUnit: ['sqft'], // Default value
+      perValueUnit: ['sqft'], 
+      
       isReadyToMove: [false],
       transferDate: [''],
-      // Lease-specific form controls with validators
+      
+      
       leaseDuration: [''],
       securityDeposit: ['', [Validators.min(0), Validators.pattern("^[0-9]+(\.([0-9]{1,2}))?$")]],
       leaseType: ['']
@@ -374,18 +382,21 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
       validators: [this.checkboxOrDateRequired(), this.leaseFieldsRequired()]
     });
 
-    // Disable list property as field
+   
+    
     this.ListPropAs.disable();
     
-    // Get user profile data
+  
+    
     this.getNotifyData();
 
-    // If in edit mode, load existing property data
+    
+    
     if (this.isEdit && this.propertyId) {
       this.loadPropertyData();
     }
+
     
-    // If selectedPropertyData is provided as input, populate the form
     if (this.selectedPropertyData) {
       this.populateFormWithData(this.selectedPropertyData);
       this.isEdit = true;
@@ -394,7 +405,8 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Additional initialization if needed
+   
+    
   }
 
   getNotifyData() {
@@ -419,15 +431,15 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     };
   }
 
-  /**
-   * Validator for lease-specific required fields
-   */
+ 
+  
   leaseFieldsRequired() {
     return (formGroup: AbstractControl) => {
       const statusControl = formGroup.get('status');
       const leaseDurationControl = formGroup.get('leaseDuration');
       
-      // If status is 'Lease', then lease duration is required
+      
+      
       if (statusControl?.value === 'Lease' && !leaseDurationControl?.value) {
         return { leaseFieldsRequired: true };
       }
@@ -471,41 +483,40 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.mapFormBasicDetailsData();
-    this.spinner.show();
+    this.loader.show();
     
     if (this.isEdit) {
-      // Update existing property
-      console.log('🔄 Updating existing property...');
-      console.log('📋 Property data for update:', this.basicDetailsData);
-      console.log('🆔 Property ID:', this.propertyId);
-      console.log('🔍 Is property ID in data?', !!this.basicDetailsData.propertyId);
+     
+      
       
       this.service.updatePropertyData(this.basicDetailsData).subscribe({
         next: (res) => {
-          console.log('✅ Property update successful:', res);
+      
+          
           if (res.headers.statusCode == 200) {
             this.swalToast.showToast('Property updated successfully', 'success');
             this.router.navigate(['/user-dashboard/my-property']);
-            this.spinner.hide();
+            this.loader.hide();
           } else {
             const errorList = res.errorList;
             const errorMessages = Object.values(errorList).join(', ');
             this.swalToast.showToast(errorMessages, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         },
         error: (err) => {
           const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
           this.swalToast.showToast(errList, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     } else {
-      // Create new property
+     
+      
       this.service.savePropertyData(this.basicDetailsData).subscribe({
         next: (res) => {
-          console.log('📥 Add Property API Response:', res);
-          console.log('🔍 Response structure:', {
+          console.log(' Add Property API Response:', res);
+          console.log(' Response structure:', {
             headers: res.headers,
             propertyId: res.propertyId,
             id: res.id,
@@ -514,53 +525,63 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
           });
           
           if (res.headers.statusCode == 200) {
-            // Try different possible property ID field names
+          
+            
             const propertyId = res.propertyId || res.id || res.data?.propertyId || res.data?.id;
             
-            console.log('🆔 Property ID for navigation:', propertyId);
-            console.log('🔍 Property ID validation:', this.isValidPropertyId(propertyId));
+           
+            
             
             if (this.isValidPropertyId(propertyId)) {
-              console.log('🧭 Navigating to edit property with ID:', propertyId);
               
-              // Navigate to edit property with error handling
+              
+              
+              
               this.router.navigate([RoutePath.EDIT_PROPERTY], { queryParams: { id: propertyId } })
                 .then((navigationSuccess) => {
                   if (navigationSuccess) {
-                    console.log('✅ Navigation to edit property successful');
+               
+                    
                     this.swalToast.showToast(res.headers.message || 'Property added successfully! Continue editing...', 'success');
                   } else {
-                    console.error('❌ Navigation to edit property failed');
+                    
+                    
                     this.swalToast.showToast('Property added successfully, but navigation failed. Redirecting to My Properties.', 'warning');
-                    // Fallback navigation
+                    
+                    
                     this.router.navigate(['/user-dashboard/my-property']);
                   }
                 })
                 .catch((navigationError) => {
-                  console.error('❌ Navigation error:', navigationError);
+                
+                  
                   this.swalToast.showToast('Property added successfully, but navigation failed. Redirecting to My Properties.', 'warning');
-                  // Fallback navigation
+                  
+                  
                   this.router.navigate(['/user-dashboard/my-property']);
                 });
             } else {
-              console.error('❌ No property ID found in response');
+            
+              
               this.swalToast.showToast('Property added successfully, but could not navigate to edit page. Property ID missing.', 'warning');
-              // Navigate to my properties as fallback
+              
+              
               this.router.navigate(['/user-dashboard/my-property']);
             }
-            this.spinner.hide();
+            this.loader.hide();
           } else {
             const errorList = res.errorList;
             const errorMessages = Object.values(errorList).join(', ');
             this.swalToast.showToast(errorMessages, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         },
         error: (err) => {
-          console.error('❌ Add Property API Error:', err);
+          
+          
           const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
           this.swalToast.showToast(errList, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     }
@@ -607,7 +628,8 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
       description: this.Description.value
     };
 
-    // Add lease-specific fields if status is 'Lease'
+    
+    
     if (this.ToDo.value === 'Lease') {
       this.basicDetailsData.leaseDuration = this.LeaseDuration.value;
       this.basicDetailsData.securityDeposit = this.SecurityDeposit.value;
@@ -640,55 +662,47 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * Load existing property data for editing
-   */
+ 
+  
   loadPropertyData(): void {
-    console.log('📡 Loading property data for editing, ID:', this.propertyId);
-    this.spinner.show();
+   
+    
+    this.loader.show();
     
     this.service.getPropertyById(this.propertyId).subscribe({
       next: (res) => {
-        console.log('✅ Property data loaded:', res);
+      
+        
         if (res && res.recordInfo) {
           this.selectedPropertyData = res.recordInfo;
           this.populateFormWithData(this.selectedPropertyData);
         } else if (res) {
-          // Handle different response structures
+       
+          
           this.selectedPropertyData = res;
           this.populateFormWithData(this.selectedPropertyData);
         }
-        this.spinner.hide();
+        this.loader.hide();
       },
       error: (err) => {
-        console.error('❌ Failed to load property data:', err);
+       
+        
         this.swalToast.showToast('Failed to load property data', 'error');
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }
 
-  /**
-   * Populate form with existing property data
-   */
+ 
+  
   populateFormWithData(data: any): void {
-    console.log('📝 Populating form with data:', data);
-    console.log('🔍 All available data keys:', Object.keys(data));
-    console.log('🔍 Debugging specific fields:');
-    console.log('  - data.min (propertyAgeMin):', data.min);
-    console.log('  - data.max (propertyAgeMax):', data.max);
-    console.log('  - data.propertyAgeMin:', data.propertyAgeMin);
-    console.log('  - data.propertyAgeMax:', data.propertyAgeMax);
-    console.log('  - data.minAge:', data.minAge);
-    console.log('  - data.maxAge:', data.maxAge);
-    console.log('  - data.availableDate (transferDate):', data.availableDate);
-    console.log('  - data.transferDate:', data.transferDate);
-    console.log('  - data.availabilityDate:', data.availabilityDate);
-    console.log('  - data.readyToMove:', data.readyToMove);
+
+    
     
     if (!data) return;
 
-    // Map the data to form controls
+
+    
     this.basicDetailForm.patchValue({
       title: data.title || '',
       status: data.status || '',
@@ -710,68 +724,69 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
       perValueUnit: data.perValueUnit || 'sqft',
       isReadyToMove: data.readyToMove || false,
       transferDate: this.formatDateForInput(data.availableDate || data.transferDate || data.availabilityDate) || '',
-      // Lease-specific fields
       leaseDuration: data.leaseDuration || '',
       securityDeposit: data.securityDeposit || '',
       leaseType: data.leaseType || ''
     });
 
-    // Debug: Check form values after patching
-    console.log('🔍 Form values after patching:');
-    console.log('  - propertyAgeMin:', this.PropertyAgeMin.value);
-    console.log('  - propertyAgeMax:', this.PropertyAgeMax.value);
-    console.log('  - transferDate:', this.TransferDate.value);
-    console.log('  - isReadyToMove:', this.IsReadyToMove.value);
+   
+    
 
-    // If status is lease, set up lease-specific validations
+    
     if (data.status === 'Lease') {
       this.setLeaseSpecificFields();
     }
 
-    console.log('✅ Form populated with existing data');
+    
+    
   }
 
-  /**
-   * Validate property ID format
-   */
+
+  
   private isValidPropertyId(propertyId: any): boolean {
     if (!propertyId) return false;
     
-    // Convert to string and check if it's not empty
+    
+    
     const idString = String(propertyId).trim();
     if (!idString || idString === 'null' || idString === 'undefined') {
       return false;
     }
     
-    // Check if it's a valid format (could be number or string)
+   
+    
     return idString.length > 0;
   }
 
-  /**
-   * Format date for HTML date input (YYYY-MM-DD format)
-   */
+
+  
   private formatDateForInput(dateValue: any): string {
     if (!dateValue) return '';
     
     try {
-      // If it's already a valid date string in YYYY-MM-DD format, return as is
+     
+      
       if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-        console.log('📅 Date already in correct format:', dateValue);
+        
+        
         return dateValue;
       }
       
-      // Try to parse the date and format it
+   
+      
       const date = new Date(dateValue);
       if (!isNaN(date.getTime())) {
         const formattedDate = this.datePipe.transform(date, 'yyyy-MM-dd') || '';
-        console.log('📅 Date formatted from', dateValue, 'to', formattedDate);
+       
+        
         return formattedDate;
       }
       
-      console.warn('⚠️ Invalid date value:', dateValue);
+    
       return '';
     } catch (error) {
-      console.error('❌ Error formatting date:', error);
+    
+      
       return '';
     }
   }

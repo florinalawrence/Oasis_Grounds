@@ -1,15 +1,10 @@
-
-
 <section id="page-title" class="page-title bg-overlay bg-overlay-dark2">
   <div class="bg-section"></div>
   <div class="container">
     <div class="row">
       <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
         <div class="title title-1">
-          <div class="title--content">
-           
-          
-          </div>
+          <div class="title--content"></div>
           <div class="clearfix"></div>
         </div>
       </div>
@@ -19,7 +14,6 @@
             <div class="title--heading">
               <h1></h1>
             </div>
-          
           </div>
           <div class="clearfix"></div>
         </div>
@@ -31,19 +25,18 @@
 <!-- Main Properties Section -->
 <div class="card shadow-sm mt-3">
   <div class="card-header d-flex justify-content-between align-items-center border-bottom">
-    <h3 class="card-title mb-0">
-      My Properties
-    </h3>
-    
+    <h3 class="card-title mb-0">My Properties</h3>
+
     <!-- Sort By Filter -->
     <div class="sort-filter-container">
       <label for="sortFilter" class="form-label me-2 mb-0">Sort By:</label>
-      <select 
-        id="sortFilter" 
-        class="form-select form-select-sm" 
-        style="width: auto; min-width: 150px;"
+      <select
+        id="sortFilter"
+        class="form-select form-select-sm"
+        style="width: auto; min-width: 150px"
         [value]="sortFilterValue()"
-        (change)="onSelectStatusFilter($event)">
+        (change)="onSelectStatusFilter($event)"
+      >
         <option value="">Default</option>
         <option value="Pending">Pending</option>
         <option value="Rejected">Rejected</option>
@@ -53,7 +46,6 @@
     </div>
   </div>
   <div class="card-body px-4 py-3">
-    
     <!-- No Properties Message -->
     @if (dataLoaded() && propertyList().length === 0) {
       <div class="text-center py-5">
@@ -66,12 +58,18 @@
     <!-- Property Cards Grid -->
     @if (propertyList().length > 0) {
       <div class="property-flex-container">
-        @for (item of propertyList() | paginate: {
-          itemsPerPage: tableSize(),
-          currentPage: page(),
-          totalItems: searchResultsCount()
-        }; track item.id; let i = $index) {
-          <div class="property-card" style="cursor: pointer;">
+        @for (
+          item of propertyList()
+            | paginate
+              : {
+                  itemsPerPage: tableSize(),
+                  currentPage: page(),
+                  totalItems: searchResultsCount(),
+                };
+          track item.id;
+          let i = $index
+        ) {
+          <div class="property-card" style="cursor: pointer">
             <!-- Action Icons -->
             <div class="action-icons">
               <button class="action-btn edit" (click)="onEditProperty(item)">
@@ -89,43 +87,61 @@
                 class="property-image"
                 [alt]="item?.title"
               />
-              
+
               <!-- Status Badge -->
               <div class="badge-container">
-                <span class="status-badge"
-                      [ngClass]="{
-                        'bg-success': item.verifiedStatus === 'Completed',
-                        'bg-danger': item.verifiedStatus === 'Rejected',
-                        'bg-warning': item.verifiedStatus === 'Pending' || item.verifiedStatus === ' Pending',
-                        'bg-primary': item.verifiedStatus === 'Draft'
-                      }">
-                  {{ item?.verifiedStatus === 'Completed' ? 'Published' : 
-                     item?.verifiedStatus === 'Draft' ? 'Not Verified': 
-                     item?.verifiedStatus === 'Pending' ? 'Verification Pending' : 
-                     item?.verifiedStatus }}
+                <span
+                  class="status-badge"
+                  [ngClass]="{
+                    'bg-success': item.verifiedStatus === 'Completed',
+                    'bg-danger': item.verifiedStatus === 'Rejected',
+                    'bg-warning':
+                      item.verifiedStatus === 'Pending' || item.verifiedStatus === ' Pending',
+                    'bg-primary': item.verifiedStatus === 'Draft',
+                  }"
+                >
+                  {{
+                    item?.verifiedStatus === 'Completed'
+                      ? 'Published'
+                      : item?.verifiedStatus === 'Draft'
+                        ? 'Not Verified'
+                        : item?.verifiedStatus === 'Pending'
+                          ? 'Verification Pending'
+                          : item?.verifiedStatus
+                  }}
                 </span>
               </div>
 
               <!-- Property Type Badge (Sell/Rent/Lease) -->
               @if (item?.status) {
                 <div class="property-type-badge-container">
-                  <span class="status-badge"
-                        [ngClass]="{
-                          'for-sale': item.status === 'Sell',
-                          'for-rent': item.status === 'Rent',
-                          'for-lease': item.status === 'Lease'
-                        }">
-                    {{ item.status === 'Sell' ? 'For Sale' : 
-                       item.status === 'Rent' ? 'For Rent' : 
-                       item.status === 'Lease' ? 'For Lease' : 
-                       item.status }}
+                  <span
+                    class="status-badge"
+                    [ngClass]="{
+                      'for-sale': item.status === 'Sell',
+                      'for-rent': item.status === 'Rent',
+                      'for-lease': item.status === 'Lease',
+                    }"
+                  >
+                    {{
+                      item.status === 'Sell'
+                        ? 'For Sale'
+                        : item.status === 'Rent'
+                          ? 'For Rent'
+                          : item.status === 'Lease'
+                            ? 'For Lease'
+                            : item.status
+                    }}
                   </span>
                 </div>
               }
 
               <!-- Rejection Reason Icon -->
               @if (item.verifiedStatus === 'Rejected') {
-                <div class="rejected-reason-icon" (click)="showReason(item); $event.stopPropagation()">
+                <div
+                  class="rejected-reason-icon"
+                  (click)="showReason(item); $event.stopPropagation()"
+                >
                   <i class="bi bi-info-circle"></i>
                 </div>
               }
@@ -138,7 +154,9 @@
                   <h5 class="property-title">{{ item?.title | titlecase }}</h5>
                   <p class="property-location">
                     <i class="fas fa-map-marker-alt"></i>
-                    {{ item?.addressInfo?.city ? (item?.addressInfo?.city | titlecase) + ', ' : '' }}
+                    {{
+                      item?.addressInfo?.city ? (item?.addressInfo?.city | titlecase) + ', ' : ''
+                    }}
                     @if (item?.addressInfo?.country === 'India' && item?.addressInfo?.state) {
                       {{ (item?.addressInfo?.state | titlecase) + ', ' }}
                     }
@@ -159,7 +177,7 @@
                         @for (currency of currencyDetails(); track currency.code) {
                           @if (currency.code === item?.currency) {
                             <span [innerHTML]="currency?.symbol"></span>
-                            {{ item?.price ? (item.price | currencyString : 2) : '' }}
+                            {{ item?.price ? (item.price | currencyString: 2) : '' }}
                             @if (item?.valueUnit) {
                               <span class="price-unit">/{{ item?.valueUnit }}</span>
                             }
@@ -192,15 +210,17 @@
                 </div>
                 <div class="stat-box d-flex justify-content-between align-items-center">
                   <div class="stat-label">Availability</div>
-                  <div class="stat-value"
-                       [ngClass]="{
-                         success: item?.availability?.readyToMove,
-                         warning: !item?.availability?.readyToMove
-                       }">
+                  <div
+                    class="stat-value"
+                    [ngClass]="{
+                      success: item?.availability?.readyToMove,
+                      warning: !item?.availability?.readyToMove,
+                    }"
+                  >
                     @if (item?.availability?.readyToMove) {
                       Ready To Move
                     } @else if (item?.availability?.availableDate) {
-                      Since {{ item?.availability?.availableDate | date : 'MMM yyyy' }}
+                      Since {{ item?.availability?.availableDate | date: 'MMM yyyy' }}
                     } @else {
                       NA
                     }
@@ -220,24 +240,14 @@
 
       <!-- Pagination -->
       <nav aria-label="Property pagination" class="mt-4">
-        <pagination-controls 
+        <pagination-controls
           class="ngx-pagination d-flex justify-content-center align-items-center"
-          previousLabel="Previous" 
-          nextLabel="Next" 
-          (pageChange)="onTableDataChange($event)">
+          previousLabel="Previous"
+          nextLabel="Next"
+          (pageChange)="onTableDataChange($event)"
+        >
         </pagination-controls>
       </nav>
     }
   </div>
 </div>
-
-
-
-<!-- Spinner -->
-<ngx-spinner 
-  bdColor="rgba(0, 0, 0, 0.2)" 
-  size="medium" 
-  color="#fff" 
-  type="ball-clip-rotate" 
-  [fullScreen]="true">
-</ngx-spinner>

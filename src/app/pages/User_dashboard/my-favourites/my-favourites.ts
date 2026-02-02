@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+
 import { RoutePath } from '../../../core/constant/api.constant';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { CurrencyStringPipe } from '../../../shared/pipes/currencyStringConvertor.pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Header } from '../../../shared/components/header/header';
+import { LoaderService } from '../../../services/loader.service';
 
 @Component({
   selector: 'app-my-favourites',
@@ -21,7 +22,6 @@ import { Header } from '../../../shared/components/header/header';
   standalone: true,
   imports: [
     CommonModule,
-    NgxSpinnerModule,
     NgxPaginationModule,
     IndianNumberPipe,
     CurrencyStringPipe,
@@ -44,7 +44,7 @@ export class MyFavourites implements OnInit {
   constructor(
     private router: Router,
     private notifier: NotifierService,
-    private spinner: NgxSpinnerService,
+    private loader: LoaderService,
     private swalToast: ToastService,
     private session: SessionService,
     private service: ManagePropertyService
@@ -66,11 +66,9 @@ export class MyFavourites implements OnInit {
   ngOnInit(): void {
     this.currencyDetails = Object.values(currencyData).map(x => x);
     
-    // Check if user is authenticated before making API call
     if (this.session.getToken()) {
       this.getPropertyDetails();
     } else {
-      // If not authenticated, show empty state without making API call
       this.propertyWishList = [];
       this.count = 0;
     }
@@ -79,17 +77,17 @@ export class MyFavourites implements OnInit {
   
 
   getPropertyDetails() {
-    this.spinner.show();
+    this.loader.show();
     this.service.getWishlistData().subscribe({
       next: (res: any) => {
         this.propertyWishList = res?.data;
         this.count = this.propertyWishList?.length || 0;
-        this.spinner.hide();
+        this.loader.hide();
       },
       error: (err: any) => {
         const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
         this.swalToast.showToast(errList, 'error');
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }
@@ -124,12 +122,12 @@ export class MyFavourites implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         const propertyId = item.propertyId;
-        this.spinner.show();
+        this.loader.show();
         this.service.deleteWishListProperty(propertyId).subscribe({
           next: (res: any) => {
             if (res.headers.statusCode == 200) {
               this.swalToast.showToast(res.headers.message, 'success');
-              this.spinner.hide();
+              this.loader.hide();
               this.propertyWishList = this.propertyWishList.filter(
                 wishItem => wishItem.propertyId !== propertyId
               );
@@ -141,7 +139,7 @@ export class MyFavourites implements OnInit {
           error: (err: any) => {
             const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
             this.swalToast.showToast(errList, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {

@@ -8,11 +8,12 @@ import { FormsModule } from '@angular/forms';
 
 import { Footer } from './shared/components/footer/footer';
 import { Header } from './shared/components/header/header';
+import { CommonSpinner } from './shared/components/common-spinner/common-spinner';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterModule, Footer, Header, FormsModule],
+  imports: [CommonModule, RouterOutlet, RouterModule, Footer, Header,CommonSpinner, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

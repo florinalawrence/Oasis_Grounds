@@ -17,7 +17,8 @@
   display: block;
 }
 
-// Document Gallery Styles
+
+
 .document-gallery {
   h5 {
     color: #333;
@@ -35,10 +36,12 @@
     padding: 1rem;
     position: relative;
     
-    // Add subtle inner shadow for depth
+    
+    
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
     
-    // Custom scrollbar styling
+   
+    
     &::-webkit-scrollbar {
       width: 8px;
     }
@@ -57,11 +60,13 @@
       }
     }
     
-    // Firefox scrollbar
+   
+    
     scrollbar-width: thin;
     scrollbar-color: #c1c1c1 #f1f1f1;
     
-    // Fade effect at bottom when scrollable
+    
+    
     &::after {
       content: '';
       position: absolute;
@@ -196,7 +201,8 @@
   }
 }
 
-// File Input Styling
+
+
 input[type="file"] {
   transition: all 0.2s ease;
   
@@ -254,14 +260,16 @@ input[type="file"] {
   }
 }
 
-// Empty State
+
+
 .text-muted {
   .bi-file-earmark-text {
     color: #6c757d;
   }
 }
 
-// Loading State
+
+
 .text-primary {
   .bi-upload {
     animation: pulse 1.5s ease-in-out infinite;
@@ -280,7 +288,8 @@ input[type="file"] {
   }
 }
 
-// Accessibility Improvements
+
+
 .document-card {
   &:focus-within {
     outline: 2px solid #0d6efd;
@@ -288,7 +297,7 @@ input[type="file"] {
   }
 }
 
-// Image Loading
+
 .document-preview img {
   transition: opacity 0.3s ease;
   
@@ -301,7 +310,8 @@ input[type="file"] {
   }
 }
 
-// Responsive Grid Gap
+
+
 .g-3 {
   gap: 1rem;
 }

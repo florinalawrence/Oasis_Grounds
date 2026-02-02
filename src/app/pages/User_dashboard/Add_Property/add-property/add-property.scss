@@ -23,12 +23,11 @@
 .ready{
   font-size: 14px;
 }
-.form-label{
- 
-  
-}
 
-/* Auto-populated section styling */
+
+
+
+
 .auto-populated-section {
   .form-check-input[readonly] {
     pointer-events: none;
@@ -44,15 +43,16 @@
   small.text-muted {
     font-style: italic;
   }
+ 
   
-  /* Ensure proper spacing for radio button container */
   .d-flex {
     min-height: 2.5rem;
     align-items: flex-start;
   }
 }
 
-/* Base form styling to match screenshot */
+
+
 .form-label {
   font-size: 14px;
   font-weight: 600;
@@ -65,20 +65,22 @@
   font-size: 14px;
 }
 
-/* Radio button styling to match screenshot */
+
+
 .form-check-label {
   font-size: 14px;
   font-weight: 500;
   color: #495057;
 }
 
-/* Card title styling */
+
+
 .card-title {
   font-size: 1.25rem;
   font-weight: 600;
 }
 
-/* Radio button groups responsive styling */
+
 .d-flex.gap-5,
 .d-flex.gap-4 {
   flex-wrap: wrap;
@@ -86,7 +88,8 @@
 
 /* Mobile responsive radio buttons */
 @media (max-width: 767px) {
-  /* Stack radio buttons vertically on small screens */
+ 
+  
   .d-flex.gap-5,
   .d-flex.gap-4 {
     flex-direction: column !important;
@@ -98,7 +101,7 @@
   }
   
   .form-check-label {
-    font-size: 14px; /* Same as screenshot */
+    font-size: 14px; 
     margin-left: 0.25rem;
     font-weight: 500;
   }
@@ -115,15 +118,17 @@
   }
   
   .form-check-label {
-    font-size: 14px; /* Same as screenshot */
+    font-size: 14px; 
+    
     font-weight: 500;
   }
 }
 
-/* Very small screens - ensure text doesn't get cut off */
+/* Very small screens 
+ */
 @media (max-width: 480px) {
   .form-check-label {
-    font-size: 14px; /* Same as screenshot */
+    font-size: 14px; 
     white-space: nowrap;
     overflow: visible;
     text-overflow: clip;
@@ -147,7 +152,8 @@
   .auto-populated-section .form-check-label {
     color: #6c757d !important;
     font-weight: 500;
-    font-size: 14px; /* Consistent with screenshot */
+    font-size: 14px; 
+    
   }
 }
 
@@ -223,12 +229,14 @@
   }
   
   .form-label {
-    font-size: 14px; /* Same as screenshot */
+    font-size: 14px; 
+    
     font-weight: 600;
     margin-bottom: 0.5rem;
   }
   
-  /* Form controls to match screenshot */
+  
+  
   .form-control,
   .form-select {
     font-size: 14px;
@@ -268,22 +276,26 @@
 
   .module-property .btn {
     height: 40px;
-    font-size: 14px; /* Match screenshot button text */
+    font-size: 14px; 
+    
     font-weight: 500;
   }
   
-  /* Ensure radio button sections have proper spacing */
+  
+  
   .mb-4 {
     margin-bottom: 1.25rem !important;
   }
   
   .form-label {
-    font-size: 16px; /* Same as screenshot */
+    font-size: 16px; 
+    
     margin-bottom: 0.5rem;
     font-weight: 500;
   }
   
-  /* Form controls to match screenshot */
+ 
+  
   .form-control,
   .form-select {
     font-size: 14px;

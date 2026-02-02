@@ -1,4 +1,3 @@
-
 body {
   background-color: #f8f9fa;
 }
@@ -17,7 +16,6 @@ body {
 }
 
 .card-header {
-  // background: linear-gradient(90deg, rgba(64, 139, 235, 1) 0%, rgba(97, 160, 241, 1) 31%, rgba(97, 160, 241, 1) 59%, rgba(64, 139, 235, 1) 100%);
   padding: 10px 15px;
   border: none;
 
@@ -84,9 +82,7 @@ body {
     box-shadow: none;
 }
 
-// .card{
-//     margin: 5px 15px 5px 15px;
-// }
+
 
 .btn-search {
     background-color: #0d6efd;
@@ -496,9 +492,10 @@ body {
     font-size: 0.85rem;
 }
 
-/* Remove the custom grid since we're using Bootstrap grid */
+
 .property-card-grid {
-    display: contents; /* This allows Bootstrap grid to work properly */
+    display: contents; 
+    
 }
 
 /* Pagination Styles */

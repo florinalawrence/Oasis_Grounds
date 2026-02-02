@@ -25,10 +25,10 @@ interface Agent {
   styleUrl: './contact-agent.scss',
 })
 export class ContactAgent implements OnInit {
-  // Angular 20 dependency injection using inject()
+  
   private readonly fb = inject(FormBuilder);
 
-  // Angular 20 signals for reactive state management
+
   readonly contactForm = signal<FormGroup>(this.createForm());
   readonly isSubmitting = signal<boolean>(false);
   readonly submitSuccess = signal<boolean>(false);
@@ -41,7 +41,7 @@ export class ContactAgent implements OnInit {
     email: 'john.smith@jmrrealestate.com'
   });
 
-  // Computed signals for enhanced functionality
+  
   readonly isFormValid = computed(() => this.contactForm().valid);
   readonly canSubmit = computed(() => this.isFormValid() && !this.isSubmitting());
   
@@ -56,7 +56,7 @@ export class ContactAgent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Initialize component
+   
   }
 
   private createForm(): FormGroup {

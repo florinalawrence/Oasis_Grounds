@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { LoaderService } from '../../../../services/loader.service';
+
 import { FormGroup, FormControl, FormBuilder, AbstractControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
@@ -14,7 +16,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './nearby-locations.html',
   styleUrls: ['./nearby-locations.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule]
+  imports: [CommonModule, ReactiveFormsModule]
 })
 export class NearbyLocationsComponent implements OnInit, OnDestroy {
   @Input() selectedPropertyData: any;
@@ -71,7 +73,7 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private service: ManagePropertyService,
     private notifier: NotifierService,
-    private spinner: NgxSpinnerService,
+    private loader: LoaderService,
     private swalToast: ToastService,
     private route: ActivatedRoute,
     private router: Router
@@ -137,7 +139,8 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
     
     if (this.selectedNearbyType) {
       this.DdlPlace.enable();
-      // Reset the place selection when category changes
+     
+      
       this.DdlPlace.setValue('');
     } else {
       this.DdlPlace.disable();
@@ -181,7 +184,7 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
         propertyId: this.propertyId
       };
       
-      this.spinner.show();
+      this.loader.show();
       
       this.service.saveNearByDetails(nearbyDetail).subscribe({
         next: (res: any) => {
@@ -194,29 +197,29 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
                 if (res.headers.statusCode === "200") {
                   this.selectedPropertyData = res.recordInfo;
                   this.nearbyDetailList = res.recordInfo?.propertyNearByLocation;
-                  this.spinner.hide();
+                  this.loader.hide();
                 } else {
                   const errorList = res.errorList;
                   const errorMessages = Object.values(errorList).join(', ');
                   this.swalToast.showToast(errorMessages, 'error');
-                  this.spinner.hide();
+                  this.loader.hide();
                 }
               },
               error: (err: any) => {
                 const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
                 this.swalToast.showToast(errList, 'error');
-                this.spinner.hide();
+                this.loader.hide();
               }
             });
           } else {
             this.swalToast.showToast(res.headers.message, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         },
         error: (err: any) => {
           const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
           this.swalToast.showToast(errList, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     }
@@ -251,21 +254,21 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
       showCloseButton: false
     }).then((result) => {
       if (result.isConfirmed) {
-        this.spinner.show();
+        this.loader.show();
         
         this.service.deleteNearByDetail(payload).subscribe({
           next: (res: any) => {
             if (res.headers.statusCode === "200") {
               this.swalToast.showToast('Nearby data removed successfully', 'success');
               this.nearbyDetailList = this.nearbyDetailList.filter(item => item?.id !== data?.id);
-              this.spinner.hide();
+              this.loader.hide();
             }
           },
           error: (err: any) => {
             let error = err;
             error = error.replace(/[{}]/g, '');
             this.swalToast.showToast(error, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {

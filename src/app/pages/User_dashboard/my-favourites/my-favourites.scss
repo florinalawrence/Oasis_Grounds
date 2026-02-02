@@ -31,7 +31,6 @@ body {
   padding: 10px;
 }
 
-/* Favourites Grid Container */
 .properties-list {
   display: flex;
   flex-wrap: wrap;
@@ -45,7 +44,8 @@ body {
   max-width: calc(33.333% - 17px);
 }
 
-/* Property Card Styles - Grid View */
+
+
 .property-card {
   position: relative;
   background: white;
@@ -60,11 +60,12 @@ body {
 }
 
 .property-card:hover {
-  // transform: translateY(-5px);
+
+  
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }
 
-/* Card Image Container */
+
 .card-img-container {
   position: relative;
   width: 100%;
@@ -83,7 +84,8 @@ body {
   transform: scale(1.08);
 }
 
-/* Favourite Icon - Top Right */
+
+
 .favourite-icon {
   position: absolute;
   top: 12px;
@@ -109,12 +111,14 @@ body {
   }
 }
 
-/* Card Body */
+
+
 .property-card .card-body {
   padding: 10px;
 }
 
-/* Property Header */
+
+
 .property-header {
   display: flex;
   justify-content: space-between;
@@ -122,7 +126,8 @@ body {
   margin-bottom: 12px;
 }
 
-/* Property Info Section */
+
+
 .property-info {
   flex: 1;
   min-width: 0;
@@ -148,7 +153,8 @@ body {
   gap: 4px;
 }
 
-/* Price Section */
+
+
 .property-price {
   font-size: 20px;
   font-weight: 500;
@@ -166,7 +172,8 @@ body {
   text-align: right;
 }
 
-/* Investment Stats */
+
+
 .investment-stats {
   display: flex;
   flex-direction: column;
@@ -201,12 +208,14 @@ body {
   color: rgb(54, 54, 54);
 }
 
-/* Remove horizontal line */
+
+
 .property-card hr {
   display: none;
 }
 
-/* Pagination Styles */
+
+
 .pagination {
   margin-top: 2rem;
 }

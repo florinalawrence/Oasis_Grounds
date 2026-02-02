@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 
-// Interfaces
+
 interface CarouselImage {
   id: number;
   url: string;
@@ -46,17 +46,17 @@ interface PropertyStatus {
   styleUrls: ['./home.scss'],
 })
 export class Home implements OnInit {
-//  dependency injection
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly propertyService = inject(ManagePropertyService);
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
-  // Form instance
+ 
   searchFilterForm!: FormGroup;
 
-  // Signals for reactive state
+ 
   readonly countryCodes = signal<CountryCode[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly currentSlide = signal<number>(0);
@@ -162,7 +162,7 @@ export class Home implements OnInit {
       const codes = this.propertyService.getCountryCodes();
       this.countryCodes.set(codes);
     } catch (error) {
-      console.error('Error loading country codes:', error);
+      
       this.countryCodes.set([]);
     } finally {
       this.isLoading.set(false);
@@ -249,7 +249,7 @@ export class Home implements OnInit {
     return this.searchFilterForm.get('status') as FormControl;
   }
 
-  //  ADDED: Event handlers for dropdown changes
+  
   onChangeCountry(event: any): void {
     const target = event.target as HTMLSelectElement;
     this.Country.setValue(target.value);
@@ -272,7 +272,7 @@ export class Home implements OnInit {
    * Track search interactions for debugging
    */
   private trackSearchInteraction(field: string, value: string): void {
-    console.log(`Search filter changed: ${field} = ${value}`);
+   
   }
 
   /**
@@ -281,8 +281,7 @@ export class Home implements OnInit {
   onSubmitSearchData(): void {
     this.searchSubmitted.set(true);
     
-    console.log('Form submitted:', this.searchFilterForm.value);
-    console.log('Form valid:', this.searchFilterForm.valid);
+   
 
     // Get form values
     const queryParams: NavigationExtras = {
@@ -295,7 +294,7 @@ export class Home implements OnInit {
       },
     };
 
-    console.log('Navigating with params:', queryParams.queryParams);
+   
     
     this.router.navigate(['/properties/browse'], queryParams).then(success => {
       if (success) {
@@ -322,7 +321,7 @@ export class Home implements OnInit {
       },
     };
     
-    console.log('City search:', cityValue);
+   
     this.router.navigate(['/properties/browse'], queryParams);
   }
 
@@ -340,7 +339,7 @@ export class Home implements OnInit {
       },
     };
     
-    console.log('Country search:', countryValue);
+   
     this.router.navigate(['/properties/browse'], queryParams);
   }
 
@@ -350,14 +349,14 @@ export class Home implements OnInit {
   onClearSearch(): void {
     this.searchFilterForm.reset();
     this.searchSubmitted.set(false);
-    console.log('Search form cleared');
+    
   }
 
   /**
    * Handle carousel image click
    */
   onCarouselImageClick(image: CarouselImage): void {
-    console.log('Carousel image clicked:', image.alt);
+   
   }
 
   /**

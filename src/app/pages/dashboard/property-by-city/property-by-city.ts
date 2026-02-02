@@ -17,11 +17,11 @@ interface CityData {
   styleUrl: './property-by-city.scss',
 })
 export class PropertyByCity implements OnInit {
-  // dependency injection using inject()
+  
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
-  // signals for reactive state management
+
   readonly cities = signal<CityData[]>([
     {
       id: 1,
@@ -49,7 +49,7 @@ export class PropertyByCity implements OnInit {
     }
   ]);
 
-  // Computed signals for enhanced functionality
+ 
   readonly pageMetadata = computed(() => ({
     title: 'Properties by City - JMR Real Estate',
     description: 'Explore properties in Chennai, Muscat, Tuticorin, and Bangalore. Find your perfect property in top cities.',

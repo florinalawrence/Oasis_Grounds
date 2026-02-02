@@ -22,42 +22,43 @@ interface Agent {
   styleUrl: './agents.scss',
 })
 export class Agents implements OnInit {
-  // dependency injection using inject()
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
-  // signals for reactive state management
   readonly agents = signal<Agent[]>([
     {
       id: 1,
       name: 'Oasis Engineering',
-      description: 'Over the last 20 years, we have established ourselves as the "Most Respected and Trusted company" in the field of general contracting in Oman.',
+      description:
+        'Over the last 20 years, we have established ourselves as the "Most Respected and Trusted company" in the field of general contracting in Oman.',
       image: 'assets/images/agents/grid/oasis_engineering.jpg',
       socialLinks: {
         facebook: 'https://www.facebook.com/oasisgracellc',
-        website: 'https://oasisgrace.com/'
-      }
+        website: 'https://oasisgrace.com/',
+      },
     },
     {
       id: 2,
       name: 'Oasis Grace Oman',
-      description: 'Over the last 20 years, we have established ourselves as the "Most Respected and Trusted company" in the field of general contracting in Oman.',
+      description:
+        'Over the last 20 years, we have established ourselves as the "Most Respected and Trusted company" in the field of general contracting in Oman.',
       image: 'assets/images/agents/grid/oasis-grace-oman.jpg',
       socialLinks: {
         facebook: 'https://www.facebook.com/oasisgracellc',
-        website: 'https://oasisgrace.com/'
+        website: 'https://oasisgrace.com/',
       },
-      isCenter: true
+      isCenter: true,
     },
     {
       id: 3,
       name: 'JMR Nanjil',
-      description: 'JMR Nanjil is a group of talented engineers and architects creating innovative architectural designs that meet international quality standards',
+      description:
+        'JMR Nanjil is a group of talented engineers and architects creating innovative architectural designs that meet international quality standards',
       image: '../../../../assets/images/agent-1.png',
       socialLinks: {
-        facebook: 'https://www.facebook.com/nanjilproperties'
-      }
-    }
+        facebook: 'https://www.facebook.com/nanjilproperties',
+      },
+    },
   ]);
 
   readonly isLoading = signal<boolean>(false);
@@ -65,23 +66,24 @@ export class Agents implements OnInit {
   // Computed signals for enhanced functionality
   readonly pageMetadata = computed(() => ({
     title: 'Trusted Agents - JMR Real Estate',
-    description: 'Meet our trusted team of real estate agents ready to serve you diligently. Discover why they are your ideal partners in your real estate journey.',
-    keywords: 'trusted agents, real estate agents, JMR Real Estate, property experts, real estate professionals'
+    description:
+      'Meet our trusted team of real estate agents ready to serve you diligently. Discover why they are your ideal partners in your real estate journey.',
+    keywords:
+      'trusted agents, real estate agents, JMR Real Estate, property experts, real estate professionals',
   }));
 
   readonly totalAgents = computed(() => this.agents().length);
-  readonly centerAgent = computed(() => this.agents().find(agent => agent.isCenter));
-  readonly sideAgents = computed(() => this.agents().filter(agent => !agent.isCenter));
+  readonly centerAgent = computed(() => this.agents().find((agent) => agent.isCenter));
+  readonly sideAgents = computed(() => this.agents().filter((agent) => !agent.isCenter));
 
   ngOnInit(): void {
     this.setupPageMetadata();
     this.scrollToTop();
   }
 
- 
   private setupPageMetadata(): void {
     const metadata = this.pageMetadata();
-    
+
     this.title.setTitle(metadata.title);
     this.meta.updateTag({ name: 'description', content: metadata.description });
     this.meta.updateTag({ name: 'keywords', content: metadata.keywords });
@@ -100,15 +102,10 @@ export class Agents implements OnInit {
   /**
    * Handle social link clicks with analytics tracking
    */
-  onSocialLinkClick(agent: Agent, platform: string): void {
-    // Could add analytics tracking here
-    console.log(`Social link clicked: ${agent.name} - ${platform}`);
-  }
+  onSocialLinkClick(agent: Agent, platform: string): void {}
 
   /**
    * Track agent card interactions
    */
-  onAgentCardClick(agent: Agent): void {
-    console.log(`Agent card clicked: ${agent.name}`);
-  }
+  onAgentCardClick(agent: Agent): void {}
 }

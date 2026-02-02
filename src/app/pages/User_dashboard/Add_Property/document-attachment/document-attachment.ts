@@ -20,7 +20,7 @@ export class DocumentAttachment implements OnInit {
   @Input() selectedPropertyData: any;
   @Output() promptFromChild = new EventEmitter<void>();
   
-  // Dependency injection using Angular 20 inject function
+ 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly service = inject(ManagePropertyService);
@@ -29,13 +29,11 @@ export class DocumentAttachment implements OnInit {
   private readonly notifier = inject(NotifierService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Reactive signals for state management
   readonly otherAttachmentList = signal<any[]>([]);
   readonly selectedAttachments = signal<File[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly propertyId = signal<string>('');
   
-  // Computed properties
   readonly hasAttachments = computed(() => this.otherAttachmentList().length > 0);
   readonly allowedFileTypes = signal<string[]>([
     'application/pdf',
@@ -55,9 +53,8 @@ export class DocumentAttachment implements OnInit {
     this.initializeComponent();
   }
 
-  /**
-   * Initialize component state
-   */
+ 
+  
   private initializeComponent(): void {
     this.otherAttachmentList.set([]);
     const propId = this.selectedPropertyData?.id;
@@ -71,9 +68,8 @@ export class DocumentAttachment implements OnInit {
     this.mapAttachmentsToState();
   }
 
-  /**
-   * Subscribe to property ID changes from notifier service
-   */
+ 
+  
   private subscribeToPropertyId(): void {
     this.notifier.propertyID$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -84,9 +80,8 @@ export class DocumentAttachment implements OnInit {
       });
   }
 
-  /**
-   * Map property data attachments to component state
-   */
+
+  
   private mapAttachmentsToState(): void {
     const attachments = this.selectedPropertyData?.documentFileUploads;
     
@@ -98,9 +93,8 @@ export class DocumentAttachment implements OnInit {
     }
   }
 
-  /**
-   * Handle file selection for document upload - enhanced with compression
-   */
+
+  
   onSelectBrouchure(event: Event): void {
     const target = event.target as HTMLInputElement;
     const files = target.files;
@@ -114,9 +108,8 @@ export class DocumentAttachment implements OnInit {
     target.value = '';
   }
 
-  /**
-   * Process files with compression before upload
-   */
+ 
+  
   private async processFilesWithCompression(files: File[]): Promise<void> {
     this.isLoading.set(true);
     this.spinner.show();
@@ -127,7 +120,8 @@ export class DocumentAttachment implements OnInit {
     
     try {
       for (const file of files) {
-        const fileSize = file.size / 1024 / 1024; // Convert to MB
+        const fileSize = file.size / 1024 / 1024; 
+        
         
         if (!this.isValidFileType(file.type)) {
           this.swalToast.showToast(
@@ -147,15 +141,12 @@ export class DocumentAttachment implements OnInit {
           continue;
         }
 
-        // Compress file if it's an image and larger than target size
         let processedFile = file;
         if (this.isImageFile(file.type) && fileSize > this.maxCompressedSize()) {
-          console.log(`🗜️ Compressing image: ${file.name} (${fileSize.toFixed(2)}MB)`);
           
           try {
             processedFile = await this.compressImage(file);
             const compressedSize = processedFile.size / 1024 / 1024;
-            console.log(`✅ Compressed ${file.name}: ${fileSize.toFixed(2)}MB → ${compressedSize.toFixed(2)}MB`);
             
             this.swalToast.showToast(
               `Compressed "${file.name}" from ${fileSize.toFixed(1)}MB to ${compressedSize.toFixed(1)}MB`,
@@ -163,7 +154,6 @@ export class DocumentAttachment implements OnInit {
             );
           } catch (error) {
             console.warn(`⚠️ Failed to compress ${file.name}, using original:`, error);
-            // Use original file if compression fails
           }
         }
 
@@ -172,7 +162,7 @@ export class DocumentAttachment implements OnInit {
         processedCount++;
       }
 
-      // Upload if we have valid files
+
       if (validFilesCount > 0) {
         this.appendDocumentUploadsData(formData);
       } else {
@@ -182,23 +172,20 @@ export class DocumentAttachment implements OnInit {
       }
       
     } catch (error) {
-      console.error('Error processing files:', error);
+
       this.isLoading.set(false);
       this.spinner.hide();
       this.swalToast.showToast('Error processing files. Please try again.', 'error');
     }
   }
 
-  /**
-   * Check if file type is valid
-   */
+
+  
   private isValidFileType(fileType: string): boolean {
     return this.allowedFileTypes().includes(fileType);
   }
 
-  /**
-   * Check if file is an image type that can be compressed
-   */
+  
   private isImageFile(fileType: string): boolean {
     return (
       fileType === 'image/jpeg' ||
@@ -207,13 +194,12 @@ export class DocumentAttachment implements OnInit {
       fileType === 'image/jif' ||
       fileType === 'image/jfif' ||
       fileType === 'image/png'
-      // Note: GIF compression is more complex, so we skip it
+
     );
   }
 
-  /**
-   * Compress image file to reduce size
-   */
+
+  
   private compressImage(file: File): Promise<File> {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
@@ -223,48 +209,55 @@ export class DocumentAttachment implements OnInit {
       img.onload = () => {
         try {
           // Calculate new dimensions to reduce file size
-          const maxWidth = 1920; // Max width for documents
-          const maxHeight = 1080; // Max height for documents
+          const maxWidth = 1920; 
+          
+          const maxHeight = 1080; 
+          
           
           let { width, height } = img;
           
           // Calculate scaling factor
           const scaleX = maxWidth / width;
           const scaleY = maxHeight / height;
-          const scale = Math.min(scaleX, scaleY, 1); // Don't upscale
+          const scale = Math.min(scaleX, scaleY, 1); 
+          
           
           const newWidth = Math.floor(width * scale);
           const newHeight = Math.floor(height * scale);
           
-          // Set canvas dimensions
+
           canvas.width = newWidth;
           canvas.height = newHeight;
           
-          // Draw and compress image
+
           if (ctx) {
-            // Enable image smoothing for better quality
+
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
             
-            // Draw the image
+
             ctx.drawImage(img, 0, 0, newWidth, newHeight);
             
-            // Determine compression quality based on file size
+
             const fileSizeMB = file.size / 1024 / 1024;
             let quality = this.imageQuality();
             
-            // More aggressive compression for larger files
+
             if (fileSizeMB > 1.5) {
-              quality = 0.6; // Higher compression
+              quality = 0.6; 
+              
             } else if (fileSizeMB > 1) {
-              quality = 0.7; // Medium compression
+              quality = 0.7; 
+              
             }
             
-            // Convert to blob with compression
+           
+            
             canvas.toBlob(
               (blob) => {
                 if (blob) {
-                  // Create new file with compressed data
+                
+                  
                   const compressedFile = new File(
                     [blob],
                     file.name,
@@ -279,7 +272,8 @@ export class DocumentAttachment implements OnInit {
                 }
               },
               file.type,
-              quality // Compression quality
+              quality 
+              
             );
           } else {
             reject(new Error('Canvas context not available'));
@@ -293,14 +287,13 @@ export class DocumentAttachment implements OnInit {
         reject(new Error('Failed to load image'));
       };
 
-      // Load the image
+      
+      
       img.src = URL.createObjectURL(file);
     });
   }
 
-  /**
-   * Upload documents to server - enhanced to accept FormData parameter
-   */
+  
   private appendDocumentUploadsData(formData: FormData): void {
     const propId = this.propertyId();
     if (!propId) {
@@ -313,7 +306,8 @@ export class DocumentAttachment implements OnInit {
     if (formData !== null && formData !== undefined) {
       formData.append('propertyId', propId);
       
-      // Only show spinner if not already loading
+      
+      
       if (!this.isLoading()) {
         this.isLoading.set(true);
         this.spinner.show();
@@ -332,9 +326,8 @@ export class DocumentAttachment implements OnInit {
     }
   }
 
-  /**
-   * Upload documents to server
-   */
+
+  
   private uploadDocuments(formData: FormData): void {
     const propId = this.propertyId();
     if (!propId) {
@@ -356,20 +349,22 @@ export class DocumentAttachment implements OnInit {
     });
   }
 
-  /**
-   * Handle upload response - enhanced to refresh property data from server
-   */
+ 
+  
   private handleUploadResponse(res: any): void {
     if (res.headers.statusCode == 200) {
       this.swalToast.showToast(res.headers.message, 'success');
       this.isLoading.set(false);
       this.spinner.hide();
       
-      // Check if response contains updated document data
+      
+      
       if (res.data?.documentFileUploads) {
-        console.log('✅ Upload response contains document data, updating immediately');
+       
         
-        // Ensure selectedPropertyData is initialized
+        
+       
+        
         if (!this.selectedPropertyData) {
           this.selectedPropertyData = {};
         }
@@ -377,7 +372,6 @@ export class DocumentAttachment implements OnInit {
         this.selectedPropertyData.documentFileUploads = res.data.documentFileUploads;
         this.mapAttachmentsToState();
       } else {
-        // Fetch fresh property data from server to update UI immediately
         this.refreshPropertyData();
       }
       
@@ -389,14 +383,14 @@ export class DocumentAttachment implements OnInit {
     }
   }
 
-  /**
-   * Handle upload error
-   */
+ 
+  
   private handleUploadError(err: any): void {
     this.isLoading.set(false);
     this.spinner.hide();
     
-    console.error('Upload error:', err);
+   
+    
     
     let errorMessage = 'Error uploading files. Please try again.';
     if (err.error?.message) {
@@ -408,41 +402,39 @@ export class DocumentAttachment implements OnInit {
     this.swalToast.showToast(errorMessage, 'error');
   }
 
-  /**
-   * Refresh property data from server to get updated document list
-   */
+ 
+  
   private refreshPropertyData(): void {
     const propId = this.propertyId();
     if (!propId) {
-      console.warn('No property ID available for refresh');
       return;
     }
 
-    console.log('🔄 Refreshing property data from server...');
+
     
     this.service.getPropertyDetailById(propId).subscribe({
       next: (res: any) => {
         if (res.headers?.statusCode === "200" && res.data) {
-          console.log('✅ Property data refreshed successfully');
           
-          // Update the selectedPropertyData with fresh data
+        
+          
           this.selectedPropertyData = res.data;
           
-          // Update the attachment list with fresh data
+          
+          
           this.mapAttachmentsToState();
           
-          console.log('📄 Updated document list:', this.otherAttachmentList());
         } else {
-          console.warn('Failed to refresh property data:', res);
-          // Fallback to old method if API fails
+          
+          
           setTimeout(() => {
             this.mapAttachmentsToState();
           }, 500);
         }
       },
       error: (err) => {
-        console.error('Error refreshing property data:', err);
-        // Fallback to old method if API fails
+        
+        
         setTimeout(() => {
           this.mapAttachmentsToState();
         }, 500);
@@ -450,9 +442,8 @@ export class DocumentAttachment implements OnInit {
     });
   }
 
-  /**
-   * Delete a document attachment
-   */
+
+  
   deleteDocumentUpload(data: any): void {
     Swal.fire({
       title: 'Are you sure you want to remove this file?',
@@ -473,9 +464,9 @@ export class DocumentAttachment implements OnInit {
     });
   }
 
-  /**
-   * Perform the actual delete operation
-   */
+ 
+  
+  
   private performDelete(data: any): void {
     const deleteReq = {
       propertyId: this.propertyId(),
@@ -495,40 +486,39 @@ export class DocumentAttachment implements OnInit {
     });
   }
 
-  /**
-   * Handle successful delete response
-   */
- /**
- * Handle successful delete response
- */
+ 
+  
 private handleDeleteSuccess(): void {
   this.isLoading.set(false);
   this.spinner.hide();
   
   this.swalToast.showToast('Your file has been deleted', 'success');
   
-  // Emit to parent - parent will refresh selectedPropertyData
+  
+  
   this.promptFromChild.emit();
   
-  // Wait for parent to update selectedPropertyData, then refresh UI
+  
+  
   setTimeout(() => {
     this.mapAttachmentsToState();
     
-    // Clear list if no attachments remain
+  
+    
     if (!this.selectedPropertyData?.documentFileUploads?.length) {
       this.otherAttachmentList.set([]);
     }
   }, 500);
 }
 
-  /**
-   * Handle delete error
-   */
+ 
+
   private handleDeleteError(err: any): void {
     this.isLoading.set(false);
     this.spinner.hide();
     
-    console.error('Delete error:', err);
+  
+    
     
     let errorMessage = 'Error deleting file';
     if (err.error?.message) {
@@ -540,16 +530,14 @@ private handleDeleteSuccess(): void {
     this.swalToast.showToast(errorMessage, 'error');
   }
 
-  /**
-   * Get file type for display
-   */
+
+  
   getFileType(documentType: string): string {
     return documentType?.toLowerCase() || '';
   }
 
-  /**
-   * Check if file is PDF
-   */
+ 
+  
   isPdfFile(documentType: string): boolean {
     return this.getFileType(documentType) === 'pdf';
   }

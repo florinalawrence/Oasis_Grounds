@@ -21,7 +21,7 @@ import {
 } from '@angular/forms';
 import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+
 import { Subscription } from 'rxjs';
 import { ManagePropertyService } from '../../services/ManageProperty-service/manage-property.service';
 import { ToastService } from '../../services/Toast-service/toast.service';
@@ -103,7 +103,6 @@ interface ISearchPropertyDetails {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    NgxSpinnerModule,
     MatAutocompleteModule,
     MatChipsModule,
     MatIconModule,
@@ -116,12 +115,10 @@ interface ISearchPropertyDetails {
   styleUrls: ['./all-property.scss'],
 })
 export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
-  
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly notifier = inject(NotifierService);
-  private readonly spinner = inject(NgxSpinnerService);
   private readonly swalToast = inject(ToastService);
   private readonly session = inject(SessionService);
   readonly propertyService = inject(ManagePropertyService);
@@ -129,7 +126,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
 
- 
   readonly isLoading = signal(false);
   readonly isLoadingProperties = signal(false);
   readonly dataLoaded = signal(false);
@@ -141,7 +137,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   readonly canShowClearAll = signal(false);
   readonly userProfileData = signal<boolean>(false);
   readonly canAddWishList = signal(false);
-
 
   readonly properties = signal<Property[]>([]);
   readonly featuredProperties = signal<Property[]>([]);
@@ -155,7 +150,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   readonly states = signal<any[]>([]);
   readonly propertyTypes = signal<string[]>([]);
   readonly cities = signal<string[]>([]);
-
 
   readonly totalItems = signal(0);
   readonly totalPages = signal(0);
@@ -171,7 +165,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   readonly pageMetadata = computed(() => ({
     title: `All Properties - Find Your Dream Property`,
     description: `Browse through our extensive collection of properties for sale and rent. Find apartments, villas, plots and more with advanced search filters.`,
-    keywords: 'properties, real estate, apartments, villas, plots, buy, rent, property search'
+    keywords: 'properties, real estate, apartments, villas, plots, buy, rent, property search',
   }));
 
   // Panel visibility signals
@@ -187,7 +181,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     type: this.panelTypeVisible(),
   }));
 
-  // Legacy properties (keeping for compatibility with template)
   sortFilterValue: any;
   propertyDataCount: any;
   addOnCityBlur = true;
@@ -247,7 +240,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     // Setup page metadata for SEO
     this.setupPageMetadata();
-    
+
     // Initialize data using signals
     this.countryCodes.set(this.propertyService.getCountryCodes());
     this.states.set(this.propertyService.getStates());
@@ -290,10 +283,9 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     }, 100);
   }
 
- 
   private setupPageMetadata(): void {
     const metadata = this.pageMetadata();
-    
+
     this.title.setTitle(metadata.title);
     this.meta.updateTag({ name: 'description', content: metadata.description });
     this.meta.updateTag({ name: 'keywords', content: metadata.keywords });
@@ -305,7 +297,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   // New component methods
   loadProperties() {
     this.isLoading.set(true);
-    this.spinner.show();
 
     this.propertyService.getRandomPropertyData().subscribe({
       next: (response: any) => {
@@ -319,30 +310,26 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           this.latestProperties.set(response.data.slice(midPoint));
 
           this.isLoading.set(false);
-          this.spinner.hide();
 
           // No carousels to initialize
         }
       },
       error: (error) => {
-        console.error('Error loading properties:', error);
-        // this.swalToast.showToast('Failed to load properties', 'error');
         this.isLoading.set(false);
-        this.spinner.hide();
       },
     });
   }
 
   searchProperties(filters?: any) {
     this.isLoading.set(true);
-    this.spinner.show();
 
     // Merge filters with existing search filter, giving priority to new filters
     const searchData = {
       ...this.searchFilter,
       ...filters,
       minPrice: filters?.minPrice || this.searchFilter.minPrice || this.minPrice().toString(),
-      maxPrice: filters?.maxPrice || this.searchFilter.maxPrice || this.priceRangeValue().toString(),
+      maxPrice:
+        filters?.maxPrice || this.searchFilter.maxPrice || this.priceRangeValue().toString(),
       city: filters?.city || this.searchFilter.city || [],
     };
 
@@ -369,13 +356,9 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           this.searchResultsCount.set(response.totalrecords);
         }
         this.isLoading.set(false);
-        this.spinner.hide();
       },
       error: (error) => {
-        console.error('Error searching properties:', error);
-        // this.swalToast.showToast('Failed to search properties', 'error');
         this.isLoading.set(false);
-        this.spinner.hide();
       },
     });
   }
@@ -383,7 +366,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   navigateToDetails(propertyId?: string) {
     if (propertyId) {
       this.router.navigate(['/details', propertyId], {
-        queryParams: { source: 'all-properties' }
+        queryParams: { source: 'all-properties' },
       });
     }
   }
@@ -396,7 +379,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err: any) => {
         const errList = err;
-        // this.swalToast.showToast(errList, 'error');
       },
     });
   }
@@ -466,8 +448,8 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
             this.page() || (this.oldPaginationNo() !== 0 && this.oldPaginationNo())
               ? this.oldPaginationNo()
               : queryParams.get('pageNo')
-              ? Number(queryParams.get('pageNo'))
-              : 1,
+                ? Number(queryParams.get('pageNo'))
+                : 1,
           limit: queryParams.get('limit') ? Number(queryParams.get('limit')) : 10,
         };
 
@@ -486,19 +468,20 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.route.queryParams.subscribe((params) => {
       this.canShowClearAll.set(
         !!params['searchWithCountry'] ||
-        !!params['searchWithZipcode'] ||
-        !!params['searchWithState'] ||
-        !!params['type'] ||
-        !!params['status'] ||
-        !!params['sortFilter'] ||
-        !!params['minArea'] ||
-        !!params['maxArea'] ||
-        !!params['size'] ||
-        !!params['minPrice'] ||
-        !!params['maxPrice'] ||
-        !!params['city'] ||
-        !!params['minAge'] ||
-        !!params['maxAge']);
+          !!params['searchWithZipcode'] ||
+          !!params['searchWithState'] ||
+          !!params['type'] ||
+          !!params['status'] ||
+          !!params['sortFilter'] ||
+          !!params['minArea'] ||
+          !!params['maxArea'] ||
+          !!params['size'] ||
+          !!params['minPrice'] ||
+          !!params['maxPrice'] ||
+          !!params['city'] ||
+          !!params['minAge'] ||
+          !!params['maxAge'],
+      );
     });
   }
 
@@ -507,28 +490,21 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.panelTypeVisible.set(this.searchFilter.type.length > 0);
     this.panelLocationVisible.set(
       !!this.searchFilter.searchWithCountry ||
-      !!this.searchFilter.searchWithState ||
-      this.searchFilter.city.length > 0
+        !!this.searchFilter.searchWithState ||
+        this.searchFilter.city.length > 0,
     );
     this.panelRangeVisible.set(
       !!this.searchFilter.minArea ||
-      !!this.searchFilter.maxArea ||
-      !!this.searchFilter.size ||
-      !!this.searchFilter.minAge ||
-      !!this.searchFilter.maxAge ||
-      !!this.searchFilter.minPrice ||
-      !!this.searchFilter.maxPrice
+        !!this.searchFilter.maxArea ||
+        !!this.searchFilter.size ||
+        !!this.searchFilter.minAge ||
+        !!this.searchFilter.maxAge ||
+        !!this.searchFilter.minPrice ||
+        !!this.searchFilter.maxPrice,
     );
   }
 
-  getWishList() {
-    // TODO: Implement wishlist functionality when service method is available
-    // this.dataSubscription = this.propertyService.getWishlistData().subscribe((res: any) => {
-    //   if (res?.headers?.statusCode == 200) {
-    //     this.wishList = res?.data || [];
-    //   }
-    // });
-  }
+  getWishList() {}
 
   getNotifyData() {
     this.notifierSubscription = this.notifier.userProfileData$.subscribe((res: boolean) => {
@@ -537,14 +513,9 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getPropertyDetails() {
-    console.log('🔄 Fetching Properties from Production API...');
-    this.spinner.show();
     this.isLoading.set(true);
     this.isLoadingProperties.set(true);
     this.dataLoaded.set(false);
-
-    console.log('🌐 Production API Base URL:', this.propertyService.baseApiUrl);
-    console.log('🔍 Search Filter:', this.searchFilter);
 
     if (this.searchFilter) {
       this.Country.setValue(this.searchFilter?.searchWithCountry || '');
@@ -564,63 +535,52 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.filteredProperties.set([]);
     this.propertyService.getPropertyDetailsByFilter(this.searchFilter).subscribe({
       next: (res: any) => {
-        console.log(' Production API Response:', res);
-        console.log(' Response Type:', typeof res);
-        console.log(' Response Keys:', res ? Object.keys(res) : 'No keys');
-
         // Handle different response structures from production API
         let propertyData = [];
-        
+
         if (res && res.data && Array.isArray(res.data)) {
           propertyData = res.data;
-          console.log(' Found property data in res.data from production API');
         } else if (res && Array.isArray(res)) {
           propertyData = res;
-          console.log('Response is direct array from production API');
         } else if (res && res.properties && Array.isArray(res.properties)) {
           propertyData = res.properties;
-          console.log(' Found property data in res.properties from production API');
         } else if (res && res.result && Array.isArray(res.result)) {
           propertyData = res.result;
-          console.log(' Found property data in res.result from production API');
         } else if (res && res.recordInfo && Array.isArray(res.recordInfo)) {
           propertyData = res.recordInfo;
-          console.log(' Found property data in res.recordInfo from production API');
         } else {
-          console.warn(' No valid property data found in production API response');
           propertyData = [];
         }
 
         this.propertyList.set(propertyData);
 
         if (propertyData.length > 0) {
-          console.log(`Found ${propertyData.length} properties in development API`);
-          console.log('Sample property from development API:', propertyData[0]);
-
           // FIXED MAPPING - matching the API response structure
-          this.filteredProperties.set(this.propertyList().map((property) => ({
-            propertyId: property.id,
-            propertyName: property.title,
-            propertyType: property.type,
-            price: property.price,
-            currency: property.currency || 'INR',
-            bedrooms: property.bedRooms ? parseInt(property.bedRooms as string) : 0,
-            bathrooms: property.bathRooms ? parseInt(property.bathRooms as string) : 0,
-            area: property.area,
-            areaUnit: property.size || 'Sq.Ft',
-            city: property.addressInfo?.city || '',
-            state: property.addressInfo?.state || '',
-            country: property.addressInfo?.country || '',
-            featuredImage: property.featuredImage,
-            images: property.listOfImage || [],
-            description: property.description,
-            status: property.status,
-            // Add these fields from API
-            listPropertyAs: property.listPropertyAs,
-            availability: property.availability,
-            addressInfo: property.addressInfo,
-            propertyOwnerShip: property.propertyOwnerShip,
-          })));
+          this.filteredProperties.set(
+            this.propertyList().map((property) => ({
+              propertyId: property.id,
+              propertyName: property.title,
+              propertyType: property.type,
+              price: property.price,
+              currency: property.currency || 'INR',
+              bedrooms: property.bedRooms ? parseInt(property.bedRooms as string) : 0,
+              bathrooms: property.bathRooms ? parseInt(property.bathRooms as string) : 0,
+              area: property.area,
+              areaUnit: property.size || 'Sq.Ft',
+              city: property.addressInfo?.city || '',
+              state: property.addressInfo?.state || '',
+              country: property.addressInfo?.country || '',
+              featuredImage: property.featuredImage,
+              images: property.listOfImage || [],
+              description: property.description,
+              status: property.status,
+              // Add these fields from API
+              listPropertyAs: property.listPropertyAs,
+              availability: property.availability,
+              addressInfo: property.addressInfo,
+              propertyOwnerShip: property.propertyOwnerShip,
+            })),
+          );
 
           // Update pagination data
           this.totalItems.set(res.totalrecords || res.total || propertyData.length);
@@ -632,7 +592,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           // Apply sorting if a sort filter is active
           const currentSort = this.selectedSort();
           if (currentSort && currentSort !== 'default') {
-            console.log(" Applying sort filter after loading:', currentSort");
             this.applySorting(currentSort);
           } else {
             // Split for featured and latest sections (default behavior)
@@ -640,30 +599,23 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
             this.featuredProperties.set(this.filteredProperties().slice(0, midPoint));
             this.latestProperties.set(this.filteredProperties().slice(midPoint));
           }
-
-          console.log(`Successfully loaded ${propertyData.length} properties from production API`);
-          // this.swalToast.showToast(`Loaded ${propertyData.length} properties from production database`, 'success');
         } else {
-          console.log('📭 No properties found in production API response');
           this.filteredProperties.set([]);
           this.featuredProperties.set([]);
           this.latestProperties.set([]);
-          
+
           // Set empty pagination data
           this.totalItems.set(0);
           this.count.set(0);
           this.tableSize.set(10);
           this.totalPages.set(0);
           this.searchResultsCount.set(0);
-
-          // this.swalToast.showToast('📭 No properties found in production database', 'info');
         }
 
         this.dataLoaded.set(true);
         this.propertyDataCount = res;
         this.checkTotalPropertyCountByRoutingUrl();
 
-        this.spinner.hide();
         this.isLoading.set(false);
         this.isLoadingProperties.set(false);
 
@@ -673,16 +625,8 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         }, 100);
       },
       error: (err: any) => {
-        console.error(' Production API Error:', err);
-        console.error(' Error details:', {
-          status: err.status,
-          statusText: err.statusText,
-          message: err.message,
-          error: err.error
-        });
-
         let errorMessage = 'Failed to load properties from production API';
-        
+
         if (err.status === 0) {
           errorMessage = 'Unable to connect to production API server';
         } else if (err.status === 404) {
@@ -693,8 +637,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           errorMessage = err.error.headers.message;
         }
 
-        // this.swalToast.showToast(errorMessage, 'error');
-        
         // Set empty state
         this.propertyList.set([]);
         this.filteredProperties.set([]);
@@ -704,8 +646,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         this.count.set(0);
         this.searchResultsCount.set(0);
         this.dataLoaded.set(true);
-        
-        this.spinner.hide();
         this.isLoading.set(false);
         this.isLoadingProperties.set(false);
       },
@@ -793,11 +733,10 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     return `${currency.symbol}${formattedPrice}`;
   }
 
-   onImageError(event: Event): void {
+  onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     // Set fallback image
     img.src = 'assets/images/no_image.png';
-    console.warn('Property image failed to load, using fallback image');
   }
 
   // Form getters
@@ -884,11 +823,9 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       queryParams,
     };
     this.router.navigate(['properties/browse'], navigationExtras);
-    
+
     // Apply sorting to current properties instead of refetching
     this.applySorting(selectedValue);
-    
-    console.log('🔄 Applied sorting:', selectedValue);
   }
 
   /**
@@ -896,11 +833,10 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
    */
   private applySorting(sortType: string): void {
     this.isSorting.set(true);
-    
+
     const currentProperties = [...this.filteredProperties()];
-    
+
     if (!currentProperties.length) {
-      console.log('⚠️ No properties to sort');
       this.isSorting.set(false);
       return;
     }
@@ -913,7 +849,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           // Use property ID as proxy for creation order (higher IDs are typically newer)
           const idA = parseInt(a.propertyId?.toString() || '0');
           const idB = parseInt(b.propertyId?.toString() || '0');
-          return idB - idA; // Newest first (higher ID first)
+          return idB - idA;
         });
         break;
 
@@ -922,7 +858,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           // Use property ID as proxy for creation order (lower IDs are typically older)
           const idA = parseInt(a.propertyId?.toString() || '0');
           const idB = parseInt(b.propertyId?.toString() || '0');
-          return idA - idB; // Oldest first (lower ID first)
+          return idA - idB;
         });
         break;
 
@@ -930,7 +866,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         sortedProperties = currentProperties.sort((a, b) => {
           const priceA = parseFloat(a.price?.toString() || '0');
           const priceB = parseFloat(b.price?.toString() || '0');
-          return priceB - priceA; // Highest price first
+          return priceB - priceA;
         });
         break;
 
@@ -938,11 +874,9 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         sortedProperties = currentProperties.sort((a, b) => {
           const priceA = parseFloat(a.price?.toString() || '0');
           const priceB = parseFloat(b.price?.toString() || '0');
-          return priceA - priceB; // Lowest price first
+          return priceA - priceB;
         });
         break;
-
-
 
       case 'default':
       default:
@@ -950,7 +884,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         sortedProperties = currentProperties.sort((a, b) => {
           const idA = parseInt(a.propertyId?.toString() || '0');
           const idB = parseInt(b.propertyId?.toString() || '0');
-          return idB - idA; // Default: newest by ID
+          return idB - idA;
         });
         break;
     }
@@ -963,8 +897,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.featuredProperties.set(sortedProperties.slice(0, midPoint));
     this.latestProperties.set(sortedProperties.slice(midPoint));
 
-    console.log(` Sorted ${sortedProperties.length} properties by: ${sortType}`);
-    
     // Add a small delay to show sorting feedback
     setTimeout(() => {
       this.isSorting.set(false);
@@ -977,13 +909,13 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   getSortDescription(): string {
     const sortType = this.selectedSort();
     const sortDescriptions: { [key: string]: string } = {
-      'default': 'Default order',
-      'newest': 'Newest items first',
-      'oldest': 'Oldest items first',
-      'highest': 'Highest price first',
-      'lowest': 'Lowest price first'
+      default: 'Default order',
+      newest: 'Newest items first',
+      oldest: 'Oldest items first',
+      highest: 'Highest price first',
+      lowest: 'Lowest price first',
     };
-    
+
     return sortDescriptions[sortType] || 'Default order';
   }
 
@@ -1094,7 +1026,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     const addQueryParamIfNotEmpty = (
       paramName: string,
       value: any,
-      filterKey: keyof ISearchPropertyDetails
+      filterKey: keyof ISearchPropertyDetails,
     ) => {
       if (value !== null && value !== undefined && value !== '') {
         queryParams[paramName] = value;
@@ -1307,21 +1239,15 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       this.propertyService.savePropertyToWishList(wishListData).subscribe({
         next: (res: any) => {
           if (res?.headers?.statusCode == 200) {
-            // this.swalToast.showToast(res?.headers?.message, 'success');
             this.getWishList();
             this.checkFavoriteData(item?.propertyId || item?.id);
-            this.spinner.hide();
           } else {
             const errorList = res.errorList;
             const errorMessages = Object.values(errorList).join(', ');
-            // this.swalToast.showToast(errorMessages, 'error');
-            this.spinner.hide();
           }
         },
         error: (err: any) => {
           const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
-          // this.swalToast.showToast(errList, 'error');
-          this.spinner.hide();
         },
       });
     }
@@ -1340,18 +1266,13 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       this.propertyService.deleteWishListProperty(propertyId).subscribe({
         next: (res: any) => {
           if (res.headers.statusCode == 200) {
-            // this.swalToast.showToast(res.headers.message, 'success');
             this.getWishList();
             this.checkFavoriteData(item?.propertyId || item?.id);
-            this.spinner.hide();
           } else {
-            // this.swalToast.showToast(res.headers.message, 'error');
           }
         },
         error: (err: any) => {
           const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
-          // this.swalToast.showToast(errList, 'error');
-          this.spinner.hide();
         },
       });
     }
@@ -1360,13 +1281,12 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   checkFavoriteData(data: any) {
     if (localStorage.getItem('AccessToken')) {
       const matchCount = this.wishList().filter(
-        (item) => item.propertyId === (data?.propertyId || data?.id)
+        (item) => item.propertyId === (data?.propertyId || data?.id),
       ).length;
       this.canAddWishList.set(matchCount > 0);
     }
     return this.canAddWishList();
   }
-
 
   // Helper methods
   checkQueryParamValues() {

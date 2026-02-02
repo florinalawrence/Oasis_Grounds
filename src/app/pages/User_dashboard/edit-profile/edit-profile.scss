@@ -23,9 +23,8 @@
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
-// h3{
-//   font-weight: 200px;
-// }
+
+
 
 .card {
   border-radius: 8px;
@@ -35,19 +34,16 @@
 }
 
 .form-check-label{
-  // font-size: 14px;
+  
   color: rgb(68, 68, 68);
 
 }
 
-.form-label{
-  // font-size: 14px;
-  // color: rgb(68, 68, 68);
-}
+
+
 
 .card-header {
   background-color: white;
-  // background: linear-gradient(90deg, rgba(64, 139, 235, 1) 0%, rgba(97, 160, 241, 1) 31%, rgba(97, 160, 241, 1) 59%, rgba(64, 139, 235, 1) 100%);
   padding: 18px 24px;
   border: none;
   position: relative;
@@ -361,10 +357,8 @@
     font-size: 1rem;
   }
 
-  .form-label {
-    // font-size: 13px;
-  }
-
+  
+  
   .form-control,
   .form-select {
     font-size: 0.875rem;
@@ -525,7 +519,8 @@
   }
 
   .form-label {
-    // font-size: 11px;
+   
+    
     margin-bottom: 5px;
   }
 
@@ -536,9 +531,8 @@
     padding: 0.4rem 0.6rem;
   }
 
-  .form-check-label {
-    // font-size: 11px;
-  }
+  
+  
 
   .d-flex.gap-4 {
     gap: 0.75rem !important;

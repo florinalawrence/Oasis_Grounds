@@ -11,7 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { LoaderService } from '../../../services/loader.service';
 import { NgxPaginationModule } from 'ngx-pagination';
 import Swal from 'sweetalert2';
 import { RoutePath } from '../../../core/constant/api.constant';
@@ -37,7 +37,7 @@ interface IsearchMyProperties {
   imports: [
     CommonModule,
     FormsModule,
-    NgxSpinnerModule,
+    
     NgxPaginationModule,
     IndianNumberPipe,
     CurrencyStringPipe
@@ -46,21 +46,23 @@ interface IsearchMyProperties {
   styleUrls: ['./my-properties.scss']
 })
 export class MyProperties implements OnInit, AfterViewInit {
-  // Dependency injection
+
+  
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifier = inject(NotifierService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly swalToast = inject(ToastService);
   private readonly session = inject(SessionService);
   private readonly service = inject(ManagePropertyService);
   private readonly confirmationDialog = inject(ConfirmationDialogService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Route paths
+
+  
   routePath = RoutePath;
 
-  // Signals for reactive state
+  
   readonly propertyList = signal<any[]>([]);
   readonly currencyDetails = signal<any[]>([]);
   readonly dataLoaded = signal<boolean>(false);
@@ -74,7 +76,8 @@ export class MyProperties implements OnInit, AfterViewInit {
   readonly oldPaginationNo = signal<number>(1);
   readonly propertyId = signal<any>(null);
 
-  // Search filter object
+ 
+  
   searchFilter: IsearchMyProperties = {
     sortFilter: '',
     pageNo: 1,
@@ -85,10 +88,8 @@ export class MyProperties implements OnInit, AfterViewInit {
     this.subscribeToPaginationChanges();
   }
 
-  /**
-   * Subscribe to pagination number changes from notifier service
-   * Matches old code exactly
-   */
+ 
+  
   private subscribeToPaginationChanges(): void {
     this.notifier.paginationNo$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -105,10 +106,8 @@ export class MyProperties implements OnInit, AfterViewInit {
       });
   }
 
-  /**
-   * Scroll to top of the page
-   * Matches old code exactly
-   */
+  
+  
   @HostListener('window:beforeunload', [])
   onWindowScroll(): void {
     this.scrollToTop();
@@ -119,29 +118,27 @@ export class MyProperties implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Load currency data - matches old code
+   
+    
     this.currencyDetails.set(Object.values(currencyData).map(x => x));
     
-    // Get routing parameters
+    
+    
     this.getRoutingParams();
   }
 
   ngAfterViewInit(): void {
-    // Additional initialization if needed
+  
+    
   }
 
-  /**
-   * Navigate to home page
-   * Matches old code exactly
-   */
+ 
   gotoHomePage(): void {
     this.router.navigateByUrl(this.routePath.HOME);
   }
 
-  /**
-   * Show rejection reason in popup
-   * Matches old code exactly
-   */
+
+  
   showReason(item: any): void {
     Swal.fire({
       title: '<span style="font-size: 15px; text-align:left;padding:0px;margin:0px;">Regrettably!, we are unable to approve this property due to below reason</span>',
@@ -151,10 +148,8 @@ export class MyProperties implements OnInit, AfterViewInit {
     });
   }
 
-  /**
-   * Check total property count and update message
-   * Matches old code exactly
-   */
+
+  
   checkTotalPropertyCountByRoutingUrl(): string {
     const currentUrl = this.router.url;
     const parts = currentUrl.split('?');
@@ -168,10 +163,8 @@ export class MyProperties implements OnInit, AfterViewInit {
     return currentUrl;
   }
 
-  /**
-   * Add query param if not empty
-   * Matches old code exactly
-   */
+ 
+  
   addQueryParamIfNotEmpty(
     queryParams: { [key: string]: any }, 
     paramName: string, 
@@ -182,10 +175,8 @@ export class MyProperties implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Check and prepare query parameters
-   * Matches old code exactly
-   */
+
+  
   checkQueryParamValues(): { [key: string]: any } {
     const queryParams: { [key: string]: any } = {};
     const searchFilter = this.searchFilter;
@@ -194,7 +185,6 @@ export class MyProperties implements OnInit, AfterViewInit {
     this.addQueryParamIfNotEmpty(queryParams, 'pageNo', searchFilter.pageNo);
     this.addQueryParamIfNotEmpty(queryParams, 'limit', searchFilter.limit);
 
-    // Optional fallback values for 'pageNo' and 'limit' if they are empty
     if (!queryParams['pageNo']) {
       queryParams['pageNo'] = 1;
     }
@@ -205,22 +195,22 @@ export class MyProperties implements OnInit, AfterViewInit {
     return queryParams;
   }
 
-  /**
-   * Handle status filter selection
-   */
+
+  
   onSelectStatusFilter(event: any): void {
     const selectedValue = (event.target as HTMLSelectElement).value;
     
-    // Update the search filter
     this.searchFilter.sortFilter = selectedValue;
-    this.searchFilter.pageNo = 1; // Reset to first page
+    this.searchFilter.pageNo = 1; 
+    
     this.sortFilterValue.set(selectedValue);
     
-    // Reset pagination
+   
+    
     this.notifier.sendPaginationNo(1);
     this.page.set(1);
     
-    // Update URL with new filter
+    
     const queryParams: { [key: string]: any } = {
       pageNo: 1,
       limit: this.tableSize()
@@ -230,21 +220,20 @@ export class MyProperties implements OnInit, AfterViewInit {
       queryParams['sortFilter'] = selectedValue;
     }
     
-    // Navigate with updated query params
+   
+    
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: queryParams,
       queryParamsHandling: 'replace'
     });
     
-    // Fetch filtered data
+
     this.getPropertyDetails();
   }
 
-  /**
-   * Clear all filters
-   * Matches old code exactly
-   */
+
+  
   onClearAllFilters(): void {
     this.searchFilter = {
       sortFilter: '',
@@ -256,15 +245,13 @@ export class MyProperties implements OnInit, AfterViewInit {
     this.searchResultsMsg.set('');
   }
 
-  /**
-   * Fetch property details from API with proper authentication
-   */
+  
   getPropertyDetails(): void {
     if (this.searchFilter) {
       this.sortFilterValue.set(this.searchFilter.sortFilter ? this.searchFilter.sortFilter : '');
     }
 
-    // Check authentication before making API call
+
     const token = this.session.getToken();
     if (!token) {
       console.warn('⚠️ No authentication token found for my-properties');
@@ -273,10 +260,9 @@ export class MyProperties implements OnInit, AfterViewInit {
       return;
     }
 
-    this.spinner.show();
+    this.loader.show();
 
     setTimeout(() => {
-      // Use authenticated getPropertyDetails method with search filter data
       const data = {
         sortFilter: this.searchFilter.sortFilter,
         pageNo: this.searchFilter.pageNo,
@@ -285,9 +271,7 @@ export class MyProperties implements OnInit, AfterViewInit {
       
       this.service.getPropertyDetails(data).subscribe({
         next: (res: any) => {
-          console.log('📥 My Properties API Response:', res);
           
-          // Handle different response structures
           const properties = res.data || res || [];
           this.propertyList.set(properties);
           this.dataLoaded.set(true);
@@ -301,12 +285,11 @@ export class MyProperties implements OnInit, AfterViewInit {
           this.totalPages.set(Math.ceil(totalRecords / recordLimit));
           
           this.checkTotalPropertyCountByRoutingUrl();
-          this.spinner.hide();
+          this.loader.hide();
         },
         error: (err: any) => {
-          console.error('❌ My Properties API Error:', err);
-          console.error('❌ Error Status:', err.status);
-          console.error('❌ Error Response:', err.error);
+       
+          
           
           if (err.status === 401) {
             this.swalToast.showToast('Session expired. Please login again.', 'error');
@@ -316,16 +299,14 @@ export class MyProperties implements OnInit, AfterViewInit {
             const errorMessage = err.error?.headers?.message || err.message || 'Failed to load properties';
             this.swalToast.showToast(errorMessage, 'error');
           }
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     }, 500);
   }
 
-  /**
-   * Get routing parameters and load properties
-   * Matches old code exactly
-   */
+
+  
   getRoutingParams(): void {
     this.route.queryParamMap
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -351,9 +332,8 @@ export class MyProperties implements OnInit, AfterViewInit {
       });
   }
 
-  /**
-   * Navigate to main property page
-   */
+
+  
   gotoViewDetail(item: any): void {
     if (item?.id) {
       this.router.navigate(['/details', item.id], {
@@ -365,17 +345,15 @@ export class MyProperties implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Add to wish list (placeholder from old code)
-   */
+
+  
   addtoWishList(index: number, item: any): void {
-    // Empty method from old code
+   
+    
   }
 
-  /**
-   * Edit property
-   * Matches old code exactly
-   */
+
+  
   onEditProperty(item: any): void {
     this.router.navigate([this.routePath.EDIT_PROPERTY], { 
       queryParams: { id: item.id } 
@@ -383,9 +361,8 @@ export class MyProperties implements OnInit, AfterViewInit {
     this.scrollToTop();
   }
 
-  /**
-   * Delete property with modern confirmation dialog
-   */
+
+  
   async onDeleteProperty(item: any): Promise<void> {
     try {
       const confirmed = await this.confirmationDialog.confirmDelete('property');
@@ -398,20 +375,18 @@ export class MyProperties implements OnInit, AfterViewInit {
           return;
         }
         
-        this.spinner.show();
+        this.loader.show();
         
         this.service.deletePropertyById(propertyId).subscribe({
           next: (res) => {
             console.log('Delete response:', res);
             
-            // Handle different response structures
             const statusCode = res?.headers?.statusCode || res?.statusCode;
             const message = res?.headers?.message || res?.message || 'Property deleted successfully';
             
             if (statusCode === 200 || statusCode === '200') {
               this.swalToast.showToast(message, 'success');
               
-              // Refresh the property list
               setTimeout(() => {
                 this.getPropertyDetails();
               }, 500);
@@ -419,10 +394,9 @@ export class MyProperties implements OnInit, AfterViewInit {
               this.swalToast.showToast(message || 'Failed to delete property', 'error');
             }
             
-            this.spinner.hide();
+            this.loader.hide();
           },
           error: (err) => {
-            console.error('Delete property error:', err);
             
             let errorMessage = 'Failed to delete property';
             
@@ -435,20 +409,17 @@ export class MyProperties implements OnInit, AfterViewInit {
             }
             
             this.swalToast.showToast(errorMessage, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         });
       }
     } catch (error) {
-      console.error('Confirmation dialog error:', error);
       this.swalToast.showToast('Error showing confirmation dialog', 'error');
     }
   }
 
-  /**
-   * Handle pagination change
-   * Matches old code exactly
-   */
+
+  
   onTableDataChange(page: any): void {
     this.page.set(page);
     this.searchFilter.pageNo = page;

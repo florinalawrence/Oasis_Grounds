@@ -89,7 +89,7 @@
       }
     }
     
-    // Ensure each section has proper spacing
+   
     > * {
       width: 100%;
     }
@@ -121,9 +121,7 @@
   }
 }
 
-// Ensure proper styling for nested components
 .edit-property-container {
-  // Override any conflicting styles from child components
   app-add-property,
   app-property-management,
   app-nearby-locations,

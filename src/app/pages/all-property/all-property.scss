@@ -539,16 +539,16 @@ body {
     .sticky-column,
     .scrollable-column {
       > .p-4 {
-        padding-top: 1.5rem !important; // Consistent top padding
-        padding-bottom: 1.5rem !important; // Consistent bottom padding
+        padding-top: 1.5rem !important; 
+        padding-bottom: 1.5rem !important;
       }
       
       .section-title {
-        margin-top: 0 !important; // Remove any top margin
-        margin-bottom: 20px !important; // Consistent bottom margin
-        line-height: 1.2; // Consistent line height
-        font-size: 1.25rem; // Consistent font size
-        font-weight: 600; // Consistent font weight
+        margin-top: 0 !important; 
+        margin-bottom: 20px !important; 
+        line-height: 1.2; 
+        font-size: 1.25rem;
+        font-weight: 600; 
       }
     }
   }

@@ -24,12 +24,10 @@ export class ChangePassword implements OnInit {
   changePasswordForm: FormGroup;
   routePath = RoutePath;
   
-  // Password visibility toggles
   showCurrentPassword: boolean = false;
   showNewPassword: boolean = false;
   showConfirmPassword: boolean = false;
   
-  // Form submission state
   isSubmitting: boolean = false;
   btnSubmitted: boolean = false;
 
@@ -77,10 +75,9 @@ export class ChangePassword implements OnInit {
   }
 
   ngOnInit(): void {
-    // Component initialization
   }
 
-  // Form control getters
+
   get f(): { [key: string]: AbstractControl } {
     return this.changePasswordForm.controls;
   }
@@ -97,7 +94,7 @@ export class ChangePassword implements OnInit {
     return this.changePasswordForm.get('confirmPassword') as FormControl;
   }
 
-  // Current password validation getters
+
   get currentPasswordValid(): boolean {
     return this.changePasswordForm.controls['currentPassword'].errors === null;
   }
@@ -126,7 +123,7 @@ export class ChangePassword implements OnInit {
     return !this.changePasswordForm.controls['currentPassword'].hasError('requiresSpecialChars');
   }
 
-  // New password validation getters
+
   get newPasswordValid(): boolean {
     return this.changePasswordForm.controls['newPassword'].errors === null;
   }
@@ -155,7 +152,7 @@ export class ChangePassword implements OnInit {
     return !this.changePasswordForm.controls['newPassword'].hasError('requiresSpecialChars');
   }
 
-  // Password visibility toggles
+
   toggleCurrentPasswordVisibility(): void {
     this.showCurrentPassword = !this.showCurrentPassword;
   }
@@ -168,7 +165,7 @@ export class ChangePassword implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  // Check if passwords match
+
   onCheckConfirmPasswordMatch(): boolean {
     const newPwd = this.newPassword.value;
     const confirmPwd = this.confirmPassword.value;
@@ -182,21 +179,21 @@ export class ChangePassword implements OnInit {
     return false;
   }
 
-  // Form submission
+
   onSubmit(): void {
     this.btnSubmitted = true;
 
-    // Check form validity
+
     if (this.changePasswordForm.invalid) {
       return;
     }
 
-    // Check password match
+
     if (this.onCheckConfirmPasswordMatch()) {
       return;
     }
 
-    // Prepare request payload
+
     const changePwdRequest = {
       password: this.currentPassword.value,
       newPassword: this.newPassword.value,
@@ -206,7 +203,7 @@ export class ChangePassword implements OnInit {
     this.isSubmitting = true;
     this.spinner.show();
 
-    // Call API
+
     this.service.changePassword(changePwdRequest).subscribe({
       next: (res: any) => {
         if (res.headers.statusCode === "200") {
@@ -230,7 +227,7 @@ export class ChangePassword implements OnInit {
     });
   }
 
-  // Reset form
+
   resetFormData(): void {
     this.changePasswordForm.reset();
     this.btnSubmitted = false;
@@ -239,7 +236,7 @@ export class ChangePassword implements OnInit {
     this.showConfirmPassword = false;
   }
 
-  // Navigate to home
+
   gotoHomePage(): void {
     this.router.navigateByUrl('home');
   }

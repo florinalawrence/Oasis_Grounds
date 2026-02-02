@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
+import { LoaderService } from '../../services/loader.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -14,25 +15,30 @@ import { SocialAuthService, GoogleLoginProvider, SocialUser, GoogleSigninButtonM
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
-// Services
+
+
+
 import { ToastService } from '../../services/Toast-service/toast.service';
 import { UserService } from '../../services/User-service/user.service';
 import { AuthService } from '../../services/Auth-service/auth.service';
 import { SessionService } from '../../services/Session-service/session.service';
 import { NotifierService } from '../../services/Notifier-service/notifier.service';
 
-// Validators
+
+
 import { PasswordValidators } from '../../validators/password-validator';
 import { noSpaceAllowedValidator } from '../../validators/nospace-allowed-validators';
 
-// Components
 
-// Environment
+
+
+
+
 import { environment } from '../../../environments/environment';
 
-// model
+
+
 import { IUser } from '../../models/User_Model/IUser.model';
 import { RoutePath } from '../../core/constant/api.constant';
 
@@ -44,27 +50,30 @@ import { RoutePath } from '../../core/constant/api.constant';
     ReactiveFormsModule, 
     RouterLink, 
     FormsModule, 
-    NgxSpinnerModule, 
     GoogleSigninButtonModule
   ],
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
 })
 export class Register implements OnInit, OnDestroy {
-  // Form state
+ 
+  
   regForm: FormGroup;
   btnSubmitted = false;
   passwordMismatch = false;
 
-  // UI state
+
+  
   eyeSwitchPwd = false;
   eyeSwitchConfirmPwd = false;
   passVerifyOTPData: any = {};
 
-  // Data
+
+  
   userProfileData: any;
 
-  // User object matching API expectations
+
+  
   user: IUser = {
     applicationId: '',
     email: '',
@@ -74,7 +83,8 @@ export class Register implements OnInit, OnDestroy {
     isActive: false,
   };
 
-  // Subscriptions
+
+  
   private dataSubscription!: Subscription;
   private googleAuthSubscription!: Subscription;
   private destroyRef = inject(DestroyRef);
@@ -84,7 +94,7 @@ export class Register implements OnInit, OnDestroy {
     private router: Router,
     private authService: SocialAuthService,
     private auth: AuthService,
-    private spinner: NgxSpinnerService,
+    private loader: LoaderService,
     private toastService: ToastService,
     private userService: UserService,
     private session: SessionService,
@@ -115,15 +125,15 @@ export class Register implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.spinner.show();
+    this.loader.show();
     this.getNotifyData();
 
     setTimeout(() => {
       if (this.session.getToken() && this.userProfileData) {
-        this.spinner.hide();
+        this.loader.hide();
         this.router.navigateByUrl(RoutePath.HOME);
       } else {
-        this.spinner.hide();
+        this.loader.hide();
         this.router.navigateByUrl(RoutePath.REGISTER);
       }
     }, 500);
@@ -237,33 +247,30 @@ export class Register implements OnInit, OnDestroy {
 
     this.mapFormData();
 
-    this.spinner.show();
+    this.loader.show();
     this.userService
       .registerUser(this.user)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.spinner.hide();
+          this.loader.hide();
           
-          // Since UserService uses observe: 'response', the actual data is in res.body
+          
           const responseBody = res.body;
           const statusCode = res.status;
           
-          console.log('Registration response:', res);
-          console.log('Response body:', responseBody);
-          console.log('Status code:', statusCode);
-          console.log('Response body headers:', responseBody?.headers);
-          console.log('Response body statusCode:', responseBody?.headers?.statusCode);
-          console.log('Response body statusCode type:', typeof responseBody?.headers?.statusCode);
+        
+          
 
-          // Check if the HTTP status is 200 (successful) - handle both string and number
           const apiStatusCode = responseBody?.headers?.statusCode;
           const isSuccess = statusCode === 200 && (apiStatusCode === 200 || apiStatusCode === "200");
           
-          console.log('Is success?', isSuccess);
+       
+          
           
           if (isSuccess) {
-            // Display success message
+            
+            
             const successMessage = responseBody.headers.message || 'Registration successful';
             this.toastService.showToast(successMessage, 'success');
 
@@ -274,25 +281,30 @@ export class Register implements OnInit, OnDestroy {
               userId: responseBody.userId
             };
 
-            // Send data to notifier service for OTP verification page
+            
+            
             this.notifier.sendData(this.passVerifyOTPData);
 
-            // Navigate to OTP verification screen
+           
+            
             this.router.navigate(['/otp-verification']);
 
           } else {
-            // If registration failed, show the failure message
+            
+            
             const errorMessage = responseBody?.headers?.message || responseBody?.message || 'Registration failed';
             this.toastService.showToast(errorMessage, 'error');
           }
         },
         error: (err: any) => {
-          this.spinner.hide();
-          console.error('Registration error:', err);
+          this.loader.hide();
+         
+          
           
           let errorMessage = 'Registration failed';
           
-          // Handle different error structures
+          
+          
           if (err.details) {
             errorMessage = err.details;
           } else if (err.error?.headers?.message) {
@@ -322,9 +334,11 @@ export class Register implements OnInit, OnDestroy {
   onGoogleSignInButtonClicked() {
     try {
       this.googleAuthSubscription = this.authService.authState.subscribe(user => {
-        // Get Google user info
+    
+        
         const googleUser = user;
-        console.log('👤 Google user info from register:', googleUser);
+       
+        
         
         this.authService.getAccessToken(GoogleLoginProvider.PROVIDER_ID).then(accessToken => {
           const googleLoginPayload = {
@@ -333,10 +347,11 @@ export class Register implements OnInit, OnDestroy {
             attemptingFrom: "login"
           };
           
-          this.spinner.show();
+          this.loader.show();
           this.auth.loginWithGoogle(googleLoginPayload).subscribe({
             next: (res) => {
-              console.log('📥 Google register API response:', res);
+          
+              
               const data = res;
               
               if (data.accessToken) {
@@ -344,27 +359,29 @@ export class Register implements OnInit, OnDestroy {
               }
               
               if (data.headers.statusCode == 200) {
-                console.log('✅ Google registration successful, showing success message');
-                // Only show success message when registration/login is actually successful
+             
+                
                 this.toastService.showToast(res.headers.message || 'Google registration successful!', 'success');
                 
                 const token = this.session.getToken();
-                this.spinner.hide();
+                this.loader.hide();
                 
                 if (token) {
                   this.notifier.notifyToHeader(token);
                   this.notifier.isAuthenticatedSubject.next(true);
                   
-                  // For Google registration, also set new registration flag initially
-                  // This ensures header shows "Welcome" until user edits profile
+                 
+                  
                   this.notifier.notifyUserData({ isNewRegistration: true, ...googleUser });
                 }
                 
-                // Small delay before navigation to ensure toast is shown
+                
+                
                 setTimeout(() => {
                   const routerUrl = localStorage.getItem('routeUrl');
                   if (routerUrl) {
-                    localStorage.removeItem('routeUrl'); // Clean up after using
+                    localStorage.removeItem('routeUrl');
+                    
                     this.router.navigateByUrl(routerUrl);
                   } else {
                     this.getNotifyData();
@@ -372,23 +389,23 @@ export class Register implements OnInit, OnDestroy {
                   }
                 }, 500);
               } else {
-                console.log('Google registration failed, status code:', data.headers.statusCode);
-                // Show error message if status code is not 200
+               
+                
                 this.toastService.showToast(data.headers.message || 'Google registration failed', "error");
-                this.spinner.hide();
+                this.loader.hide();
               }
             },
             error: (err: any) => {
               const errorMsg = err !== null || err !== undefined ? err : 'Invalid login';
               this.toastService.showToast(errorMsg, 'error');
-              this.spinner.hide();
+              this.loader.hide();
             }
           });
         });
       });
     } catch (err: any) {
       this.toastService.showToast(err, 'error');
-      this.spinner.hide();
+      this.loader.hide();
     }
   }
 
