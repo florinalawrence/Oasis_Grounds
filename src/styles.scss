@@ -104,3 +104,60 @@ ngx-spinner {
 
 
 
+/* Common Spinner Styles */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 2147483647; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Common Reset Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Common Breadcrumb Styles */
+.breadcrumb {
+  color: #0d6efd;
+  font-size: 0.9rem;
+}
+
+.breadcrumb a {
+  color: rgb(48, 46, 46);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+/* Common Utility Classes */
+.span {
+  color: black;
+  font-weight: 500px;
+}

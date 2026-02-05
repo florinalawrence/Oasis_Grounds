@@ -7,11 +7,12 @@ import { LoaderService } from '../../../services/loader.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="loader-overlay" *ngIf="loader.loading$ | async">
-      <div class="spinner"></div>
-    </div>
-  `,
-  styleUrls: ['./common-spinner.scss']
+    @if (loader.loading$ | async) {
+      <div class="loader-overlay">
+        <div class="spinner"></div>
+      </div>
+    }
+  `
 })
 export class CommonSpinner {
   constructor(public loader: LoaderService) {}

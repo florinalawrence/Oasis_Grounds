@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { LoaderService } from '../../../services/loader.service';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,21 +17,27 @@ import { ToastService } from '../../../services/Toast-service/toast.service';
   styleUrl: './main-property-page.scss',
 })
 export class MainPropertyPage implements OnInit {
-  // Dependency injection
+  
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly propertyService = inject(ManagePropertyService);
   private readonly swalToast = inject(ToastService);
   private readonly loader = inject(LoaderService);
 
-  // Signals for reactive state
-  readonly propertyData = signal<any>(null);
+ 
+  private readonly rawPropertyData = signal<any>(null);
   readonly propertyId = signal<string | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly navigationSource = signal<string>('all-properties');
 
+  
+  readonly propertyData = computed(() => {
+    const raw = this.rawPropertyData();
+    const extracted = raw?.recordInfo || raw;
+    return extracted;
+  });
+
   ngOnInit(): void {
-    // Get property ID and navigation source from route parameters
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -39,7 +45,7 @@ export class MainPropertyPage implements OnInit {
         this.loadPropertyData(id);
       } else {
         this.swalToast.showToast('Property ID not found in URL', 'error');
-        this.router.navigate(['/home']);
+        this.router.navigate(['/all-property']);
       }
     });
 
@@ -52,9 +58,7 @@ export class MainPropertyPage implements OnInit {
     });
   }
 
-  /**
-   * Load property data by ID
-   */
+ 
   private loadPropertyData(propertyId: string): void {
     this.isLoading.set(true);
     this.loader.show();
@@ -62,7 +66,7 @@ export class MainPropertyPage implements OnInit {
     this.propertyService.getPropertyById(propertyId).subscribe({
       next: (response) => {
         const propertyData = response.data || response.body || response;
-        this.propertyData.set(propertyData);
+        this.rawPropertyData.set(propertyData);
 
         this.isLoading.set(false);
         this.loader.hide();
@@ -79,7 +83,7 @@ export class MainPropertyPage implements OnInit {
         this.isLoading.set(false);
         this.loader.hide();
 
-        this.router.navigate(['/home']);
+        this.router.navigate(['/all-property']);
       },
     });
   }
@@ -89,5 +93,14 @@ export class MainPropertyPage implements OnInit {
    */
   goToHome(): void {
     this.router.navigate(['/home']);
+  }
+
+  /**
+   * Determine whether to show the contact section
+   * Only show for public property views (from all-properties)
+   * Hide for user's own properties (from my-properties)
+   */
+  shouldShowContactSection(): boolean {
+    return this.navigationSource() !== 'my-properties';
   }
 }

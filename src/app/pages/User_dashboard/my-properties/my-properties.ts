@@ -336,6 +336,7 @@ export class MyProperties implements OnInit, AfterViewInit {
   
   gotoViewDetail(item: any): void {
     if (item?.id) {
+      console.log('Navigating to property details with ID:', item.id);
       this.router.navigate(['/details', item.id], {
         queryParams: { source: 'my-properties' }
       });

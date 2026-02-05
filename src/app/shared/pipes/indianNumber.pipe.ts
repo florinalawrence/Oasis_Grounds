@@ -21,7 +21,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({
   name: 'indianNumber',
   standalone: true,
-  pure: true  // Explicit pure pipe for better performance
+  pure: true 
+  
 })
 export class IndianNumberPipe implements PipeTransform {
   /**

@@ -15,6 +15,13 @@ h2 {
   margin-right: 15px;
 }
 
+.header-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #e5e7eb;
+  margin-top: 15px;
+}
+
 .breadcrumb {
   color: #0d6efd;
   font-size: 0.9rem;
@@ -66,6 +73,10 @@ h2 {
   .property-header {
     padding: 10px 0;
     overflow: visible;
+  }
+
+  .header-divider {
+    margin-top: 10px;
   }
 
   .property-header .container-fluid {
@@ -164,6 +175,10 @@ h2 {
 @media (min-width: 576px) and (max-width: 991px) {
   .property-header {
     padding: 12px 0;
+  }
+
+  .header-divider {
+    margin-top: 12px;
   }
 
   .property-header .container-fluid {

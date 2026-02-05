@@ -1,121 +1,183 @@
 <div class="gallery-container">
-  <div class="gallery-card">
-    <!-- Main Image Container -->
-    <div class="main-image-container">
-      <img
-        [src]="images[currentIndex]"
-        [alt]="'Property image ' + (currentIndex + 1)"
-        class="main-image"
-      />
+  <!-- Only show gallery if property has images -->
+  @if (hasPropertyImages()) {
+    <!-- Split Layout for My Properties -->
+    @if (useSplitLayout()) {
+      <div class="row g-2">
+        <!-- Main Image - col-8 -->
+        <div class="col-8">
+          <div class="main-image-container split-layout">
+            <img
+              [src]="displayImages()[currentIndex]"
+              [alt]="'Property image ' + (currentIndex + 1)"
+              class="main-image"
+              (click)="openFullscreen()"
+            />
+          </div>
+        </div>
 
-      <!-- Image Counter -->
-      <div class="image-counter">
-        <span>{{ currentIndex + 1 }} / {{ images.length }}</span>
+        <!-- Grid Images - col-4 -->
+        <div class="col-4">
+          <div class="image-grid-container">
+            <!-- Top Image (Large) -->
+            @if (gridImages().length > 0) {
+              <div class="grid-image-large" 
+                   [class.active]="currentIndex === 1"
+                   (click)="selectImage(1)">
+                <img [src]="gridImages()[0]" [alt]="'Property image 2'" class="grid-image" />
+              </div>
+            }
+            
+            <!-- Bottom Row (2 smaller images) -->
+            <div class="grid-bottom-row">
+              @if (gridImages().length > 1) {
+                <div class="grid-image-small" 
+                     [class.active]="currentIndex === 2"
+                     (click)="selectImage(2)">
+                  <img [src]="gridImages()[1]" [alt]="'Property image 3'" class="grid-image" />
+                </div>
+              }
+              
+              @if (gridImages().length > 2) {
+                <div class="grid-image-small position-relative" 
+                     [class.active]="currentIndex === 3"
+                     (click)="selectImage(3)">
+                  <img [src]="gridImages()[2]" [alt]="'Property image 4'" class="grid-image" />
+                  
+                  <!-- Show more overlay if there are additional images -->
+                  @if (gridImages().length > 3) {
+                    <div class="more-images-overlay" (click)="openFullscreen(); $event.stopPropagation()">
+                      <span>View All</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
       </div>
+    } @else {
+      <!-- Original Layout for All Properties -->
+      <div class="gallery-card">
+        <!-- Main Image Container -->
+        <div class="main-image-container">
+          <img
+            [src]="displayImages()[currentIndex]"
+            [alt]="'Property image ' + (currentIndex + 1)"
+            class="main-image"
+            (click)="openFullscreen()"
+          />
 
-      <!-- Navigation Arrows -->
-      <button class="nav-btn nav-btn-left" (click)="prevImage()" aria-label="Previous image">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-      <button class="nav-btn nav-btn-right" (click)="nextImage()" aria-label="Next image">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-      </button>
-    </div>
+          <!-- Image Counter -->
+          <div class="image-counter">
+            <span>{{ currentIndex + 1 }} / {{ displayImages().length }}</span>
+          </div>
 
-    <!-- Thumbnail Strip -->
-    <div class="thumbnail-strip">
-      <div class="thumbnail-container">
-        <button
-          *ngFor="let image of images; let i = index"
-          class="thumbnail-btn"
-          [class.active]="currentIndex === i"
-          (click)="selectImage(i)"
-          [attr.aria-label]="'View image ' + (i + 1)"
-        >
-          <img [src]="image" [alt]="'Thumbnail ' + (i + 1)" class="thumbnail-image" />
-        </button>
+          <!-- Navigation Arrows -->
+          <button class="nav-btn nav-btn-left" (click)="prevImage()" aria-label="Previous image">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button class="nav-btn nav-btn-right" (click)="nextImage()" aria-label="Next image">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Thumbnail Strip -->
+        <div class="thumbnail-strip">
+          <div class="thumbnail-container">
+            @for (image of displayImages(); track $index; let i = $index) {
+              <button
+                class="thumbnail-btn"
+                [class.active]="currentIndex === i"
+                (click)="selectImage(i)"
+                [attr.aria-label]="'View image ' + (i + 1)"
+              >
+                <img [src]="image" [alt]="'Thumbnail ' + (i + 1)" class="thumbnail-image" />
+              </button>
+            }
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    }
 
-  <!-- Fullscreen Modal -->
-  <div *ngIf="isFullscreen" class="fullscreen-modal" (click)="closeFullscreen()">
-    <button class="close-btn" (click)="closeFullscreen()" aria-label="Close fullscreen">
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <line x1="18" y1="6" x2="6" y2="18" />
-        <line x1="6" y1="6" x2="18" y2="18" />
-      </svg>
-    </button>
+    <!-- Enhanced Fullscreen Modal with Grid View -->
+    @if (isFullscreen) {
+      <div class="fullscreen-modal" (click)="closeFullscreen()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <div class="modal-tabs">
+              <button class="tab-btn active">All Images</button>
+            </div>
+            <button class="close-btn" (click)="closeFullscreen()" aria-label="Close fullscreen">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
 
-    <img
-      [src]="images[currentIndex]"
-      [alt]="'Property image ' + (currentIndex + 1)"
-      class="fullscreen-image"
-      (click)="$event.stopPropagation()"
-    />
+          <!-- Back Link -->
+          <div class="back-link">
+            <button (click)="closeFullscreen()" class="back-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back to Property detail page
+            </button>
+          </div>
 
-    <!-- Fullscreen Navigation -->
-    <button
-      class="fullscreen-nav-btn fullscreen-nav-left"
-      (click)="prevImage(); $event.stopPropagation()"
-      aria-label="Previous image"
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
-    </button>
-    <button
-      class="fullscreen-nav-btn fullscreen-nav-right"
-      (click)="nextImage(); $event.stopPropagation()"
-      aria-label="Next image"
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <polyline points="9 18 15 12 9 6" />
-      </svg>
-    </button>
+          <!-- Modal Body with Image Grid -->
+          <div class="modal-body">
+            <div class="images-grid">
+              @for (image of displayImages(); track $index; let i = $index) {
+                <div class="grid-item" 
+                     [class.active]="currentIndex === i"
+                     (click)="selectImageAndView(i)">
+                  <img [src]="image" [alt]="'Property image ' + (i + 1)" class="grid-item-image" />
+                </div>
+              }
+            </div>
+          </div>
 
-    <!-- Fullscreen Counter -->
-    <div class="fullscreen-counter">
-      <span>{{ currentIndex + 1 }} / {{ images.length }}</span>
-    </div>
-  </div>
+          <!-- Selected Image Viewer (when an image is clicked) -->
+          @if (showImageViewer) {
+            <div class="image-viewer-overlay" (click)="closeImageViewer()">
+              <div class="image-viewer-content" (click)="$event.stopPropagation()">
+                <button class="viewer-close-btn" (click)="closeImageViewer()">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+
+                <img [src]="displayImages()[currentIndex]" [alt]="'Property image ' + (currentIndex + 1)" class="viewer-image" />
+
+                <!-- Navigation Arrows for Image Viewer -->
+                <button class="viewer-nav-btn viewer-nav-left" (click)="prevImage()" aria-label="Previous image">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button class="viewer-nav-btn viewer-nav-right" (click)="nextImage()" aria-label="Next image">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+
+                <!-- Image Counter -->
+                <div class="viewer-counter">
+                  <span>{{ currentIndex + 1 }} / {{ displayImages().length }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
 </div>

@@ -48,7 +48,7 @@ export class Sidenav implements OnInit, OnDestroy {
       this.updateBreadcrumb();
     });
     
-    this.loadProfileData();
+    // this.loadProfileData();
     
     this.subscribeToUserRoleChanges();
     
@@ -83,45 +83,56 @@ export class Sidenav implements OnInit, OnDestroy {
     return imageUrl;
   }
 
-  loadProfileData() {
+  // loadProfileData() {
   
     
-    this.profileName = 'User'; 
+  //   this.profileName = 'User'; 
     
-  }
+  // }
 
-  subscribeToUserRoleChanges() {
-    const roleSubscription = this.notifier.userRole$.subscribe((role: string) => {
+  // subscribeToUserRoleChanges() {
+  //   const roleSubscription = this.notifier.userRole$.subscribe((role: string) => {
     
       
-      if (role) {
-        this.profileRole = role;
+  //     if (role) {
+  //       this.profileRole = role;
        
         
-      } else {
-        console.warn('⚠️ Sidenav: Received empty role from notifier');
-      }
-    });
-    this.subscriptions.add(roleSubscription);
+  //     } else {
+  //       console.warn('⚠️ Sidenav: Received empty role from notifier');
+  //     }
+  //   });
+  //   this.subscriptions.add(roleSubscription);
 
-    const nameSubscription = this.notifier.userName$.subscribe((name: string) => {
-      if (name) {
-        const firstName = name.split(' ')[0].trim();
+  //   const nameSubscription = this.notifier.userName$.subscribe((name: string) => {
+  //     if (name) {
+  //       const firstName = name.split(' ')[0].trim();
         
-        const defaultNames = ['florina', 'lawrence', 'john', 'jane', 'test', 'user', 'default'];
-        const isDefaultName = defaultNames.some(defaultName => 
-          firstName.toLowerCase() === defaultName
-        );
+  //       const defaultNames = ['user', 'test', 'default'];
+  //       const isDefaultName = defaultNames.some(defaultName => 
+  //         firstName.toLowerCase() === defaultName
+  //       );
         
-        if (firstName && !isDefaultName && firstName !== 'User') {
-          this.profileName = firstName;
-        } else {
-          this.profileName = 'User';
-        }
-      }
-    });
-    this.subscriptions.add(nameSubscription);
-  }
+  //       if (firstName && !isDefaultName && firstName !== 'User') {
+  //         this.profileName = firstName;
+  //       } else {
+  //         this.profileName = 'User';
+  //       }
+  //     }
+  //   });
+  //   this.subscriptions.add(nameSubscription);
+  // }
+
+  subscribeToUserRoleChanges() {
+  const nameSubscription = this.notifier.userName$.subscribe((name: string) => {
+    if (name && name.trim()) {
+      this.profileName = name.split(' ')[0];
+    }
+  });
+
+  this.subscriptions.add(nameSubscription);
+}
+
 
   subscribeToUserProfileData() {
     const userDataSubscription = this.notifier.userProfileData$.subscribe((userData: any) => {
@@ -153,14 +164,15 @@ export class Sidenav implements OnInit, OnDestroy {
         if (firstName && !isDefaultName && firstName !== 'User') {
           this.profileName = firstName;
           
-          // Also notify the header component to ensure consistency
           this.notifier.notifyUserNameChange(firstName);
         } else {
-          this.profileName = 'User'; // Fallback when no valid name is available
-          console.log('👤 Sidenav: Using default "User" name');
+          this.profileName = 'User'; 
+          
+          
         }
         
-        // Set profile image from API data - try multiple possible field names
+        
+        
         const possibleImageFields = [
           userData.profilePicUrl,
           userData.profileImageUrl, 
@@ -174,7 +186,6 @@ export class Sidenav implements OnInit, OnDestroy {
         const imageUrl = possibleImageFields.find(url => url && url.trim() !== '');
         if (imageUrl) {
           this.profileImageUrl = this.getAbsoluteImageUrl(imageUrl);
-          console.log('📸 Sidenav: Profile image loaded from user data:', this.profileImageUrl);
         }
       }
     });
@@ -182,7 +193,6 @@ export class Sidenav implements OnInit, OnDestroy {
   }
 
   onEditProfileImage() {
-    // Trigger file input click
     this.fileInput.nativeElement.click();
   }
 
@@ -198,7 +208,6 @@ export class Sidenav implements OnInit, OnDestroy {
         lastModified: new Date(file.lastModified)
       });
       
-      // Validate file type - use only the most common formats that APIs typically support
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
       const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
       
@@ -207,69 +216,60 @@ export class Sidenav implements OnInit, OnDestroy {
         return;
       }
       
-      // Also validate file extension as additional check
       const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
       if (!allowedExtensions.includes(fileExtension)) {
         this.toast.showToast('Please select a file with .jpg, .png, or .gif extension', 'error');
         return;
       }
       
-      // Validate file size (max 2MB for better compatibility)
-      const maxSize = 2 * 1024 * 1024; // 2MB
+      const maxSize = 2 * 1024 * 1024; 
       if (file.size > maxSize) {
         this.toast.showToast(`Image size should be less than 2MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`, 'error');
         return;
       }
       
-      // Validate minimum file size (avoid empty files)
-      if (file.size < 1024) { // 1KB minimum
+      if (file.size < 1024) { 
+        
         this.toast.showToast('Image file seems to be corrupted or too small', 'error');
         return;
       }
       
       console.log('✅ File validation passed, proceeding with upload');
       
-      // Upload the image to server
+    
+      
       this.uploadProfileImage(file);
     }
   }
 
   private uploadProfileImage(file: File) {
-    // Check authentication before upload
+   
+    
     if (!this.session.getToken()) {
       this.toast.showToast('Please log in to upload profile image', 'error');
       return;
     }
 
-    // Validate file type and size
+    
+    
     if (!['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(file.type)) {
       this.toast.showToast('Invalid file format. Please use JPG, PNG, or GIF.', 'error');
       return;
     }
 
-    const fileSize = file.size / 1024 / 1024; // Convert to MB
+    const fileSize = file.size / 1024 / 1024; 
+    
     if (fileSize > 2) {
       this.toast.showToast('Image file size must be less than 2 MB', 'error');
       return;
     }
 
-    console.log('📤 Preparing to upload profile image:', {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
+  
 
-    // Create FormData exactly like the working edit-profile component
     const formData = new FormData();
     
-    console.log('🧪 Sidenav: Preparing FormData exactly like edit-profile...');
-    console.log('📁 File details:', {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
     
-    // Use the exact same field name as edit-profile component
+    
     formData.append('profilePicture', file);
     
     const currentUserData = this.currentUserData;
@@ -313,7 +313,6 @@ export class Sidenav implements OnInit, OnDestroy {
         this.toast.showToast('Profile image updated successfully', 'success');
       },
       error: (error) => {
-        console.error('❌ Failed to upload profile image:', error);
         
         let errorMessage = 'Failed to upload profile image';
         
@@ -338,7 +337,6 @@ export class Sidenav implements OnInit, OnDestroy {
   }
   private loadUserProfileFromServer() {
     if (!this.session.getToken()) {
-      console.warn('⚠️ Sidenav: No authentication token available, skipping profile load');
       return;
     }
 
@@ -391,7 +389,6 @@ export class Sidenav implements OnInit, OnDestroy {
           if (imageUrl) {
             this.profileImageUrl = this.getAbsoluteImageUrl(imageUrl);
           } else {
-            console.log('📸 Sidenav: No profile image found in server data');
           }
           
           
@@ -408,16 +405,11 @@ export class Sidenav implements OnInit, OnDestroy {
           this.notifier.isAuthenticatedSubject.next(true);
           
         } else {
-          console.warn('⚠️ Sidenav: No valid profile data found in response structure');
-          console.warn('📋 Sidenav: Full response structure:', JSON.stringify(response, null, 2));
           
-          // Try to extract any useful information for debugging
+
           if (response) {
-            console.warn('📋 Sidenav: Response keys:', Object.keys(response));
             if (Array.isArray(response)) {
-              console.warn('📋 Sidenav: Array length:', response.length);
               if (response.length > 0) {
-                console.warn('📋 Sidenav: First element keys:', Object.keys(response[0] || {}));
               }
             }
           }
@@ -427,12 +419,11 @@ export class Sidenav implements OnInit, OnDestroy {
       
         
         if (err.status === 401) {
-          console.warn('🔒 Sidenav: Authentication failed - token may be expired');
           this.session.removeCredentials();
           this.notifier.isAuthenticatedSubject.next(false);
           this.router.navigate(['/login']);
         } else {
-          console.warn('⚠️ Sidenav: Profile load failed, maintaining current state');
+          console.warn(' Sidenav: Profile load failed, maintaining current state');
         }
       }
     });
@@ -488,7 +479,6 @@ export class Sidenav implements OnInit, OnDestroy {
       return;
     }
     
-    // Check if we have cached user data in session storage
     const cachedUserData = this.session.getUserData();
     if (cachedUserData) {
       this.applyUserDataToProfile(cachedUserData, loginMethod || 'email');
@@ -528,7 +518,6 @@ export class Sidenav implements OnInit, OnDestroy {
       this.profileRole = userData.role;
     }
     
-    // Set profile image
     const possibleImageFields = [
       userData.profilePicUrl,
       userData.profileImageUrl, 

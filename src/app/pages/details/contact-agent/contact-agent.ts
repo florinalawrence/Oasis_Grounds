@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, Input, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 
@@ -9,13 +9,7 @@ interface ContactForm {
   message: string;
 }
 
-interface Agent {
-  name: string;
-  role: string;
-  avatar?: string;
-  phone?: string;
-  email?: string;
-}
+
 
 @Component({
   selector: 'app-contact-agent',
@@ -25,22 +19,41 @@ interface Agent {
   styleUrl: './contact-agent.scss',
 })
 export class ContactAgent implements OnInit {
+  @Input() propertyData: any = null;
   
   private readonly fb = inject(FormBuilder);
-
 
   readonly contactForm = signal<FormGroup>(this.createForm());
   readonly isSubmitting = signal<boolean>(false);
   readonly submitSuccess = signal<boolean>(false);
   readonly submitError = signal<string | null>(null);
 
-  readonly agent = signal<Agent>({
-    name: 'John Smith',
-    role: 'Owner',
-    phone: '+1 (555) 123-4567',
-    email: 'john.smith@jmrrealestate.com'
+  // Computed agent data from property data
+  readonly agent = computed(() => {
+    if (!this.propertyData?.agentInfo) {
+      // Default fallback agent
+      return {
+        name: 'Property Agent',
+        role: 'Real Estate Agent',
+        phone: 'Contact for details',
+        email: 'Contact for details'
+      };
+    }
+
+    const agentInfo = this.propertyData.agentInfo;
+    return {
+      name: agentInfo.name || agentInfo.agentName || 'Property Agent',
+      role: agentInfo.role || agentInfo.designation || 'Real Estate Agent',
+      phone: agentInfo.phone || agentInfo.phoneNumber || 'Contact for details',
+      email: agentInfo.email || agentInfo.emailAddress || 'Contact for details',
+      avatar: agentInfo.avatar || agentInfo.profileImage
+    };
   });
 
+  // Computed property title for the contact form
+  readonly propertyTitle = computed(() => {
+    return this.propertyData?.title || 'Property Inquiry';
+  });
   
   readonly isFormValid = computed(() => this.contactForm().valid);
   readonly canSubmit = computed(() => this.isFormValid() && !this.isSubmitting());

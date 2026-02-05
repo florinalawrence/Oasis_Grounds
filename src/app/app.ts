@@ -26,7 +26,8 @@ export class App implements OnInit {
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe(() => {
-      // Delay to wait for view transition to complete
+     
+      
       setTimeout(() => {
         window.scrollTo(0, 0);
         document.documentElement.scrollTop = 0;

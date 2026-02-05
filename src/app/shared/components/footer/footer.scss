@@ -39,15 +39,11 @@ h6 {
 
 .useful-links ul li a:hover {
   font-weight: bolder;
-    // color: -webkit-linear-gradient(#2a62ff, #042b55);
-
-    
-    // -webkit-background-clip: text;
-    // -webkit-text-fill-color: transparent;
+   
 }
 
 footer {
-  // background-color: #eef2f6;
+ 
   padding: 20px 0px 0px 0px;
   padding-top: 0;
   margin-bottom: 0 !important;
@@ -128,7 +124,6 @@ footer .container {
     margin-bottom: 2rem !important;
   }
 
-  /* Add vertical spacing between contact items */
   .footer-contact-section .col-md-4 {
     margin-bottom: 2rem;
   }
@@ -164,7 +159,8 @@ footer .container {
     margin-top: 0.5rem;
   }
 
-  /* Horizontal rule spacing */
+
+  
   footer hr {
     margin: 2rem 1rem !important;
   }

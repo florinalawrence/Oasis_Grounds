@@ -5,28 +5,30 @@
 
     <div class="container-fluid my-4">
       <div class="row g-4">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-          <app-property-gallery></app-property-gallery>
+        <!-- Main Content - Adjust column size based on whether contact section is shown -->
+        <div [class]="shouldShowContactSection() ? 'col-lg-8' : 'col-lg-12'">
+          <app-property-gallery [propertyData]="propertyData()" [navigationSource]="navigationSource()"></app-property-gallery>
           <div class="mt-4">
-            <app-property-details></app-property-details>
+            <app-property-details [propertyData]="propertyData()"></app-property-details>
           </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-          <app-contact-agent></app-contact-agent>
-        </div>
+        <!-- Sidebar - Only show for public property views (from all-properties) -->
+        @if (shouldShowContactSection()) {
+          <div class="col-lg-4">
+            <app-contact-agent [propertyData]="propertyData()"></app-contact-agent>
+          </div>
+        }
       </div>
     </div>
   } @else if (isLoading()) {
     <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
-      <div class="text-center">
+      <!-- <div class="text-center">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
         <p class="mt-3 text-muted">Loading property details...</p>
-      </div>
+      </div> -->
     </div>
   } @else {
     <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">

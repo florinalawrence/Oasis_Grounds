@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, OnChanges, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule, Router } from '@angular/router';
-import { Location } from '@angular/common';
 
 interface BreadcrumbItem {
   label: string;
@@ -22,7 +21,6 @@ export class PropertyHeader implements OnInit, OnChanges {
 
  
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
 
   readonly breadcrumbs = signal<BreadcrumbItem[]>([]);
 
@@ -44,6 +42,7 @@ export class PropertyHeader implements OnInit, OnChanges {
       case 'my-properties':
         breadcrumbItems = [
           { label: 'Home', route: '/home' },
+          { label: 'Profile', route: '/user-dashboard' },
           { label: 'My Properties', route: '/user-dashboard/my-property' },
           { label: 'View Property', isActive: true }
         ];
@@ -56,7 +55,6 @@ export class PropertyHeader implements OnInit, OnChanges {
         break;
       case 'all-properties':
       default:
-        
         breadcrumbItems = [
           { label: 'Home', route: '/home' },
           { label: 'All Properties', route: '/all-property' },
@@ -66,7 +64,6 @@ export class PropertyHeader implements OnInit, OnChanges {
     }
 
     this.breadcrumbs.set(breadcrumbItems);
-   
   }
 
   /**

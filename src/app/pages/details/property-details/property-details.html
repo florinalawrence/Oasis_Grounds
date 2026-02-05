@@ -4,8 +4,8 @@
     <div class="section-header">
       <div class="section-icon">
         <svg
-          width="15"
-          height="15"
+          width="12"
+          height="12"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -23,8 +23,8 @@
         <div class="location-item full-width">
           <div class="location-icon">
             <svg
-              width="15"
-              height="15"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#667eea"
@@ -36,7 +36,7 @@
           </div>
           <div class="location-content">
             <div class="location-label">Address:</div>
-            <div class="location-value">Mid., Nh944</div>
+            <div class="location-value">{{ address() }}</div>
           </div>
         </div>
       </div>
@@ -45,8 +45,8 @@
         <div class="location-item">
           <div class="location-icon">
             <svg
-              width="18"
-              height="18"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#667eea"
@@ -58,15 +58,15 @@
           </div>
           <div class="location-content">
             <div class="location-label">State:</div>
-            <div class="location-value">Tamil Nadu</div>
+            <div class="location-value">{{ state() }}</div>
           </div>
         </div>
 
         <div class="location-item">
           <div class="location-icon">
             <svg
-              width="18"
-              height="18"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#667eea"
@@ -78,15 +78,15 @@
           </div>
           <div class="location-content">
             <div class="location-label">City:</div>
-            <div class="location-value">Nagercoil</div>
+            <div class="location-value">{{ city() }}</div>
           </div>
         </div>
 
         <div class="location-item zip-item">
           <div class="location-icon">
             <svg
-              width="18"
-              height="18"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#667eea"
@@ -100,7 +100,7 @@
           </div>
           <div class="location-content">
             <div class="location-label">Zip Code:</div>
-            <div class="location-value">629001</div>
+            <div class="location-value">{{ zipCode() }}</div>
           </div>
         </div>
       </div>
@@ -109,8 +109,8 @@
         <div class="location-item">
           <div class="location-icon">
             <svg
-              width="18"
-              height="18"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#667eea"
@@ -124,7 +124,7 @@
           </div>
           <div class="location-content">
             <div class="location-label">Country:</div>
-            <div class="location-value">India</div>
+            <div class="location-value">{{ country() }}</div>
           </div>
         </div>
       </div>
@@ -172,7 +172,7 @@
             </svg>
           </div>
           <div class="stat-info">
-            <h5>2,000 Sq.ft</h5>
+            <h5>{{ totalArea() }}</h5>
             <p>Total Area</p>
           </div>
         </div>
@@ -194,7 +194,7 @@
             </svg>
           </div>
           <div class="stat-info">
-            <h5>2 to 2 Yrs</h5>
+            <h5>{{ propertyAge() }}</h5>
             <p>Property Age</p>
           </div>
         </div>
@@ -214,7 +214,7 @@
             </svg>
           </div>
           <div class="stat-info">
-            <h5>Ready To Move</h5>
+            <h5>{{ availability() }}</h5>
             <p>Availability</p>
           </div>
         </div>
@@ -236,7 +236,11 @@
         </div>
         <div class="video-content">
           <h5>Property Video</h5>
-          <p>No video available for this property</p>
+          @if (hasVideo()) {
+            <p>Video available - <a [href]="videoUrl()" target="_blank" rel="noopener noreferrer">Watch Video</a></p>
+          } @else {
+            <p>No video available for this property</p>
+          }
         </div>
       </div>
     </div>

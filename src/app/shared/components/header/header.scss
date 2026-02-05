@@ -78,7 +78,7 @@
   transform: translateY(0);
 }
 
-/* Base navbar behavior */
+
 /* navbar-toggler: hidden by default, show on mobile/tablet */
 .navbar-toggler {
   display: none;
@@ -209,7 +209,6 @@
     text-align: center;
     font-size: 14px !important;
     font-weight: 400;
-    // line-height: 40px;
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -260,7 +259,7 @@
     }
 
     .navbar-collapse {
-        display: none !important; /* Hide by default */
+        display: none !important; 
         margin-top: 1rem;
         text-align: left;
         background: linear-gradient(183deg, #739aff, #84ddff);
@@ -273,7 +272,7 @@
     }
 
     .navbar-collapse.show {
-        display: block !important; /* Show when 'show' class is present */
+        display: block !important;
         opacity: 1;
         transform: translateY(0);
     }
@@ -305,7 +304,8 @@
         font-weight: 600;
     }
 
-    /* Add white divider after Contact nav item */
+  
+    
     .nav-item:last-of-type .nav-link::after {
         content: '';
         position: absolute;
@@ -317,7 +317,8 @@
         margin-left: -1rem;
     }
 
-    /* Mobile user welcome link with aligned arrow */
+   
+    
     .user-welcome-link {
         color: #fff !important;
         background-color: transparent;
@@ -350,7 +351,8 @@
         color: #e0e0e0;
     }
 
-    /* Add white divider after Hi Florina */
+ 
+    
     .user-dropdown-container::after {
         content: '';
         position: absolute;
@@ -371,7 +373,8 @@
         position: relative;
     }
 
-    /* Add white divider after Login button */
+  
+    
     .btn-outline-primary::after {
         content: '';
         position: absolute;
@@ -388,7 +391,6 @@
         color: #739aff !important;
     }
 
-    /* Show user info and add property button in separate rows */
     .navbar-collapse > .d-flex {
         display: flex !important;
         flex-direction: column !important;
@@ -515,7 +517,7 @@
     }
 
     .navbar-collapse {
-        display: none !important; /* Hide by default */
+        display: none !important; 
         margin-top: 1rem;
         background: linear-gradient(183deg, #739aff, #84ddff);
         margin-left: -1.5rem;
@@ -527,7 +529,7 @@
     }
 
     .navbar-collapse.show {
-        display: block !important; /* Show when 'show' class is present */
+        display: block !important;
         opacity: 1;
         transform: translateY(0);
     }
@@ -779,7 +781,6 @@
     .module-property .btn {
         width: 140px;
         font-size: 13px;
-        // padding: 5px;
         height: 38px;
          line-height: 28px;
     }

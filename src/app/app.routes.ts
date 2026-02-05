@@ -81,7 +81,7 @@ export const routes: Routes = [
             { path: 'favourites', component: MyFavourites },
             { path: 'add-property', component: AddProperty },
             { path: 'edit-property', component: EditProperty },
-        { path: 'change-password', component: ChangePassword }
+            { path: 'change-password', component: ChangePassword }
         ]
     },
     {
@@ -90,7 +90,8 @@ export const routes: Routes = [
     }
 ];
 
-// Export the `provideRouter` configuration
+
+
 export const appConfig = {
   providers: [
     provideRouter(routes, withViewTransitions())

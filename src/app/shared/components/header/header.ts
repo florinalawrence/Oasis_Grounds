@@ -23,27 +23,22 @@ import { RoutePath } from '../../../core/constant/api.constant';
   styleUrls: ['./header.scss'],
 })
 export class Header {
-  // Dependency injection
   private readonly router = inject(Router);
   private readonly notifier = inject(NotifierService);
   private readonly session = inject(SessionService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Signal-based state management
   readonly isScrolled = signal(false);
   readonly hasLoggedIn = signal(false);
   readonly userName = signal('');
   readonly userProfileData = signal<any>({});
   readonly isNavbarCollapsed = signal(false);
   
-  // Dropdown state
   showDropdown = false;
 
-  // Expose RoutePath for template
   readonly RoutePath = RoutePath;
 
-  // ViewChild for navbar collapse element
   readonly navbarCollapse = viewChild<ElementRef>('navbarCollapse');
 
   constructor() {
@@ -52,31 +47,27 @@ export class Header {
     this.subscribeToAuthState();
   }
 
-  /**
-   * Initialize authentication state from session
-   */
+ 
   private initializeAuthState(): void {
     const token = this.session.getToken();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     this.hasLoggedIn.set(!!token || isLoggedIn);
   }
 
-  /**
-   * Subscribe to user profile data changes
-   */
+
   private subscribeToProfileData(): void {
     this.notifier.userProfileData$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: any) => {
         this.userProfileData.set(data);
 
-        // Check if this is a new registration (should show "Welcome" only)
         if (data?.isNewRegistration) {
-          this.userName.set(''); // Empty name will make getWelcomeText() return "Welcome"
+          this.userName.set(''); 
           return;
         }
 
-        // Extract FIRST NAME ONLY with fallbacks for different login types
+       
+        
         let firstName = '';
         
         if (data?.firstName) {
@@ -95,9 +86,8 @@ export class Header {
       });
   }
 
-  /**
-   * Subscribe to authentication state changes
-   */
+
+  
   private subscribeToAuthState(): void {
     this.notifier.isAuthenticated$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -110,17 +100,15 @@ export class Header {
       });
   }
 
-  /**
-   * Handle window scroll event
-   */
+
+  
   @HostListener('window:scroll')
   onWindowScroll(): void {
     this.isScrolled.set(window.scrollY > 50);
   }
 
-  /**
-   * Handle escape key to close navbar and dropdown
-   */
+
+  
   @HostListener('document:keydown.escape')
   onEscapeKey(): void {
     if (this.isNavbarCollapsed()) {
@@ -131,41 +119,37 @@ export class Header {
     }
   }
 
-  /**
-   * Handle document click to close dropdown when clicking outside
-   */
+
+  
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
     const dropdownContainer = target.closest('.user-dropdown-container, .has-dropdown');
     const navbarContainer = target.closest('.navbar-collapse, .navbar-toggler');
     
-    // Close dropdown if clicking outside
+
     if (!dropdownContainer && this.showDropdown) {
       this.showDropdown = false;
     }
     
-    // Close navbar if clicking outside and it's currently open
+
     if (!navbarContainer && this.isNavbarCollapsed()) {
       this.closeNavbar();
     }
   }
 
-  /**
-   * Get display text for welcome message
-   * Matches old logic: "Hi [FirstName]" if name exists, otherwise "Welcome"
-   */
+
+  
   getWelcomeText(): string {
     return this.userName() ? `Hi ${this.userName()}` : 'Welcome';
   }
 
-  /**
-   * Handle logout - matches old implementation
-   */
+
+  
   logOut(): void {
-    console.log('🚪 Header: User logout initiated');
     
-    // Close dropdown first
+   
+    
     this.showDropdown = false;
     
     // Clear session data
@@ -192,12 +176,12 @@ export class Header {
     // Navigate to home page
     this.router.navigate([RoutePath.HOME]);
     
-    // Reload window (matches old behavior)
+    // Reload window 
+    
     setTimeout(() => {
       window.location.reload();
     }, 200);
     
-    console.log('✅ Header: User logged out successfully');
   }
 
   /**
@@ -269,12 +253,14 @@ export class Header {
    */
   navigateToAddProperty(): void {
     if (!this.hasLoggedIn()) {
-      // Store the intended route and redirect to login
+   
+      
       localStorage.setItem('routeUrl', '/user-dashboard/add-property');
       this.toast.showToast('Please login to add a property', 'info');
       this.router.navigate([RoutePath.LOGIN]);
     } else {
-      // User is logged in, navigate to add property page
+    
+      
       this.router.navigate(['/user-dashboard/add-property']);
     }
     this.closeNavbar();
