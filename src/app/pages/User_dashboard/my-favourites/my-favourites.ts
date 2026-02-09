@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { CurrencyStringPipe } from '../../../shared/pipes/currencyStringConvertor.pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Header } from '../../../shared/components/header/header';
-import { LoaderService } from '../../../services/loader.service';
+import { LoaderService } from '../../../services/Loader-service/loader.service';
 
 @Component({
   selector: 'app-my-favourites',

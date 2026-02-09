@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { LoaderService } from '../../../../services/loader.service';
+import { LoaderService } from '../../../../services/Loader-service/loader.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';

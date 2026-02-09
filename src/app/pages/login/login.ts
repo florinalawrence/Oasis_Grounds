@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LoaderService } from '../../services/loader.service';
+import { LoaderService } from '../../services/Loader-service/loader.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';

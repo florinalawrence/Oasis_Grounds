@@ -4,8 +4,6 @@ import { RouterModule, RouterOutlet } from '@angular/router';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
-
-
 import { Footer } from './shared/components/footer/footer';
 import { Header } from './shared/components/header/header';
 import { CommonSpinner } from './shared/components/common-spinner/common-spinner';

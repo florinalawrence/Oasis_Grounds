@@ -11,7 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoaderService } from '../../../services/loader.service';
+import { LoaderService } from '../../../services/Loader-service/loader.service';
 import { NgxPaginationModule } from 'ngx-pagination';
 import Swal from 'sweetalert2';
 import { RoutePath } from '../../../core/constant/api.constant';

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, HostListener, AfterViewInit, Input } from '@angular/core';
-import { LoaderService } from '../../../../services/loader.service';
+import { LoaderService } from '../../../../services/Loader-service/loader.service';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 

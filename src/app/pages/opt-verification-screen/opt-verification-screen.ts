@@ -10,7 +10,7 @@ import {
   ViewChildren,
   QueryList,
 } from '@angular/core';
-import { LoaderService } from '../../services/loader.service';
+import { LoaderService } from '../../services/Loader-service/loader.service';
 import {
   AbstractControl,
   FormBuilder,

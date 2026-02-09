@@ -11,7 +11,7 @@ import { SessionService } from '../../../services/Session-service/session.servic
 import { RoutePath } from '../../../core/constant/api.constant';
 import Swal from 'sweetalert2';
 import { IUserProfile } from '../../../models/User_Model/IUserProfile.model';
-import { LoaderService } from '../../../services/loader.service';
+import { LoaderService } from '../../../services/Loader-service/loader.service';
 
 @Component({
   selector: 'app-edit-profile',

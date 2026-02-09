@@ -83,45 +83,7 @@ export class Sidenav implements OnInit, OnDestroy {
     return imageUrl;
   }
 
-  // loadProfileData() {
-  
-    
-  //   this.profileName = 'User'; 
-    
-  // }
-
-  // subscribeToUserRoleChanges() {
-  //   const roleSubscription = this.notifier.userRole$.subscribe((role: string) => {
-    
-      
-  //     if (role) {
-  //       this.profileRole = role;
-       
-        
-  //     } else {
-  //       console.warn('⚠️ Sidenav: Received empty role from notifier');
-  //     }
-  //   });
-  //   this.subscriptions.add(roleSubscription);
-
-  //   const nameSubscription = this.notifier.userName$.subscribe((name: string) => {
-  //     if (name) {
-  //       const firstName = name.split(' ')[0].trim();
-        
-  //       const defaultNames = ['user', 'test', 'default'];
-  //       const isDefaultName = defaultNames.some(defaultName => 
-  //         firstName.toLowerCase() === defaultName
-  //       );
-        
-  //       if (firstName && !isDefaultName && firstName !== 'User') {
-  //         this.profileName = firstName;
-  //       } else {
-  //         this.profileName = 'User';
-  //       }
-  //     }
-  //   });
-  //   this.subscriptions.add(nameSubscription);
-  // }
+ 
 
   subscribeToUserRoleChanges() {
   const nameSubscription = this.notifier.userName$.subscribe((name: string) => {
@@ -156,7 +118,7 @@ export class Sidenav implements OnInit, OnDestroy {
           firstName = userData.email.split('@')[0];
         }
         
-        const defaultNames = ['florina', 'lawrence', 'john', 'jane', 'test', 'user', 'default'];
+        const defaultNames = ['test', 'user', 'default'];
         const isDefaultName = defaultNames.some(defaultName => 
           firstName.toLowerCase() === defaultName
         );
@@ -201,7 +163,7 @@ export class Sidenav implements OnInit, OnDestroy {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       
-      console.log('📁 File selected:', {
+      console.log(' File selected:', {
         name: file.name,
         size: file.size,
         type: file.type,
@@ -234,7 +196,7 @@ export class Sidenav implements OnInit, OnDestroy {
         return;
       }
       
-      console.log('✅ File validation passed, proceeding with upload');
+      console.log(' File validation passed, proceeding with upload');
       
     
       

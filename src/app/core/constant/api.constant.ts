@@ -1,4 +1,3 @@
-// api.constants.ts
 export enum AuthEndPoints {
   REGISTER_USER ='auth/register',
   VERIFY_OTP = 'auth/otpactivation',
@@ -62,7 +61,6 @@ export enum RoutePath {
   FORGOT_PWD = '/forgot-password',
   USER_PROFILE = '/profile/default-profile',
   MY_PROPERTIES = '/profile/my-properties',
-  // MY_PROPERTIES_EDIT = '/profile/edit-property/',
   OTHER_PROPERTIES = '/properties',
   POST_PROPERTY = '/post-property',
   EDIT_PROPERTY = '/user-dashboard/edit-property',

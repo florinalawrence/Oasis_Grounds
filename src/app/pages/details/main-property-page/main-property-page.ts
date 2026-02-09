@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { LoaderService } from '../../../services/loader.service';
+import { LoaderService } from '../../../services/Loader-service/loader.service';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PropertyGallery } from '../property-gallery/property-gallery';

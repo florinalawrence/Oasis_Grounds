@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit, inject, signal, computed } from '@angular/core';
-import { LoaderService } from '../../services/loader.service';
+import { LoaderService } from '../../services/Loader-service/loader.service';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';

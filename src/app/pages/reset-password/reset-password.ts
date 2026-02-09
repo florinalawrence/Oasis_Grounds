@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { LoaderService } from '../../services/loader.service';
+import { LoaderService } from '../../services/Loader-service/loader.service';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PasswordManagementService } from '../../services/PasswordManagement-service/password-management.service';

@@ -46,7 +46,7 @@ export class SessionService {
   // In session.service.ts - ADD THIS METHOD
   isLoggedIn(): boolean {
     const token = this.getToken();
-    return !!token; // Returns true if token exists, false otherwise
+    return !!token; 
   }
 
   /**
@@ -83,7 +83,7 @@ export class SessionService {
    */
   removeCredentials(): void {
     localStorage.removeItem(this.CREDENTIAL_KEY);
-    this.clearUserData(); // Also clear user data on logout
+    this.clearUserData();
   }
 
   /**

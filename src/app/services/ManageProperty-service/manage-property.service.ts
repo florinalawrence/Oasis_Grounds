@@ -32,7 +32,6 @@ export class ManagePropertyService {
    * Handle token expiration and redirect to login
    */
   private handleTokenExpiration(): void {
-    console.warn('🔒 Token expired - redirecting to login');
     this.session.removeCredentials();
     this.swalToast.showToast('Your session has expired. Please log in again.', 'warning');
     this.router.navigate(['/login']);
@@ -55,7 +54,6 @@ export class ManagePropertyService {
    * Handle API errors with token expiration check
    */
   private handleApiError(error: any, operation: string = 'API call'): Observable<never> {
-    console.error(`❌ ${operation} error:`, error);
     
     // Check if token is expired
     if (this.isTokenExpired(error)) {
@@ -77,14 +75,10 @@ export class ManagePropertyService {
       'Content-Type': 'application/json'
     });
     
-    console.log('🔑 ManageProperty getHeaders() called');
-    console.log('🔑 Token exists:', !!token);
     
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
-      console.log('✅ Authorization header added successfully');
     } else {
-      console.error('❌ No access token found - redirecting to login');
       this.handleTokenExpiration();
     }
     
@@ -111,9 +105,7 @@ export class ManagePropertyService {
   savePropertyData(basicDtlReq: any): Observable<any> {
     const headers = this.getHeaders();
     
-    console.log('Sending property data:', basicDtlReq);
-    console.log('API URL:', `${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}`);
-    console.log('📡 Making save property API call with headers:', headers.keys());
+
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}`, basicDtlReq, { headers })
       .pipe(
@@ -157,9 +149,8 @@ export class ManagePropertyService {
   // Save address details
   saveAddressDetail(addressData: any): Observable<any> {
     const headers = this.getHeaders();
-    console.log('📍 Saving address details with auth headers');
-    console.log('📡 Address API URL:', `${this.baseApiUrl}${AuthEndPoints.ADDRESS_DETAILS}`);
-    console.log('📤 Address data:', addressData);
+    
+    
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.ADDRESS_DETAILS}`, addressData, { headers })
       .pipe(
@@ -173,13 +164,11 @@ export class ManagePropertyService {
     const token = this.session.getToken();
     
     if (!token) {
-      console.error(' No authentication token available for featured image upload');
       return throwError(() => new Error('Authentication required. Please log in again.'));
     }
     
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${token}`);
-    console.log(' Featured Image Upload: Token added to headers');
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_FEATUREDIMAGE_GALLERY}`, data, { headers })
       .pipe(
@@ -193,7 +182,6 @@ export class ManagePropertyService {
 
    deleteFeatureImage(deleteReq: any): Observable<any> {
     const headers = this.getHeaders();
-    console.log(' Deleting featured image with auth headers');
     
     return this.http.post<any>(`${this.baseApiUrl}property/delete/featured-image`, deleteReq, { headers })
       .pipe(
@@ -207,7 +195,6 @@ export class ManagePropertyService {
 
     deleteListOfImage(deleteReq: any): Observable<any> {
     const headers = this.getHeaders();
-    console.log(' Deleting gallery image with auth headers');
     
     return this.http.post<any>(`${this.baseApiUrl}property/delete/list-of-images`, deleteReq, { headers })
       .pipe(
@@ -230,7 +217,6 @@ export class ManagePropertyService {
     
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${token}`);
-    console.log(' Gallery Images Upload: Token added to headers');
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_LISTOFIMAGE_GALLERY}`, data, { headers })
       .pipe(
@@ -248,14 +234,12 @@ export class ManagePropertyService {
     const token = this.session.getToken();
     
     if (!token) {
-      console.error('❌ No authentication token available for document upload');
       this.handleTokenExpiration();
       return throwError(() => new Error('Authentication required. Please log in again.'));
     }
     
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${token}`);
-    console.log('📤 Document Upload: Token added to headers');
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.SAVE_DOCUMENT_UPLOAD}`, data, { headers })
       .pipe(
@@ -263,59 +247,7 @@ export class ManagePropertyService {
       );
   }
 
-  // Delete document
-  // deleteDocumentUpload(data: any): Observable<any> {
-  //   const headers = this.getHeaders();
-  //   console.log('🗑️ Deleting document with auth headers');
-  //   console.log('🌐 Base API URL:', this.baseApiUrl);
-  //   console.log('🔗 Full delete URL:', `${this.baseApiUrl}${AuthEndPoints.DELETE_DOCUMENT_UPLOAD}`);
-  //   console.log('📤 Delete request data:', data);
-    
-  //   return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_DOCUMENT_UPLOAD}`, data, { headers })
-  //     .pipe(
-  //       catchError((err) => this.handleApiError(err, 'Delete Document'))
-  //     );
-  // }
 
-//   deleteDocumentUpload(deleteReq: { propertyId: string; identifierId: string }) {
-//   const formData = new FormData();
-//   formData.append('propertyId', deleteReq.propertyId);
-//   formData.append('identifierId', deleteReq.identifierId);
-
-//   return this.http.post(
-//     `${this.baseApiUrl}/property/delete/upload/file`,
-//     formData
-//   );
-// }
-
-
-// deleteDocumentUpload(deleteReq: { propertyId: string; identifierId: string }): Observable<any> {
-//   const formData = new FormData();
-//   formData.append('propertyId', deleteReq.propertyId);
-//   formData.append('identifierId', deleteReq.identifierId);
-
-//   const headers = new HttpHeaders().set('Authorization', `Bearer ${this.session.getToken()}`);
-
-//   return this.http.post(this.baseApiUrl + AuthEndPoints.DELETE_DOCUMENT_UPLOAD, formData, { headers })
-//     .pipe(
-//       catchError(err => this.handleApiError(err, 'Delete Document'))
-//     );
-// }
-
-
-// deleteDocumentUpload(fileData: any): Observable<any> {
-//   const url = `${this.baseApiUrl}property/delete/upload/file`;
-  
-  
-//   return this.http.delete(url, {
-//     body: fileData,
-//     headers: new HttpHeaders({
-//       'Content-Type': 'application/json'
-//     })
-//   }).pipe(
-//     catchError(this.handleError)
-//   );
-// }
 
 
 deleteDocumentUpload(fileData: any): Observable<any> {
@@ -385,8 +317,7 @@ deleteDocumentUpload(fileData: any): Observable<any> {
   // Get property details with authentication (for my-properties page)
   getPropertyDetails(data: any): Observable<any> {
     const headers = this.getHeaders();
-    console.log(' Making getPropertyDetails API call with data:', data);
-    console.log(' Headers include Authorization:', headers.has('Authorization'));
+   
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.GET_ACTIVE_USER_PROPERTIES}`, data, { 
       headers,
@@ -400,15 +331,16 @@ deleteDocumentUpload(fileData: any): Observable<any> {
   // Get user's own properties (for my-properties page) with authentication
   getUserProperties(): Observable<any> {
     const headers = this.getHeaders();
-    console.log(' Making getUserProperties API call');
-    console.log(' Headers include Authorization:', headers.has('Authorization'));
+   
+    
     
     // Use POST method with empty body as the API expects POST, not GET
     const requestBody = {};
     
     return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.GET_ACTIVE_USER_PROPERTIES}`, requestBody, { 
       headers,
-      withCredentials: false // Set to true if using cookies for auth
+      withCredentials: false 
+      
     })
       .pipe(
         catchError(this.handleError.bind(this))
@@ -615,7 +547,6 @@ deleteDocumentUpload(fileData: any): Observable<any> {
 
   // Fallback method using PUT
   private updatePropertyDataWithPUT(propertyData: any, headers: HttpHeaders): Observable<any> {
-    console.log('🔄 Attempting update with PUT method...');
     
     return this.http.put<any>(`${this.baseApiUrl}${AuthEndPoints.POST_YOUR_PROPERTY}`, propertyData, { headers })
       .pipe(

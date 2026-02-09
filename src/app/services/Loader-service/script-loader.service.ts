@@ -36,7 +36,7 @@ export class ScriptLoaderService {
 
       script.onload = () => {
         this.loadedScripts[scriptId] = true;
-        console.log(`✅ Script loaded successfully: ${scriptId}`);
+        console.log(` Script loaded successfully: ${scriptId}`);
         resolve();
       };
 
@@ -73,7 +73,7 @@ export class ScriptLoaderService {
   private waitForGoogleApi(): Promise<void> {
     return new Promise((resolve, reject) => {
       let attempts = 0;
-      const maxAttempts = 50; // 5 seconds max wait
+      const maxAttempts = 50; 
 
       const checkGoogleApi = () => {
         attempts++;

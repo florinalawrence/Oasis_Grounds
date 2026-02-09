@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import { LoaderService } from '../../../../services/loader.service';
+import { LoaderService } from '../../../../services/Loader-service/loader.service';
 
 import { FormGroup, FormControl, FormBuilder, AbstractControl, Validators, ReactiveFormsModule } from '@angular/forms';
 

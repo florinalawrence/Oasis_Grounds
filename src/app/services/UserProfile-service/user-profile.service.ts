@@ -44,11 +44,9 @@ export class UserProfilesService {
 
     return this.loadUserProfile().pipe(
       switchMap(() => {
-        console.log('✅ Token is valid');
         return [true];
       }),
       catchError((err) => {
-        console.warn('❌ Token validation failed:', err.message);
         if (this.isTokenExpired(err)) {
           this.handleTokenExpiration();
         }
@@ -66,7 +64,6 @@ export class UserProfilesService {
    * Handle token expiration and redirect to login
    */
   private handleTokenExpiration(): void {
-    console.warn('🔒 Token expired - redirecting to login');
     this.session.removeCredentials();
     this.swalToast.showToast('Your session has expired. Please log in again.', 'warning');
     this.router.navigate(['/login']);
@@ -89,7 +86,7 @@ export class UserProfilesService {
    * Handle API errors with token expiration check
    */
   private handleApiError(error: any, operation: string = 'API call'): Observable<never> {
-    console.error(`❌ ${operation} error:`, error);
+    console.error(` ${operation} error:`, error);
     console.error('Error Status:', error.status);
     console.error('Error Message:', error.error?.headers?.message || error.message);
     
@@ -112,9 +109,9 @@ export class UserProfilesService {
     
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
-      console.log('🔑 UserProfile API: Token found and added to headers');
+      console.log(' UserProfile API: Token found and added to headers');
     } else {
-      console.warn('⚠️ UserProfile API: No access token found in localStorage');
+      console.warn(' UserProfile API: No access token found in localStorage');
       // If no token, redirect to login immediately
       this.handleTokenExpiration();
     }
@@ -128,7 +125,7 @@ export class UserProfilesService {
    */
   loadUserProfile(): Observable<any> {
     const headers = this.getHeaders();
-    console.log('📥 Making /profile API call with headers:', headers.keys());
+    console.log(' Making /profile API call with headers:', headers.keys());
     
     return this.http.get<any>(`${this.authApiUrl}${AuthEndPoints.LOAD_USER_PROFILE}`, { headers })
       .pipe(
@@ -158,23 +155,23 @@ export class UserProfilesService {
     const token = this.session.getToken();
     
     if (!token) {
-      console.error('❌ No authentication token available for profile picture upload');
+      console.error(' No authentication token available for profile picture upload');
       this.handleTokenExpiration();
       return throwError(() => new Error('Authentication required. Please log in again.'));
     }
     
     let headers = new HttpHeaders();
     headers = headers.set('Authorization', `Bearer ${token}`);
-    console.log('📤 Profile Picture Upload: Token added to headers');
+    console.log(' Profile Picture Upload: Token added to headers');
     
     const options = { headers };
     
-    console.log('🔄 Uploading profile picture to:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
+    console.log(' Uploading profile picture to:', `${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`);
     
     return this.http.post<any>(`${this.authApiUrl}${AuthEndPoints.UPDATE_PROFILE_PICTURE}`, updateReq, options)
       .pipe(
         catchError((err: any) => {
-          console.error('❌ Profile picture upload error:', err);
+          console.error('Profile picture upload error:', err);
           
           // Check for token expiration first
           if (this.isTokenExpired(err)) {
@@ -222,7 +219,7 @@ export class UserProfilesService {
               }
             }
           } catch (parseError) {
-            console.error('❌ Error parsing error message:', parseError);
+            console.error(' Error parsing error message:', parseError);
             errorMessage = `Upload failed with status ${err.status}. Please try again.`;
           }
           

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
-import { LoaderService } from '../../services/loader.service';
+import { LoaderService } from '../../services/Loader-service/loader.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
