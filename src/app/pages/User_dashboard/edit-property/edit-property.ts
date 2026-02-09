@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
@@ -24,37 +24,35 @@ import { PropertyLocation } from '../Add_Property/property-location/property-loc
   templateUrl: './edit-property.html',
   styleUrl: './edit-property.scss',
 })
-export class EditProperty implements OnInit, OnDestroy {
+export class EditProperty implements OnInit {
   propertyId: string | null = null;
   selectedPropertyData: any = null;
-  private subscription = new Subscription();
 
-  constructor(
-    private route: ActivatedRoute,
-    private service: ManagePropertyService,
-    private spinner: NgxSpinnerService,
-    private swalToast: ToastService
-  ) {}
+  private readonly route = inject(ActivatedRoute);
+  private readonly service = inject(ManagePropertyService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly swalToast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     // Get property ID from query parameters
-    this.subscription.add(
-      this.route.queryParams.subscribe((params) => {
-        this.propertyId = params['id'] || null;
-        console.log('🔧 Edit Property - Property ID from URL:', this.propertyId);
+    this.route.queryParams.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((params) => {
+      this.propertyId = params['id'] || null;
+      console.log('🔧 Edit Property - Property ID from URL:', this.propertyId);
 
-        // Load property data if we have an ID
-        if (this.propertyId) {
-          this.loadPropertyData();
-        } else {
-          console.warn('⚠️ No property ID found in URL query parameters');
-          this.swalToast.showToast(
-            'Property ID is missing. Please select a property to edit.',
-            'warning'
-          );
-        }
-      })
-    );
+      // Load property data if we have an ID
+      if (this.propertyId) {
+        this.loadPropertyData();
+      } else {
+        console.warn('⚠️ No property ID found in URL query parameters');
+        this.swalToast.showToast(
+          'Property ID is missing. Please select a property to edit.',
+          'warning'
+        );
+      }
+    });
   }
 
   /**
@@ -69,7 +67,9 @@ export class EditProperty implements OnInit, OnDestroy {
     console.log(' Loading property data for edit-property, ID:', this.propertyId);
     this.spinner.show();
 
-    this.service.getPropertyDetailById(this.propertyId).subscribe({
+    this.service.getPropertyDetailById(this.propertyId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res) => {
         console.log(' Property data loaded in edit-property:', res);
         console.log(' Response structure:', {
@@ -118,9 +118,6 @@ export class EditProperty implements OnInit, OnDestroy {
     this.loadPropertyData();
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
 
   /**
    * Handle property data updates from child components

@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SessionService } from '../../../services/Session-service/session.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
@@ -15,14 +15,13 @@ import { UserProfilesService } from '../../../services/UserProfile-service/user-
   templateUrl: './sidenav.html',
   styleUrl: './sidenav.scss',
 })
-export class Sidenav implements OnInit, OnDestroy {
+export class Sidenav implements OnInit {
 
   breadcrumbHtml: string = '<a [routerLink]="[\'/home\']">Home</a>&nbsp;/&nbsp;<span class="active">My Profile</span>';
   profileImageUrl: string | null = null;
   profileName: string = 'User';
   profileRole: string = 'Home Buyer';
-  
-  private subscriptions: Subscription = new Subscription();
+
   private currentUserData: any = null;
 
   // Login method tracking
@@ -30,20 +29,20 @@ export class Sidenav implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(
-    private router: Router,
-    private session: SessionService,
-    private toast: ToastService,
-    private notifier: NotifierService,
-    private userProfileService: UserProfilesService
-  ) {}
+  private readonly router = inject(Router);
+  private readonly session = inject(SessionService);
+  private readonly toast = inject(ToastService);
+  private readonly notifier = inject(NotifierService);
+  private readonly userProfileService = inject(UserProfilesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     console.log('🚀 Sidenav: Component initializing...');
-    
+
     this.updateBreadcrumb();
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.updateBreadcrumb();
     });
@@ -69,9 +68,6 @@ export class Sidenav implements OnInit, OnDestroy {
     console.log('🔍 Sidenav: Current login method:', this.session.getLoginMethod());
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
 
   /**
    * Convert relative image URL to absolute URL if needed
@@ -100,7 +96,9 @@ export class Sidenav implements OnInit, OnDestroy {
 
   subscribeToUserRoleChanges() {
     // Listen for user role changes from the notifier service
-    const roleSubscription = this.notifier.userRole$.subscribe((role: string) => {
+    this.notifier.userRole$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((role: string) => {
       console.log('👤 Sidenav: Received role update from notifier:', role);
       if (role) {
         this.profileRole = role;
@@ -109,20 +107,21 @@ export class Sidenav implements OnInit, OnDestroy {
         console.warn('⚠️ Sidenav: Received empty role from notifier');
       }
     });
-    this.subscriptions.add(roleSubscription);
 
     // Listen for user name changes from the notifier service
-    const nameSubscription = this.notifier.userName$.subscribe((name: string) => {
+    this.notifier.userName$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((name: string) => {
       if (name) {
         // Extract only first name from the received name
         const firstName = name.split(' ')[0].trim();
-        
+
         // Don't use default/placeholder names - keep "User" instead
         const defaultNames = ['florina', 'lawrence', 'john', 'jane', 'test', 'user', 'default'];
-        const isDefaultName = defaultNames.some(defaultName => 
+        const isDefaultName = defaultNames.some(defaultName =>
           firstName.toLowerCase() === defaultName
         );
-        
+
         // Show the user's first name if available
         if (firstName && !isDefaultName && firstName !== 'User') {
           this.profileName = firstName;
@@ -133,12 +132,13 @@ export class Sidenav implements OnInit, OnDestroy {
         }
       }
     });
-    this.subscriptions.add(nameSubscription);
   }
 
   subscribeToUserProfileData() {
     // Listen for user profile data changes from the notifier service
-    const userDataSubscription = this.notifier.userProfileData$.subscribe((userData: any) => {
+    this.notifier.userProfileData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((userData: any) => {
       console.log('👤 Sidenav: Received user data from notifier:', userData);
       
       // Store the current user data for use in other methods
@@ -211,7 +211,6 @@ export class Sidenav implements OnInit, OnDestroy {
         }
       }
     });
-    this.subscriptions.add(userDataSubscription);
   }
 
   onEditProfileImage() {
@@ -330,8 +329,10 @@ export class Sidenav implements OnInit, OnDestroy {
     formData.forEach((value, key) => {
       console.log(`  ${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes, ${value.type})` : value);
     });
-    
-    this.userProfileService.updateProfilePicture(formData).subscribe({
+
+    this.userProfileService.updateProfilePicture(formData).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (response) => {
         console.log('✅ Profile image uploaded successfully:', response);
         
@@ -395,7 +396,9 @@ export class Sidenav implements OnInit, OnDestroy {
     }
 
     console.log('📡 Sidenav: Loading user profile from server...');
-    this.userProfileService.loadUserProfile().subscribe({
+    this.userProfileService.loadUserProfile().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (response) => {
         console.log('✅ Sidenav: Profile API response received:', response);
         console.log('🔍 Sidenav: Response type:', typeof response);

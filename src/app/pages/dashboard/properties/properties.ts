@@ -1,12 +1,12 @@
-import { Component, OnInit, AfterViewInit, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule, TitleCasePipe, DatePipe } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
-import { Subscription } from 'rxjs';
 import { RoutePath } from '../../../core/constant/api.constant';
 import { CurrencyStringPipe } from '../../../shared/pipes/currencyStringConvertor.pipe';
 import { IndianNumberPipe } from '../../../shared/pipes/indianNumber.pipe';
@@ -26,23 +26,23 @@ import { IndianNumberPipe } from '../../../shared/pipes/indianNumber.pipe';
   styleUrls: ['./properties.scss']
 })
 export class Properties implements OnInit, AfterViewInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly service = inject(ManagePropertyService);
+  private readonly notifier = inject(NotifierService);
+  private readonly swalToast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+
   // Convert to signals
   jmrPropertyList = signal<any[]>([]);
   propertyList = signal<any[]>([]);
   currencyDetails = signal<any[]>([]);
   isLoading = signal<boolean>(false);
-  
-  searchFilterForm: FormGroup;
-  private subscription = new Subscription();
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private spinner: NgxSpinnerService,
-    private service: ManagePropertyService,
-    private notifier: NotifierService,
-    private swalToast: ToastService
-  ) {
+  searchFilterForm: FormGroup;
+
+  constructor() {
     this.searchFilterForm = this.fb.group({
       country: new FormControl(''),
       propertyType: new FormControl(''),
@@ -70,7 +70,7 @@ export class Properties implements OnInit, AfterViewInit {
       status: "",
       pageNo: 1,
       limit: 100,
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => {
         const jmrProperties = res?.data.filter((item: any) => item.propertyOwnerShip == 'Jmr Owned Property');
         this.jmrPropertyList.set(jmrProperties);

@@ -1,8 +1,9 @@
-import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormBuilder, AbstractControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '../../../services/Toast-service/toast.service';
 import { UserProfilesService } from '../../../services/UserProfile-service/user-profile.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
@@ -54,15 +55,14 @@ export class EditProfile implements OnInit, AfterViewInit {
 
   routePath = RoutePath;
 
-  constructor(
-    private router: Router,
-    private fb: FormBuilder,
-    private swalToast: ToastService,
-    private spinner: NgxSpinnerService,
-    private service: UserProfilesService,
-    private notifier: NotifierService,
-    private session: SessionService
-  ) { }
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly swalToast = inject(ToastService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly service = inject(UserProfilesService);
+  private readonly notifier = inject(NotifierService);
+  private readonly session = inject(SessionService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @HostListener('window:scroll')
   onWindowScroll() {
@@ -113,7 +113,9 @@ export class EditProfile implements OnInit, AfterViewInit {
 
   setupFormListeners(): void {
     // Only listen for userType changes to update form validators (not sidenav)
-    this.userProfileForm.get('userType')?.valueChanges.subscribe(value => {
+    this.userProfileForm.get('userType')?.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(value => {
       this.updateDynamicValidators(value);
       // Don't update sidenav in real-time - only on save
     });
@@ -235,7 +237,9 @@ export class EditProfile implements OnInit, AfterViewInit {
   getUserProfiles(): void {
     this.spinner.show();
     setTimeout(() => {
-      this.service.loadUserProfile().subscribe({
+      this.service.loadUserProfile().pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: (res: any) => {
           this.userProfiles = res.recordInfo;
           this.userId = this.userProfiles.id;
@@ -320,7 +324,9 @@ export class EditProfile implements OnInit, AfterViewInit {
     };
 
     this.spinner.show();
-    this.service.updateUserProfile(mergedUserProfile).subscribe({
+    this.service.updateUserProfile(mergedUserProfile).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res) => {
         if (res.headers.statusCode == 200) {
           this.swalToast.showToast(res.headers.message, 'success');
@@ -379,8 +385,10 @@ export class EditProfile implements OnInit, AfterViewInit {
    */
   private loadProfileDataForHeader(): void {
     console.log('🔄 Loading profile data for header after profile save...');
-    
-    this.service.loadUserProfile().subscribe({
+
+    this.service.loadUserProfile().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (profile) => {
         console.log('✅ Profile data loaded for header:', profile);
         
@@ -430,9 +438,11 @@ export class EditProfile implements OnInit, AfterViewInit {
           }
           
           console.log('Edit Profile: FormData prepared with fields:', Array.from(formData.keys()));
-          
+
           this.spinner.show();
-          this.service.updateProfilePicture(formData).subscribe({
+          this.service.updateProfilePicture(formData).pipe(
+            takeUntilDestroyed(this.destroyRef)
+          ).subscribe({
             next: res => {
               if (res.headers.statusCode == 200) {
                 this.swalToast.showToast('Profile Picture Successfully Updated', 'success');
@@ -485,8 +495,11 @@ export class EditProfile implements OnInit, AfterViewInit {
           userId: this.userId,
           filePath: url
         };
-        
-        this.service.deleteProfilePicture(deleteReq).subscribe({
+
+
+        this.service.deleteProfilePicture(deleteReq).pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: res => {
             this.swalToast.showToast('Your image has been deleted.', 'success');
             this.getUserProfiles();

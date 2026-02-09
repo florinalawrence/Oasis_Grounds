@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, AbstractControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PasswordManagementService } from '../../services/PasswordManagement-service/password-management.service';
 import { ToastService } from '../../services/Toast-service/toast.service';
 import { noSpaceAllowedValidator } from '../../validators/nospace-allowed-validators';
@@ -20,17 +21,16 @@ import { environment } from '../../../environments/environment';
   ]
 })
 export class ForgotPassword implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly service = inject(PasswordManagementService);
+  private readonly swalToast = inject(ToastService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
   RoutePath = RoutePath;
   btnSubmitted: boolean = false;
   forgotPwdForm!: FormGroup;
   isLoading: boolean = false;
-
-  constructor(
-    private fb: FormBuilder,
-    private service: PasswordManagementService,
-    private swalToast: ToastService,
-    private router: Router
-  ) {}
 
   ngOnInit() {
     this.forgotPwdForm = this.fb.group({
@@ -71,7 +71,7 @@ export class ForgotPassword implements OnInit {
         "email": this.Email.value
       };
 
-      this.service.InitiateForgotPassword(confirmPwdRequest).subscribe({
+      this.service.InitiateForgotPassword(confirmPwdRequest).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (res) => {
           this.isLoading = false;
           

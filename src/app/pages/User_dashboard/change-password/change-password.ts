@@ -1,8 +1,9 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, inject, DestroyRef } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PasswordManagementService } from '../../../services/PasswordManagement-service/password-management.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
 import { noSpaceAllowedValidator } from '../../../validators/nospace-allowed-validators';
@@ -33,13 +34,14 @@ export class ChangePassword implements OnInit {
   isSubmitting: boolean = false;
   btnSubmitted: boolean = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private service: PasswordManagementService,
-    private swalToast: ToastService,
-    private spinner: NgxSpinnerService
-  ) {
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly service = inject(PasswordManagementService);
+  private readonly swalToast = inject(ToastService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
     this.changePasswordForm = this.fb.group({
       currentPassword: ['', [
         Validators.required,
@@ -207,7 +209,9 @@ export class ChangePassword implements OnInit {
     this.spinner.show();
 
     // Call API
-    this.service.changePassword(changePwdRequest).subscribe({
+    this.service.changePassword(changePwdRequest).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res: any) => {
         if (res.headers.statusCode === "200") {
           setTimeout(() => {

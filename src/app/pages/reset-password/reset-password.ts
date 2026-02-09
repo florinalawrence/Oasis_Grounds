@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutePath } from '../../core/constant/api.constant';
 import { PasswordManagementService } from '../../services/PasswordManagement-service/password-management.service';
 import { SessionService } from '../../services/Session-service/session.service';
@@ -20,7 +21,7 @@ import { NotifierService } from '../../services/Notifier-service/notifier.servic
   imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule]
 })
 export class ResetPassword implements OnInit {
-  
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -29,6 +30,7 @@ export class ResetPassword implements OnInit {
   private readonly service = inject(PasswordManagementService);
   private readonly session = inject(SessionService);
   private readonly spinner = inject(NgxSpinnerService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Reactive signals for state management
   readonly passwordResetKey = signal<string>('');
@@ -95,7 +97,7 @@ export class ResetPassword implements OnInit {
   }
   ngOnInit() {
     // Get password reset key from route params
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const resetKey = params['id'];
       if (resetKey) {
         console.log('Reset key found in URL:', resetKey);
@@ -237,7 +239,7 @@ export class ResetPassword implements OnInit {
       this.isLoading.set(true);
       this.spinner.show();
       
-      this.service.updateForgotPassword(updatePwdReq).subscribe({
+      this.service.updateForgotPassword(updatePwdReq).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (res) => {
           if (res.headers.statusCode === 200) {
             this.swalToast.showToast(res.headers.message || 'Password reset successfully!', 'success');
@@ -279,7 +281,7 @@ export class ResetPassword implements OnInit {
     this.isLoading.set(true);
     this.spinner.show();
     
-    this.service.verifyForgotPassword(verifyReq).subscribe({
+    this.service.verifyForgotPassword(verifyReq).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         if (res.headers.statusCode === 200) {
           this.isValidRequest.set(true);

@@ -10,6 +10,7 @@ import {
   signal,
   computed,
   effect,
+  DestroyRef,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -22,7 +23,7 @@ import {
 import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ManagePropertyService } from '../../services/ManageProperty-service/manage-property.service';
 import { ToastService } from '../../services/Toast-service/toast.service';
 import { SessionService } from '../../services/Session-service/session.service';
@@ -116,7 +117,7 @@ interface ISearchPropertyDetails {
   styleUrls: ['./all-property.scss'],
 })
 export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
-  
+
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
@@ -128,6 +129,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   private readonly announcer = inject(LiveAnnouncer);
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
+  private readonly destroyRef = inject(DestroyRef);
 
  
   readonly isLoading = signal(false);
@@ -217,11 +219,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     limit: 10,
   };
 
-  private subscription = new Subscription();
-  private dataSubscription = new Subscription();
-  private notifierSubscription = new Subscription();
-  private paginationSubscription = new Subscription();
-
   @ViewChild('cityInput') cityInput!: ElementRef<HTMLInputElement>;
   @ViewChild('chipSet') chipSet!: any;
   chipGrid: any;
@@ -262,7 +259,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.getNotifyData();
 
     // Initialize pagination
-    this.paginationSubscription = this.notifier.paginationNo$.subscribe((res: number) => {
+    this.notifier.paginationNo$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res: number) => {
       if (res) {
         this.oldPaginationNo.set(res);
         this.searchFilter.pageNo = res;
@@ -307,7 +304,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.isLoading.set(true);
     this.spinner.show();
 
-    this.propertyService.getRandomPropertyData().subscribe({
+    this.propertyService.getRandomPropertyData().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response: any) => {
         if (response?.data) {
           this.properties.set(response.data);
@@ -357,7 +354,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    this.propertyService.getPropertyDetailsByFilter(searchData).subscribe({
+    this.propertyService.getPropertyDetailsByFilter(searchData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response: any) => {
         if (response?.data) {
           this.filteredProperties.set(response.data);
@@ -390,7 +387,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
 
   // Old component methods
   getRandomFeaturedProperty() {
-    this.propertyService.getRandomPropertyData().subscribe({
+    this.propertyService.getRandomPropertyData().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         this.randomProperty.set(res?.recordInfo || []);
       },
@@ -402,7 +399,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getRoutingParams() {
-    this.route.queryParamMap.subscribe((queryParams) => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((queryParams) => {
       if (queryParams.get('pageNo')) {
         const pageNo: any = queryParams.get('pageNo');
         this.notifier.sendPaginationNo(pageNo);
@@ -483,7 +480,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Check for clear all link visibility
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.canShowClearAll.set(
         !!params['searchWithCountry'] ||
         !!params['searchWithZipcode'] ||
@@ -531,7 +528,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getNotifyData() {
-    this.notifierSubscription = this.notifier.userProfileData$.subscribe((res: boolean) => {
+    this.notifier.userProfileData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res: boolean) => {
       this.userProfileData.set(res ? res : this.session.getToken() ? true : false);
     });
   }
@@ -562,7 +559,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
 
     this.propertyList.set([]);
     this.filteredProperties.set([]);
-    this.propertyService.getPropertyDetailsByFilter(this.searchFilter).subscribe({
+    this.propertyService.getPropertyDetailsByFilter(this.searchFilter).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         console.log(' Production API Response:', res);
         console.log(' Response Type:', typeof res);
@@ -1304,7 +1301,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       };
 
       // Add this method to your ManagePropertyService
-      this.propertyService.savePropertyToWishList(wishListData).subscribe({
+      this.propertyService.savePropertyToWishList(wishListData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (res: any) => {
           if (res?.headers?.statusCode == 200) {
             // this.swalToast.showToast(res?.headers?.message, 'success');
@@ -1329,7 +1326,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
 
   removeFromWishList(item: any) {
     if (localStorage.getItem('isLoggedIn') == 'false' || !this.userProfileData()) {
-      this.subscription = this.route.url.subscribe((urlSegments) => {
+      this.route.url.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((urlSegments) => {
         const currentUrl = urlSegments.map((segment) => segment.path).join('/');
         localStorage.setItem('routeUrl', currentUrl);
         this.router.navigate(['/login']);
@@ -1337,7 +1334,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     } else {
       const propertyId = item?.propertyId || item?.id;
       // Add this method to your ManagePropertyService
-      this.propertyService.deleteWishListProperty(propertyId).subscribe({
+      this.propertyService.deleteWishListProperty(propertyId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (res: any) => {
           if (res.headers.statusCode == 200) {
             // this.swalToast.showToast(res.headers.message, 'success');
@@ -1595,9 +1592,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.dataSubscription) this.dataSubscription.unsubscribe();
-    if (this.notifierSubscription) this.notifierSubscription.unsubscribe();
-    if (this.paginationSubscription) this.paginationSubscription.unsubscribe();
-    if (this.subscription) this.subscription.unsubscribe();
+    // Cleanup handled automatically by takeUntilDestroyed
   }
 }

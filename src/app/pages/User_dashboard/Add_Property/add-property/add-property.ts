@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy, HostListener, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, HostListener, AfterViewInit, Input, inject, DestroyRef } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
-import { Subscription } from 'rxjs';
 import { RoutePath } from '../../../../core/constant/api.constant';
 import { DatePipe, CommonModule } from '@angular/common';
 import * as currencyData from '../../../../../assets/common-currency.json';
@@ -18,9 +18,9 @@ import * as currencyData from '../../../../../assets/common-currency.json';
   imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule],
   providers: [DatePipe]
 })
-export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
+export class AddProperty implements OnInit, AfterViewInit {
   @Input() selectedPropertyData: any;
-  
+
   minDate!: string;
   isEdit: boolean = false;
   btnSubmitted: boolean = false;
@@ -56,8 +56,6 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     securityDeposit: '',
     leaseType: ''
   };
-
-  private dataSubscription: Subscription = new Subscription();
   
   basicDetailForm: FormGroup = new FormGroup({
     status: new FormControl(''),
@@ -86,16 +84,17 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     leaseType: new FormControl('')
   });
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private service: ManagePropertyService,
-    private swalToast: ToastService,
-    private spinner: NgxSpinnerService,
-    private notifier: NotifierService,
-    private datePipe: DatePipe
-  ) {
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly service = inject(ManagePropertyService);
+  private readonly swalToast = inject(ToastService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly notifier = inject(NotifierService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
     const currentDate = new Date();
     this.minDate = this.datePipe.transform(currentDate, 'yyyy-MM-dd') || '';
   }
@@ -333,7 +332,9 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
     this.currencyDetails = Object.values(currencyData).map(x => x);
 
     // Check if we're in edit mode by looking for property ID in query params
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(params => {
       if (params['id']) {
         this.isEdit = true;
         this.propertyId = params['id'];
@@ -398,7 +399,9 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getNotifyData() {
-    this.dataSubscription = this.notifier.userProfileData$.subscribe((res) => {
+    this.notifier.userProfileData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((res) => {
       if (res) {
         this.ListPropAs.setValue(res?.userType);
         const developerName = res?.companyDetail ? res.companyDetail.companyName : '';
@@ -479,8 +482,10 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
       console.log('📋 Property data for update:', this.basicDetailsData);
       console.log('🆔 Property ID:', this.propertyId);
       console.log('🔍 Is property ID in data?', !!this.basicDetailsData.propertyId);
-      
-      this.service.updatePropertyData(this.basicDetailsData).subscribe({
+
+      this.service.updatePropertyData(this.basicDetailsData).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: (res) => {
           console.log('✅ Property update successful:', res);
           if (res.headers.statusCode == 200) {
@@ -502,7 +507,9 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
       });
     } else {
       // Create new property
-      this.service.savePropertyData(this.basicDetailsData).subscribe({
+      this.service.savePropertyData(this.basicDetailsData).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: (res) => {
           console.log('📥 Add Property API Response:', res);
           console.log('🔍 Response structure:', {
@@ -646,8 +653,10 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
   loadPropertyData(): void {
     console.log('📡 Loading property data for editing, ID:', this.propertyId);
     this.spinner.show();
-    
-    this.service.getPropertyById(this.propertyId).subscribe({
+
+    this.service.getPropertyById(this.propertyId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res) => {
         console.log('✅ Property data loaded:', res);
         if (res && res.recordInfo) {
@@ -774,9 +783,5 @@ export class AddProperty implements OnInit, AfterViewInit, OnDestroy {
       console.error('❌ Error formatting date:', error);
       return '';
     }
-  }
-
-  ngOnDestroy(): void {
-    this.dataSubscription.unsubscribe();
   }
 }

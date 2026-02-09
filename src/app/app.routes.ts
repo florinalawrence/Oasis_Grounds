@@ -1,89 +1,49 @@
 import { Routes } from '@angular/router';
-import { Dashboard } from './pages/dashboard/dashboard';
-import { About } from './pages/about/about';
-import { Contact } from './pages/contact/contact';
-import { AllProperty } from './pages/all-property/all-property';
-import { Register } from './pages/register/register';
-import { MainPropertyPage } from './pages/details/main-property-page/main-property-page';
-import { UserDashboard } from './pages/User_dashboard/user-dashboard/user-dashboard';
-import { MyProperties } from './pages/User_dashboard/my-properties/my-properties';
-import { EditProfile } from './pages/User_dashboard/edit-profile/edit-profile';
-import { AddProperty } from './pages/User_dashboard/Add_Property/add-property/add-property';
-import { Design } from './pages/design/design';
-import { Estimation } from './pages/estimation/estimation';
-import { Maintenance } from './pages/maintenance/maintenance';
-import { ProjectManagement } from './pages/project-management/project-management';
-import { Login } from './pages/login/login';
-import { MyFavourites } from './pages/User_dashboard/my-favourites/my-favourites';
-import { ForgotPassword } from './pages/forgot-password/forgot-password';
-import { OptVerificationScreen } from './pages/opt-verification-screen/opt-verification-screen';
 import { provideRouter, withViewTransitions } from '@angular/router';
-import { ChangePassword } from './pages/User_dashboard/change-password/change-password';
-import { EditProperty } from './pages/User_dashboard/edit-property/edit-property';
-import { ResetPassword } from './pages/reset-password/reset-password';
 
 export const routes: Routes = [
     {
-        path: '', redirectTo: 'home', pathMatch: 'full'
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full'
+    },
+    // Public pages - eager loaded for fast initial load
+    {
+        path: 'home',
+        loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard)
     },
     {
-        path: 'home', component: Dashboard
-    },
-     {
-        path: 'resetPassword', component: ResetPassword
+        path: 'about',
+        loadComponent: () => import('./pages/about/about').then(m => m.About)
     },
     {
-        path: 'resetPassword/:id', component: ResetPassword
+        path: 'contact',
+        loadComponent: () => import('./pages/contact/contact').then(m => m.Contact)
     },
     {
-        path: 'all-property', component: AllProperty
+        path: 'all-property',
+        loadComponent: () => import('./pages/all-property/all-property').then(m => m.AllProperty)
     },
     {
-        path: 'about', component: About
+        path: 'details/:id',
+        loadComponent: () => import('./pages/details/main-property-page/main-property-page').then(m => m.MainPropertyPage)
     },
+    // Authentication routes - lazy loaded
     {
-        path: 'contact', component: Contact
+        path: '',
+        loadChildren: () => import('./pages/auth/auth.routes').then(m => m.AUTH_ROUTES)
     },
-    {
-        path: 'login', component: Login
-    },
-    {
-        path: 'register', component: Register
-    },
-    {
-        path: 'details/:id', component: MainPropertyPage
-    },
-    {
-        path: 'design', component: Design
-    },
-    {
-        path: 'estimation', component: Estimation
-    },
-    {
-        path: 'maintenance', component: Maintenance
-    },
-    {
-        path: 'project', component: ProjectManagement
-    },
-    {
-        path: 'forgot-password', component: ForgotPassword
-    },
-    {
-        path: 'otp-verification', component: OptVerificationScreen
-    },
+    // User dashboard - lazy loaded with auth guard
     {
         path: 'user-dashboard',
-        component: UserDashboard,
-        children: [
-            { path: '', redirectTo: 'edit-profile', pathMatch: 'full' },
-            { path: 'edit-profile', component: EditProfile },
-            { path: 'my-property', component: MyProperties },
-            { path: 'favourites', component: MyFavourites },
-            { path: 'add-property', component: AddProperty },
-            { path: 'edit-property', component: EditProperty },
-        { path: 'change-password', component: ChangePassword }
-        ]
+        loadChildren: () => import('./pages/User_dashboard/user-dashboard.routes').then(m => m.USER_DASHBOARD_ROUTES)
     },
+    // Services pages - lazy loaded
+    {
+        path: '',
+        loadChildren: () => import('./pages/services/services.routes').then(m => m.SERVICES_ROUTES)
+    },
+    // Fallback route
     {
         path: '**',
         redirectTo: 'home'

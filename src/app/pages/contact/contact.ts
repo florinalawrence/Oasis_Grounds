@@ -1,10 +1,11 @@
-import { Component, HostListener, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ContactService } from '../../services/Contact-service/contact.service';
 import { ToastService } from '../../services/Toast-service/toast.service';
 import { SessionService } from '../../services/Session-service/session.service';
@@ -63,6 +64,7 @@ export class Contact implements OnInit {
   private readonly session = inject(SessionService);
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Angular 20 signals for reactive state management
   readonly contactForm = signal<FormGroup>(this.createForm());
@@ -189,7 +191,7 @@ export class Contact implements OnInit {
       return;
     }
 
-    this.recaptchaService.execute('importantAction').subscribe({
+    this.recaptchaService.execute('importantAction').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (token: string) => {
         if (token) {
           this.saveContactFormData();
@@ -222,7 +224,7 @@ export class Contact implements OnInit {
     this.spinner.show();
     this.mapFormData();
 
-    this.contactService.saveUserContact(this.contactData()).subscribe({
+    this.contactService.saveUserContact(this.contactData()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: ContactResponse) => {
         if (res.headers.statusCode === 200) {
           this.swalToast.showToast(res.headers.message, 'success');

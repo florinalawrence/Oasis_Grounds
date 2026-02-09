@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { SocialAuthService, GoogleLoginProvider, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { RoutePath } from '../../core/constant/api.constant';
 import { AuthService } from '../../services/Auth-service/auth.service';
@@ -22,23 +23,25 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule, RouterLink, GoogleSigninButtonModule]
 })
 export class Login implements OnInit {
+  // Dependency injection using modern inject()
+  private readonly fb = inject(FormBuilder);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  private readonly notifier = inject(NotifierService);
+  private readonly session = inject(SessionService);
+  private readonly userService = inject(UserProfilesService);
+  private readonly socialAuth = inject(SocialAuthService);
+  private readonly destroyRef = inject(DestroyRef);
+
   showPassword = false;
   isSubmitted = false;
   RoutePath = RoutePath;
   loginForm!: FormGroup;
   private currentGoogleUser: any = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private spinner: NgxSpinnerService,
-    private router: Router,
-    private auth: AuthService,
-    private toast: ToastService,
-    private notifier: NotifierService,
-    private session: SessionService,
-    private userService: UserProfilesService,
-    private socialAuth: SocialAuthService
-  ) {
+  constructor() {
     this.initializeForm();
     this.setupGoogleAuth();
   }
@@ -62,12 +65,14 @@ export class Login implements OnInit {
   }
 
   private setupGoogleAuth() {
-    this.socialAuth.authState.subscribe(user => {
-      if (user) {
-        this.currentGoogleUser = user; // Store the current Google user
-        this.handleGoogleLogin();
-      }
-    });
+    this.socialAuth.authState
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        if (user) {
+          this.currentGoogleUser = user; // Store the current Google user
+          this.handleGoogleLogin();
+        }
+      });
   }
 
   private handleGoogleLogin() {
@@ -84,8 +89,10 @@ export class Login implements OnInit {
       };
       
       this.spinner.show();
-      this.auth.loginWithGoogle(googleLoginPayload).subscribe({
-        next: (res) => {
+      this.auth.loginWithGoogle(googleLoginPayload)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
           console.log(' Google login API response:', res);
           const data = res;
           
@@ -140,10 +147,12 @@ export class Login implements OnInit {
     };
 
     this.spinner.show();
-    this.auth.loginUser(payload).subscribe({
-      next: (res) => this.handleLoginSuccess(res),
-      error: (err) => this.handleLoginError(err)
-    });
+    this.auth.loginUser(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.handleLoginSuccess(res),
+        error: (err) => this.handleLoginError(err)
+      });
   }
 
   private handleLoginSuccess(response: any) {
@@ -172,8 +181,10 @@ export class Login implements OnInit {
   }
 
   private loadUserProfile() {
-    this.userService.loadUserProfile().subscribe({
-      next: (profile) => {
+    this.userService.loadUserProfile()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (profile) => {
         console.log(' User profile API response:', profile);
         if (profile?.[0]) {
           let profileData = profile[0];

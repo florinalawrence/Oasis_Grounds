@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, Input, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList, inject, DestroyRef } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutePath } from '../../core/constant/api.constant';
 import { NotifierService } from '../../services/Notifier-service/notifier.service';
 import { SessionService } from '../../services/Session-service/session.service';
@@ -17,11 +18,20 @@ import { CommonModule } from '@angular/common';
   styleUrl: './opt-verification-screen.scss',
 })
 export class OptVerificationScreen implements AfterViewInit,OnInit {
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly swalToast = inject(ToastService);
+  private readonly notifier = inject(NotifierService);
+  private readonly session = inject(SessionService);
+  private readonly service = inject(UserService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly destroyRef = inject(DestroyRef);
+
   @Input() canShowOtpModal: boolean = false;
   @Input() getVerifyOTPData: any={};
   @Output() canShowOtpModalChange = new EventEmitter<boolean>();
- 
-  
+
+
   @ViewChild('verifyButton') verifyButton!: ElementRef;
   btnSubmitted: boolean = false;
   displayOTPModal: string = 'none';
@@ -33,15 +43,6 @@ export class OptVerificationScreen implements AfterViewInit,OnInit {
     value3: new FormControl(''),
     value4: new FormControl('')
   });
-  constructor(private router: Router,
-    private fb: FormBuilder,
-    private swalToast: ToastService,
-    private notifier: NotifierService,
-    private session: SessionService,
-    private service: UserService,
-    private spinner: NgxSpinnerService,
-  ) {
-  }
 
   ngOnInit(): void {
     this.otpVerifyForm = this.fb.group({
@@ -65,12 +66,12 @@ export class OptVerificationScreen implements AfterViewInit,OnInit {
     this.canShowOtpModal = true;
     this.displayOTPModal = 'block';
 
-    this.otpVerifyForm.valueChanges.subscribe(() => {
+    this.otpVerifyForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.canShowVerifyOtp = this.otpVerifyForm.valid;
     });
 
     // Subscribe to data from notifier service (when used as standalone page)
-    this.notifier.dataSubject.subscribe((data: any) => {
+    this.notifier.dataSubject.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data: any) => {
       if (data) {
         this.getVerifyOTPData = data;
       }
@@ -155,7 +156,7 @@ export class OptVerificationScreen implements AfterViewInit,OnInit {
       }
       if (passVerifyOTPData.otp !== null && passVerifyOTPData.otpVerificationKey !== null && passVerifyOTPData.otpVerificationKey !== undefined) {
         this.spinner.show();
-        this.service.verifyUserWithOTP(passVerifyOTPData).subscribe({
+        this.service.verifyUserWithOTP(passVerifyOTPData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: res => {
             this.spinner.hide();
             
@@ -244,7 +245,7 @@ export class OptVerificationScreen implements AfterViewInit,OnInit {
         const otpVerificationKey = {
           "otpVerificationKey": this.getVerifyOTPData.otpVerificationKey
         };
-        this.service.resendOtp(otpVerificationKey).subscribe({
+        this.service.resendOtp(otpVerificationKey).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: res => {
             if (res.headers.statusCode == 200) {
               this.swalToast.showToast(res.headers.message, 'success');

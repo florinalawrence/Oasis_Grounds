@@ -1,8 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 
@@ -17,13 +18,15 @@ import { Header } from './shared/components/header/header';
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly title = signal('OasisGrounds');
-  
-  constructor(private router: Router) {}
 
   ngOnInit() {
     this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       // Delay to wait for view transition to complete
       setTimeout(() => {

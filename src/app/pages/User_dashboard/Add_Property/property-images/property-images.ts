@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -14,11 +14,10 @@ import Swal from 'sweetalert2';
   templateUrl: './property-images.html',
   styleUrls: ['./property-images.scss']
 })
-export class PropertyImages implements OnInit, OnDestroy {
+export class PropertyImages implements OnInit {
   @Input() selectedPropertyData: any;
   @Output() promptFromChild: EventEmitter<void> = new EventEmitter();
-  
-  private dataSubscription: Subscription = new Subscription();
+
   featureImgUrl: string = '';
   listOfImagePath: string[] = [];
   selectedFeaturedImg: File | null = null;
@@ -27,12 +26,11 @@ export class PropertyImages implements OnInit, OnDestroy {
   listOfImgUpload: FormData = new FormData();
   propertyId: any;
 
-  constructor(
-    private service: ManagePropertyService,
-    private swalToast: ToastService,
-    private spinner: NgxSpinnerService,
-    private confirmationDialog: ConfirmationDialogService
-  ) {}
+  private readonly service = inject(ManagePropertyService);
+  private readonly swalToast = inject(ToastService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly confirmationDialog = inject(ConfirmationDialogService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.propertyId = this.selectedPropertyData?.id;
@@ -41,9 +39,6 @@ export class PropertyImages implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.dataSubscription.unsubscribe();
-  }
 
   // Mapping initial data
   mapIntoFormData() {
@@ -84,8 +79,10 @@ export class PropertyImages implements OnInit, OnDestroy {
     this.spinner.show();
     
     console.log(' Uploading featured image for property:', this.propertyId);
-    
-    this.service.saveFeatureImageGallery(this.featureImgUpload).subscribe({
+
+    this.service.saveFeatureImageGallery(this.featureImgUpload).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: res => {
         console.log(' Featured image upload response:', res);
         if (res.status === 200 || res.success) {
@@ -146,8 +143,10 @@ export class PropertyImages implements OnInit, OnDestroy {
     this.spinner.show();
     
     console.log('📸 Uploading gallery images for property:', this.propertyId);
-    
-    this.service.saveListOfImageGallery(this.listOfImgUpload).subscribe({
+
+    this.service.saveListOfImageGallery(this.listOfImgUpload).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: res => {
         console.log('Gallery images upload response:', res);
         if (res.status === 200 || res.success) {
@@ -191,8 +190,10 @@ export class PropertyImages implements OnInit, OnDestroy {
         
         this.spinner.show();
         console.log('🗑️ Deleting featured image:', { propertyId: this.propertyId, filePath: url });
-        
-        this.service.deleteFeatureImage({ propertyId: this.propertyId, filePath: url }).subscribe({
+
+        this.service.deleteFeatureImage({ propertyId: this.propertyId, filePath: url }).pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: res => {
             console.log('Featured image delete response:', res);
             this.swalToast.showToast('Image deleted successfully', 'success');
@@ -228,8 +229,10 @@ export class PropertyImages implements OnInit, OnDestroy {
         
         this.spinner.show();
         console.log('🗑️ Deleting gallery image:', { propertyId: this.propertyId, filePath: url });
-        
-        this.service.deleteListOfImage({ propertyId: this.propertyId, filePath: url }).subscribe({
+
+        this.service.deleteListOfImage({ propertyId: this.propertyId, filePath: url }).pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: res => {
             console.log(' Gallery image delete response:', res);
             this.swalToast.showToast('Image deleted successfully', 'success');

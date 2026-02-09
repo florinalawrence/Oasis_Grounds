@@ -1,6 +1,7 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutePath } from '../../../core/constant/api.constant';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
@@ -41,14 +42,13 @@ export class MyFavourites implements OnInit {
   bathCount: number = 0;
   propertyId: any;
 
-  constructor(
-    private router: Router,
-    private notifier: NotifierService,
-    private spinner: NgxSpinnerService,
-    private swalToast: ToastService,
-    private session: SessionService,
-    private service: ManagePropertyService
-  ) {}
+  private readonly router = inject(Router);
+  private readonly notifier = inject(NotifierService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly swalToast = inject(ToastService);
+  private readonly session = inject(SessionService);
+  private readonly service = inject(ManagePropertyService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @HostListener('window:beforeunload')
   onWindowScroll() {
@@ -80,7 +80,9 @@ export class MyFavourites implements OnInit {
 
   getPropertyDetails() {
     this.spinner.show();
-    this.service.getWishlistData().subscribe({
+    this.service.getWishlistData().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res: any) => {
         this.propertyWishList = res?.data;
         this.count = this.propertyWishList?.length || 0;
@@ -125,7 +127,9 @@ export class MyFavourites implements OnInit {
       if (result.isConfirmed) {
         const propertyId = item.propertyId;
         this.spinner.show();
-        this.service.deleteWishListProperty(propertyId).subscribe({
+        this.service.deleteWishListProperty(propertyId).pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: (res: any) => {
             if (res.headers.statusCode == 200) {
               this.swalToast.showToast(res.headers.message, 'success');

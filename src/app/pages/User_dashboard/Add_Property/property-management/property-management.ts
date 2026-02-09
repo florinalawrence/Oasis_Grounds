@@ -1,12 +1,12 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, Input, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-property-management',
@@ -15,12 +15,11 @@ import { Subscription } from 'rxjs';
   templateUrl: './property-management.html',
   styleUrl: './property-management.scss',
 })
-export class PropertyManagement implements OnInit, OnDestroy {
+export class PropertyManagement implements OnInit {
   @Input() selectedPropertyData: any;
-  
+
   propertyManagementForm!: FormGroup;
-  private dataSubscription: Subscription = new Subscription();
-  
+
   propertyId: any;
   btnSubmitted: boolean = false;
   errMsg: any = {};
@@ -74,13 +73,12 @@ export class PropertyManagement implements OnInit, OnDestroy {
   featureFilterText = '';
   facilityFilterText = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private service: ManagePropertyService,
-    private spinner: NgxSpinnerService,
-    private notifier: NotifierService,
-    private swalToast: ToastService
-  ) {}
+  private readonly fb = inject(FormBuilder);
+  private readonly service = inject(ManagePropertyService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly notifier = inject(NotifierService);
+  private readonly swalToast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.initializeForm();
@@ -122,7 +120,9 @@ export class PropertyManagement implements OnInit, OnDestroy {
   }
 
   getNotifyData(): void {
-    this.dataSubscription = this.notifier.propertyID$.subscribe((res) => {
+    this.notifier.propertyID$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((res) => {
       if (res) {
         this.propertyId = res;
         console.log('Property ID updated from notifier:', res);
@@ -241,10 +241,12 @@ export class PropertyManagement implements OnInit, OnDestroy {
     };
 
     console.log('Saving Property Features & Facilities:', featureData);
-    
+
     this.spinner.show();
-    
-    this.service.savePropertyFeature(featureData).subscribe({
+
+    this.service.savePropertyFeature(featureData).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res) => {
         if (res.headers.statusCode == 200) {
           this.swalToast.showToast(res.headers.message, 'success');
@@ -295,10 +297,5 @@ export class PropertyManagement implements OnInit, OnDestroy {
     });
     
     this.closeDropdowns();
-  }
-
-  ngOnDestroy(): void {
-    // Unsubscribe to avoid memory leaks
-    this.dataSubscription.unsubscribe();
   }
 }

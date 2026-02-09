@@ -1060,11 +1060,12 @@
  * ✔️ All triggers work reliably
  */
 
-import { Component, OnInit, OnDestroy, AfterViewInit, Input, Output, EventEmitter, ViewChild, signal, effect, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, Output, EventEmitter, ViewChild, signal, effect, inject, DestroyRef } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { RoutePath } from '../../../../core/constant/api.constant';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
@@ -1081,7 +1082,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule, MapLocationComponent]
 })
-export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
+export class PropertyLocation implements OnInit, AfterViewInit {
   @Input() selectedPropertyData: any;
   @Output() promptFromChild: any = new EventEmitter<void>();
   @ViewChild('mapLocationComponent') mapLocationComponent!: MapLocationComponent;
@@ -1092,7 +1093,6 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
   propertyId: any;
   states: any[] = [];
   countryCodes: any[] = [];
-  private dataSubscription: Subscription = new Subscription();
 
   selectedFile: File | null = null;
   url: any;
@@ -1106,6 +1106,7 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
   private notifier = inject(NotifierService);
   private swalToast = inject(ToastService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
     // Effect to monitor form validity and update publish button state
@@ -1199,7 +1200,9 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
     this.states = this.service.getStates();
     this.propertyId = this.selectedPropertyData?.id;
 
-    this.notifier.canDisablePublishToSite$.subscribe(res => this.canDisablePublishProperty.set(res));
+    this.notifier.canDisablePublishToSite$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(res => this.canDisablePublishProperty.set(res));
 
     if (this.selectedPropertyData?.addressInfo) {
       const addressInfo = this.selectedPropertyData.addressInfo;
@@ -1240,12 +1243,18 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
   setupFormListeners() {
     // Listen to form changes for publish button state
     this.addrDetailForm.valueChanges
-      .pipe(debounceTime(2000), distinctUntilChanged())
+      .pipe(
+        debounceTime(2000),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe(() => {
         this.canDisablePublishProperty.set(this.addrDetailForm.invalid);
       });
 
-    this.notifier.propertyID$.subscribe(res => console.log(res, "reee"));
+    this.notifier.propertyID$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(res => console.log(res, "reee"));
   }
 
   /**
@@ -1282,7 +1291,11 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
     // ✅ FIXED: Direct approach - update signals AND trigger map immediately
     ['city', 'state', 'country', 'zipCode', 'landMark', 'addressLine1'].forEach(field => {
       this.addrDetailForm.get(field)?.valueChanges
-        .pipe(debounceTime(800), distinctUntilChanged())
+        .pipe(
+          debounceTime(800),
+          distinctUntilChanged(),
+          takeUntilDestroyed(this.destroyRef)
+        )
         .subscribe((value) => {
           console.log(`🔄 ${field} changed to:`, value);
           
@@ -1431,7 +1444,9 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
     delete formData.zipCode;
   
     // Call the API
-    this.service.saveAddressDetail(formData).subscribe({
+    this.service.saveAddressDetail(formData).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res) => {
         console.log('Full API Response:', res);
   
@@ -1562,7 +1577,9 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
       showCloseButton: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.service.publishProperty(this.propertyId).subscribe({
+        this.service.publishProperty(this.propertyId).pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: (res) => {
             if (res.headers.statusCode == 200) {
               this.swalToast.showToast(res.headers.message, 'success');
@@ -1676,9 +1693,5 @@ export class PropertyLocation implements OnInit, OnDestroy, AfterViewInit {
   
     // Enable the form
     this.addrDetailForm.enable();
-  }
- 
-  ngOnDestroy() {
-    this.dataSubscription.unsubscribe();
   }
 } 

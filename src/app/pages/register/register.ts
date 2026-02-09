@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -11,7 +11,6 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { SocialAuthService, GoogleLoginProvider, SocialUser, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
-import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
@@ -50,7 +49,7 @@ import { RoutePath } from '../../core/constant/api.constant';
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
 })
-export class Register implements OnInit, OnDestroy {
+export class Register implements OnInit {
   // Form state
   regForm: FormGroup;
   btnSubmitted = false;
@@ -74,9 +73,7 @@ export class Register implements OnInit, OnDestroy {
     isActive: false,
   };
 
-  // Subscriptions
-  private dataSubscription!: Subscription;
-  private googleAuthSubscription!: Subscription;
+  // DestroyRef for automatic subscription cleanup
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -131,14 +128,6 @@ export class Register implements OnInit, OnDestroy {
     this.onGoogleSignInButtonClicked();
   }
 
-  ngOnDestroy(): void {
-    if (this.dataSubscription) {
-      this.dataSubscription.unsubscribe();
-    }
-    if (this.googleAuthSubscription) {
-      this.googleAuthSubscription.unsubscribe();
-    }
-  }
 
   get f(): { [key: string]: AbstractControl } {
     return this.regForm.controls;
@@ -185,7 +174,7 @@ export class Register implements OnInit, OnDestroy {
   }
 
   getNotifyData() {
-    this.dataSubscription = this.notifier.userProfileData$
+    this.notifier.userProfileData$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res) => {
         this.userProfileData = res;
@@ -321,20 +310,24 @@ export class Register implements OnInit, OnDestroy {
 
   onGoogleSignInButtonClicked() {
     try {
-      this.googleAuthSubscription = this.authService.authState.subscribe(user => {
-        // Get Google user info
-        const googleUser = user;
-        console.log('👤 Google user info from register:', googleUser);
-        
-        this.authService.getAccessToken(GoogleLoginProvider.PROVIDER_ID).then(accessToken => {
-          const googleLoginPayload = {
-            identifier: environment.applicationId,
-            token: accessToken,
-            attemptingFrom: "login"
-          };
-          
-          this.spinner.show();
-          this.auth.loginWithGoogle(googleLoginPayload).subscribe({
+      this.authService.authState
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(user => {
+          // Get Google user info
+          const googleUser = user;
+          console.log('👤 Google user info from register:', googleUser);
+
+          this.authService.getAccessToken(GoogleLoginProvider.PROVIDER_ID).then(accessToken => {
+            const googleLoginPayload = {
+              identifier: environment.applicationId,
+              token: accessToken,
+              attemptingFrom: "login"
+            };
+
+            this.spinner.show();
+            this.auth.loginWithGoogle(googleLoginPayload)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
             next: (res) => {
               console.log('📥 Google register API response:', res);
               const data = res;

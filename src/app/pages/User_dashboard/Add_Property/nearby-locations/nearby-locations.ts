@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, inject, DestroyRef } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, AbstractControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 
@@ -16,17 +16,15 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule]
 })
-export class NearbyLocationsComponent implements OnInit, OnDestroy {
+export class NearbyLocationsComponent implements OnInit {
   @Input() selectedPropertyData: any;
-  
+
   isEditMode: boolean = false;
   editIndex: number = -1;
   nearbyDetailList: any[] = [];
   propertyId: any;
   btnSubmitted: boolean = false;
   selectedNearbyType: string = '';
-  
-  private dataSubscription: Subscription = new Subscription();
 
   // Nearby categories
   nearbyCategories = [
@@ -67,15 +65,14 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
     distanceUnit: new FormControl(''),
   });
 
-  constructor(
-    private fb: FormBuilder,
-    private service: ManagePropertyService,
-    private notifier: NotifierService,
-    private spinner: NgxSpinnerService,
-    private swalToast: ToastService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  private readonly fb = inject(FormBuilder);
+  private readonly service = inject(ManagePropertyService);
+  private readonly notifier = inject(NotifierService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly swalToast = inject(ToastService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.nearbyDetailsForm = this.fb.group({
@@ -94,9 +91,6 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
     this.propertyId ? this.propertyId : this.getNotifyData();
   }
 
-  ngOnDestroy() {
-    this.dataSubscription.unsubscribe();
-  }
 
   mapDataIntoGrid() {
     if (this.selectedPropertyData?.propertyNearByLocation) {
@@ -107,7 +101,9 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
   }
 
   getNotifyData() {
-    this.dataSubscription = this.notifier.propertyID$.subscribe((res) => {
+    this.notifier.propertyID$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((res) => {
       this.propertyId = res;
     });
   }
@@ -182,14 +178,18 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
       };
       
       this.spinner.show();
-      
-      this.service.saveNearByDetails(nearbyDetail).subscribe({
+
+      this.service.saveNearByDetails(nearbyDetail).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: (res: any) => {
           if (res.headers.statusCode === "200") {
             this.swalToast.showToast(res.headers.message, 'success');
             this.clearData();
-            
-            this.service.getPropertyDetailById(this.propertyId).subscribe({
+
+            this.service.getPropertyDetailById(this.propertyId).pipe(
+              takeUntilDestroyed(this.destroyRef)
+            ).subscribe({
               next: (res: any) => {
                 if (res.headers.statusCode === "200") {
                   this.selectedPropertyData = res.recordInfo;
@@ -252,8 +252,10 @@ export class NearbyLocationsComponent implements OnInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         this.spinner.show();
-        
-        this.service.deleteNearByDetail(payload).subscribe({
+
+        this.service.deleteNearByDetail(payload).pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: (res: any) => {
             if (res.headers.statusCode === "200") {
               this.swalToast.showToast('Nearby data removed successfully', 'success');
