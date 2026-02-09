@@ -11,7 +11,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { NgxPaginationModule } from 'ngx-pagination';
 import Swal from 'sweetalert2';
 import { RoutePath } from '../../../core/constant/api.constant';
@@ -20,8 +19,10 @@ import { NotifierService } from '../../../services/Notifier-service/notifier.ser
 import { SessionService } from '../../../services/Session-service/session.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
 import { ConfirmationDialogService } from '../../../services/Confirmation-service/confirmation-dialog.service';
+import { LoaderService } from '../../../services/loader.service';
 import { IndianNumberPipe } from '../../../shared/pipes/indianNumber.pipe';
 import { CurrencyStringPipe } from '../../../shared/pipes/currencyStringConvertor.pipe';
+import { CommonSpinner } from '../../../shared/components/common-spinner/common-spinner';
 
 import * as currencyData from '../../../../assets/common-currency.json';
 
@@ -37,10 +38,10 @@ interface IsearchMyProperties {
   imports: [
     CommonModule,
     FormsModule,
-    NgxSpinnerModule,
     NgxPaginationModule,
     IndianNumberPipe,
-    CurrencyStringPipe
+    CurrencyStringPipe,
+    CommonSpinner
   ],
   templateUrl: './my-properties.html',
   styleUrls: ['./my-properties.scss']
@@ -50,7 +51,7 @@ export class MyProperties implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifier = inject(NotifierService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly swalToast = inject(ToastService);
   private readonly session = inject(SessionService);
   private readonly service = inject(ManagePropertyService);
@@ -273,7 +274,7 @@ export class MyProperties implements OnInit, AfterViewInit {
       return;
     }
 
-    this.spinner.show();
+    this.loader.show();
 
     setTimeout(() => {
       // Use authenticated getPropertyDetails method with search filter data
@@ -301,7 +302,7 @@ export class MyProperties implements OnInit, AfterViewInit {
           this.totalPages.set(Math.ceil(totalRecords / recordLimit));
           
           this.checkTotalPropertyCountByRoutingUrl();
-          this.spinner.hide();
+          this.loader.hide();
         },
         error: (err: any) => {
           console.error('❌ My Properties API Error:', err);
@@ -316,7 +317,7 @@ export class MyProperties implements OnInit, AfterViewInit {
             const errorMessage = err.error?.headers?.message || err.message || 'Failed to load properties';
             this.swalToast.showToast(errorMessage, 'error');
           }
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     }, 500);
@@ -398,7 +399,7 @@ export class MyProperties implements OnInit, AfterViewInit {
           return;
         }
         
-        this.spinner.show();
+        this.loader.show();
         
         this.service.deletePropertyById(propertyId).subscribe({
           next: (res) => {
@@ -419,7 +420,7 @@ export class MyProperties implements OnInit, AfterViewInit {
               this.swalToast.showToast(message || 'Failed to delete property', 'error');
             }
             
-            this.spinner.hide();
+            this.loader.hide();
           },
           error: (err) => {
             console.error('Delete property error:', err);
@@ -435,7 +436,7 @@ export class MyProperties implements OnInit, AfterViewInit {
             }
             
             this.swalToast.showToast(errorMessage, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         });
       }

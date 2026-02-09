@@ -1,19 +1,19 @@
 import { Component, OnInit, HostListener, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutePath } from '../../../core/constant/api.constant';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
 import { SessionService } from '../../../services/Session-service/session.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
+import { LoaderService } from '../../../services/loader.service';
 import { IndianNumberPipe } from '../../../shared/pipes/indianNumber.pipe';
 import Swal from 'sweetalert2';
 import * as currencyData from '../../../../assets/common-currency.json';
 import { CommonModule } from '@angular/common';
 import { CurrencyStringPipe } from '../../../shared/pipes/currencyStringConvertor.pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { Header } from '../../../shared/components/header/header';
+import { CommonSpinner } from '../../../shared/components/common-spinner/common-spinner';
 
 @Component({
   selector: 'app-my-favourites',
@@ -22,11 +22,10 @@ import { Header } from '../../../shared/components/header/header';
   standalone: true,
   imports: [
     CommonModule,
-    NgxSpinnerModule,
     NgxPaginationModule,
     IndianNumberPipe,
     CurrencyStringPipe,
-    Header
+    CommonSpinner
   ]
 })
 export class MyFavourites implements OnInit {
@@ -44,7 +43,7 @@ export class MyFavourites implements OnInit {
 
   private readonly router = inject(Router);
   private readonly notifier = inject(NotifierService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly swalToast = inject(ToastService);
   private readonly session = inject(SessionService);
   private readonly service = inject(ManagePropertyService);
@@ -79,19 +78,19 @@ export class MyFavourites implements OnInit {
   
 
   getPropertyDetails() {
-    this.spinner.show();
+    this.loader.show();
     this.service.getWishlistData().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (res: any) => {
         this.propertyWishList = res?.data;
         this.count = this.propertyWishList?.length || 0;
-        this.spinner.hide();
+        this.loader.hide();
       },
       error: (err: any) => {
         const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
         this.swalToast.showToast(errList, 'error');
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }
@@ -126,14 +125,14 @@ export class MyFavourites implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         const propertyId = item.propertyId;
-        this.spinner.show();
+        this.loader.show();
         this.service.deleteWishListProperty(propertyId).pipe(
           takeUntilDestroyed(this.destroyRef)
         ).subscribe({
           next: (res: any) => {
             if (res.headers.statusCode == 200) {
               this.swalToast.showToast(res.headers.message, 'success');
-              this.spinner.hide();
+              this.loader.hide();
               this.propertyWishList = this.propertyWishList.filter(
                 wishItem => wishItem.propertyId !== propertyId
               );
@@ -145,7 +144,7 @@ export class MyFavourites implements OnInit {
           error: (err: any) => {
             const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
             this.swalToast.showToast(errList, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         });
       } else if (result.dismiss === Swal.DismissReason.cancel) {

@@ -4,20 +4,30 @@
     <app-property-header [propertyData]="propertyData()" [navigationSource]="navigationSource()"></app-property-header>
 
     <div class="container-fluid my-4">
-      <div class="row g-4">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-          <app-property-gallery></app-property-gallery>
-          <div class="mt-4">
-            <app-property-details></app-property-details>
+      <!-- Layout for my-properties source: Full width with view-property only -->
+      @if (navigationSource() === 'my-properties') {
+        <div class="row">
+          <div class="col-12">
+            <app-view-property [propertyData]="propertyData()"></app-view-property>
           </div>
         </div>
+      } @else {
+        <!-- Default layout: property-details with contact-agent sidebar -->
+        <div class="row g-4">
+          <!-- Main Content -->
+          <div class="col-lg-8">
+            <app-property-gallery></app-property-gallery>
+            <div class="mt-4">
+              <app-property-details></app-property-details>
+            </div>
+          </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-          <app-contact-agent></app-contact-agent>
+          <!-- Sidebar -->
+          <div class="col-lg-4">
+            <app-contact-agent></app-contact-agent>
+          </div>
         </div>
-      </div>
+      }
     </div>
   } @else if (isLoading()) {
     <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">

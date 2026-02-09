@@ -2,15 +2,16 @@ import { Component, OnInit, AfterViewInit, HostListener, inject, DestroyRef } fr
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormBuilder, AbstractControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '../../../services/Toast-service/toast.service';
 import { UserProfilesService } from '../../../services/UserProfile-service/user-profile.service';
 import { NotifierService } from '../../../services/Notifier-service/notifier.service';
 import { SessionService } from '../../../services/Session-service/session.service';
+import { LoaderService } from '../../../services/loader.service';
 import { RoutePath } from '../../../core/constant/api.constant';
 import Swal from 'sweetalert2';
 import { IUserProfile } from '../../../models/User_Model/IUserProfile.model';
+import { CommonSpinner } from '../../../shared/components/common-spinner/common-spinner';
 
 @Component({
   selector: 'app-edit-profile',
@@ -19,7 +20,7 @@ import { IUserProfile } from '../../../models/User_Model/IUserProfile.model';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    NgxSpinnerModule
+    CommonSpinner
   ],
   templateUrl: './edit-profile.html',
   styleUrls: ['./edit-profile.scss']
@@ -58,7 +59,7 @@ export class EditProfile implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly swalToast = inject(ToastService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly service = inject(UserProfilesService);
   private readonly notifier = inject(NotifierService);
   private readonly session = inject(SessionService);
@@ -235,7 +236,7 @@ export class EditProfile implements OnInit, AfterViewInit {
   }
 
   getUserProfiles(): void {
-    this.spinner.show();
+    this.loader.show();
     setTimeout(() => {
       this.service.loadUserProfile().pipe(
         takeUntilDestroyed(this.destroyRef)
@@ -245,7 +246,7 @@ export class EditProfile implements OnInit, AfterViewInit {
           this.userId = this.userProfiles.id;
           this.url = this.userProfiles.profilePicUrl;
           this.notifier.notifyUserData(this.userProfiles);
-          this.spinner.hide();
+          this.loader.hide();
           this.MapDataIntoForm();
           
           // Don't update sidenav when loading profile data - only on save
@@ -259,7 +260,7 @@ export class EditProfile implements OnInit, AfterViewInit {
         },
         error: (err: any) => {
           this.swalToast.showToast(err, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     }, 500);
@@ -323,7 +324,7 @@ export class EditProfile implements OnInit, AfterViewInit {
       ...companyDetail
     };
 
-    this.spinner.show();
+    this.loader.show();
     this.service.updateUserProfile(mergedUserProfile).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
@@ -349,7 +350,7 @@ export class EditProfile implements OnInit, AfterViewInit {
             this.loadProfileDataForHeader();
           }, 200);
           
-          this.spinner.hide();
+          this.loader.hide();
           this.resetFormData();
         } else {
           const error = res?.error?.errorList;
@@ -360,13 +361,13 @@ export class EditProfile implements OnInit, AfterViewInit {
           } else {
             this.swalToast.showToast(res?.error?.headers?.message, 'info');
           }
-          this.spinner.hide();
+          this.loader.hide();
         }
       },
       error: (err) => {
         const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
         this.swalToast.showToast(errList, 'error');
-        this.spinner.hide();
+        this.loader.hide();
       },
       complete: () => {
         this.getUserProfiles();
@@ -439,18 +440,18 @@ export class EditProfile implements OnInit, AfterViewInit {
           
           console.log('Edit Profile: FormData prepared with fields:', Array.from(formData.keys()));
 
-          this.spinner.show();
+          this.loader.show();
           this.service.updateProfilePicture(formData).pipe(
             takeUntilDestroyed(this.destroyRef)
           ).subscribe({
             next: res => {
               if (res.headers.statusCode == 200) {
                 this.swalToast.showToast('Profile Picture Successfully Updated', 'success');
-                this.spinner.hide();
+                this.loader.hide();
                 this.getUserProfiles();
               } else {
                 this.swalToast.showToast(res.headers.message, 'error');
-                this.spinner.hide();
+                this.loader.hide();
               }
             },
             error: (err) => {
@@ -467,7 +468,7 @@ export class EditProfile implements OnInit, AfterViewInit {
               }
               
               this.swalToast.showToast(errorMessage, 'error');
-              this.spinner.hide();
+              this.loader.hide();
             }
           });
         } else {

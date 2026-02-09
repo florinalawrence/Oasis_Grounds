@@ -13,7 +13,6 @@ import { SocialAuthService, GoogleLoginProvider, SocialUser, GoogleSigninButtonM
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 // Services
 import { ToastService } from '../../services/Toast-service/toast.service';
@@ -21,12 +20,14 @@ import { UserService } from '../../services/User-service/user.service';
 import { AuthService } from '../../services/Auth-service/auth.service';
 import { SessionService } from '../../services/Session-service/session.service';
 import { NotifierService } from '../../services/Notifier-service/notifier.service';
+import { LoaderService } from '../../services/loader.service';
 
 // Validators
 import { PasswordValidators } from '../../validators/password-validator';
 import { noSpaceAllowedValidator } from '../../validators/nospace-allowed-validators';
 
 // Components
+import { CommonSpinner } from '../../shared/components/common-spinner/common-spinner';
 
 // Environment
 import { environment } from '../../../environments/environment';
@@ -43,8 +44,8 @@ import { RoutePath } from '../../core/constant/api.constant';
     ReactiveFormsModule, 
     RouterLink, 
     FormsModule, 
-    NgxSpinnerModule, 
-    GoogleSigninButtonModule
+    GoogleSigninButtonModule,
+    CommonSpinner
   ],
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
@@ -81,7 +82,7 @@ export class Register implements OnInit {
     private router: Router,
     private authService: SocialAuthService,
     private auth: AuthService,
-    private spinner: NgxSpinnerService,
+    private loader: LoaderService,
     private toastService: ToastService,
     private userService: UserService,
     private session: SessionService,
@@ -112,15 +113,15 @@ export class Register implements OnInit {
   }
 
   ngOnInit(): void {
-    this.spinner.show();
+    this.loader.show();
     this.getNotifyData();
 
     setTimeout(() => {
       if (this.session.getToken() && this.userProfileData) {
-        this.spinner.hide();
+        this.loader.hide();
         this.router.navigateByUrl(RoutePath.HOME);
       } else {
-        this.spinner.hide();
+        this.loader.hide();
         this.router.navigateByUrl(RoutePath.REGISTER);
       }
     }, 500);
@@ -226,13 +227,13 @@ export class Register implements OnInit {
 
     this.mapFormData();
 
-    this.spinner.show();
+    this.loader.show();
     this.userService
       .registerUser(this.user)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.spinner.hide();
+          this.loader.hide();
           
           // Since UserService uses observe: 'response', the actual data is in res.body
           const responseBody = res.body;
@@ -276,7 +277,7 @@ export class Register implements OnInit {
           }
         },
         error: (err: any) => {
-          this.spinner.hide();
+          this.loader.hide();
           console.error('Registration error:', err);
           
           let errorMessage = 'Registration failed';
@@ -324,7 +325,7 @@ export class Register implements OnInit {
               attemptingFrom: "login"
             };
 
-            this.spinner.show();
+            this.loader.show();
             this.auth.loginWithGoogle(googleLoginPayload)
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({
@@ -342,7 +343,7 @@ export class Register implements OnInit {
                 this.toastService.showToast(res.headers.message || 'Google registration successful!', 'success');
                 
                 const token = this.session.getToken();
-                this.spinner.hide();
+                this.loader.hide();
                 
                 if (token) {
                   this.notifier.notifyToHeader(token);
@@ -368,20 +369,20 @@ export class Register implements OnInit {
                 console.log('Google registration failed, status code:', data.headers.statusCode);
                 // Show error message if status code is not 200
                 this.toastService.showToast(data.headers.message || 'Google registration failed', "error");
-                this.spinner.hide();
+                this.loader.hide();
               }
             },
             error: (err: any) => {
               const errorMsg = err !== null || err !== undefined ? err : 'Invalid login';
               this.toastService.showToast(errorMsg, 'error');
-              this.spinner.hide();
+              this.loader.hide();
             }
           });
         });
       });
     } catch (err: any) {
       this.toastService.showToast(err, 'error');
-      this.spinner.hide();
+      this.loader.hide();
     }
   }
 

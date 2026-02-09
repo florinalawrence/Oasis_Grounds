@@ -2,7 +2,6 @@ import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { SocialAuthService, GoogleLoginProvider, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -12,20 +11,22 @@ import { SessionService } from '../../services/Session-service/session.service';
 import { ToastService } from '../../services/Toast-service/toast.service';
 import { NotifierService } from '../../services/Notifier-service/notifier.service';
 import { UserProfilesService } from '../../services/UserProfile-service/user-profile.service';
+import { LoaderService } from '../../services/loader.service';
 import { noSpaceAllowedValidator } from '../../validators/nospace-allowed-validators';
 import { environment } from '../../../environments/environment';
+import { CommonSpinner } from '../../shared/components/common-spinner/common-spinner';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule, RouterLink, GoogleSigninButtonModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, CommonSpinner]
 })
 export class Login implements OnInit {
   // Dependency injection using modern inject()
   private readonly fb = inject(FormBuilder);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
@@ -88,7 +89,7 @@ export class Login implements OnInit {
         attemptingFrom: "login"
       };
       
-      this.spinner.show();
+      this.loader.show();
       this.auth.loginWithGoogle(googleLoginPayload)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
@@ -104,7 +105,7 @@ export class Login implements OnInit {
             this.toast.showToast(res.headers.message || 'Google login successful!', 'success');
             
             const token = this.session.getToken();
-            this.spinner.hide();
+            this.loader.hide();
             
             if (token) {
               this.notifier.isAuthenticatedSubject.next(true);
@@ -122,13 +123,13 @@ export class Login implements OnInit {
             }
           } else {
             this.toast.showToast(data.headers.message || 'Google login failed', "error");
-            this.spinner.hide();
+            this.loader.hide();
           }
         },
         error: (err: any) => {
           const errorMsg = err !== null || err !== undefined ? err : 'Invalid login';
           this.toast.showToast(errorMsg, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     });
@@ -146,7 +147,7 @@ export class Login implements OnInit {
       password
     };
 
-    this.spinner.show();
+    this.loader.show();
     this.auth.loginUser(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -156,7 +157,7 @@ export class Login implements OnInit {
   }
 
   private handleLoginSuccess(response: any) {
-    this.spinner.hide();
+    this.loader.hide();
     // console.log('Response from login API:', response);
     if (response.headers.statusCode !== "200") {
       console.log('Response from login API:', response);
@@ -175,7 +176,7 @@ export class Login implements OnInit {
   }
 
   private handleLoginError(error: any) {
-    this.spinner.hide();
+    this.loader.hide();
     const message = error?.message || 'Login failed';
     this.toast.showToast(message, 'error');
   }

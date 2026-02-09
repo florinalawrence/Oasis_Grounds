@@ -7,13 +7,14 @@ import { PropertyGallery } from '../property-gallery/property-gallery';
 import { PropertyDetails } from '../property-details/property-details';
 import { PropertyHeader } from '../property-header/property-header';
 import { ContactAgent } from '../contact-agent/contact-agent';
+import { ViewProperty } from '../view-property/view-property';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
 
 @Component({
   selector: 'app-main-property-page',
   standalone: true,
-  imports: [CommonModule, NgxSpinnerModule, PropertyGallery, PropertyDetails, PropertyHeader, ContactAgent],
+  imports: [CommonModule, NgxSpinnerModule, PropertyGallery, PropertyDetails, PropertyHeader, ContactAgent, ViewProperty],
   templateUrl: './main-property-page.html',
   styleUrl: './main-property-page.scss',
 })
