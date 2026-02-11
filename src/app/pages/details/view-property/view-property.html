@@ -1,48 +1,50 @@
 <div class="container">
-  <!-- Image Gallery Section -->
-  <div class="image-gallery-section">
-    <div class="gallery-container">
-      <!-- Main Large Image -->
-      <div class="main-image">
-        <img 
-          [src]="mainImage" 
-          alt="Property main view"
-          class="gallery-img"
-        />
-      </div>
+  <!-- Image Gallery Section - Only show if images are available -->
+  @if (hasImages()) {
+    <div class="image-gallery-section">
+      <div class="gallery-container">
+        <!-- Main Large Image -->
+        <div class="main-image">
+          <img 
+            [src]="mainImage" 
+            alt="Property main view"
+            class="gallery-img"
+          />
+        </div>
 
-      <!-- Side Grid Images -->
-      <div class="side-images">
-        <div class="side-image" (click)="changeMainImage(thumbnailImages[0])">
-          <img 
-            [src]="thumbnailImages[0]" 
-            alt="Property view 2"
-            class="gallery-img"
-          />
-        </div>
-        <div class="side-image" (click)="changeMainImage(thumbnailImages[1])">
-          <img 
-            [src]="thumbnailImages[1]" 
-            alt="Property view 3"
-            class="gallery-img"
-          />
-        </div>
-        <div class="side-image more-images" (click)="openGallery()">
-          <img 
-            [src]="thumbnailImages[2]" 
-            alt="Property view 4"
-            class="gallery-img"
-          />
-          <div class="overlay">
-            <span class="view-all-text">View all</span>
+        <!-- Side Grid Images -->
+        <div class="side-images">
+          <div class="side-image" (click)="changeMainImage(thumbnailImages[0])">
+            <img 
+              [src]="thumbnailImages[0]" 
+              alt="Property view 2"
+              class="gallery-img"
+            />
+          </div>
+          <div class="side-image" (click)="changeMainImage(thumbnailImages[1])">
+            <img 
+              [src]="thumbnailImages[1]" 
+              alt="Property view 3"
+              class="gallery-img"
+            />
+          </div>
+          <div class="side-image more-images" (click)="openGallery()">
+            <img 
+              [src]="thumbnailImages[2]" 
+              alt="Property view 4"
+              class="gallery-img"
+            />
+            <div class="overlay">
+              <span class="view-all-text">View all</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  }
 
-  <!-- Gallery Modal/Lightbox -->
-  @if (isGalleryOpen) {
+  <!-- Gallery Modal/Lightbox - Only show if images are available -->
+  @if (isGalleryOpen && hasImages()) {
     <div class="gallery-modal-overlay" (click)="closeGallery()">
       <div class="gallery-modal-container" (click)="$event.stopPropagation()">
         <!-- Header -->
@@ -317,5 +319,55 @@
       </div>
     </div>
   </div>
+
+  <!-- Nearby Locations Section - Only show if nearby locations are available -->
+  @if (getNearbyLocations().length > 0) {
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+        <h2 class="section-title">Nearby Locations</h2>
+      </div>
+
+      <div class="nearby-locations-content">
+        <div class="nearby-table-container">
+          <table class="nearby-table">
+            <thead>
+              <tr>
+                <th class="type-header">Type</th>
+                <th class="location-header">Location</th>
+                <th class="distance-header">Distance</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (location of getNearbyLocations(); track location.id || location.location) {
+                <tr>
+                  <td class="type-cell">
+                    <span class="location-type-badge">{{ location.nearByType || 'N/A' }}</span>
+                  </td>
+                  <td class="location-cell">{{ location.location || 'N/A' }}</td>
+                  <td class="distance-cell">
+                    <span class="distance-value">{{ location.distance || 0 }}</span>
+                    <span class="distance-unit">{{ location.distanceUnit || 'km' }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
 </div>
 

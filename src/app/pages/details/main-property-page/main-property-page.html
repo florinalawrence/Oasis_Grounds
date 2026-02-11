@@ -4,14 +4,11 @@
     <app-property-header [propertyData]="propertyData()" [navigationSource]="navigationSource()"></app-property-header>
 
     <div class="container-fluid my-4">
-      <!-- Layout for my-properties source: view-property + property-details -->
+      <!-- Layout for my-properties source: view-property only -->
       @if (navigationSource() === 'my-properties') {
-        <div class="row">
-          <div class="col-12">
+        <div class="row gx-0">
+          <div class="col-12 px-0">
             <app-view-property [propertyData]="propertyData()"></app-view-property>
-            <div class="mt-4">
-              <app-property-details></app-property-details>
-            </div>
           </div>  
         </div>
       } @else {
@@ -20,7 +17,7 @@
         <div class="row g-4">
           <!-- Main Content -->
           <div class="col-lg-8">
-            <app-property-gallery></app-property-gallery>
+            <app-property-gallery [propertyData]="propertyData()"></app-property-gallery>
             <div class="mt-4">
               <app-property-details></app-property-details>
             </div>
@@ -55,11 +52,5 @@
   }
 </div>
 
-<!-- Spinner -->
-<ngx-spinner 
-  bdColor="rgba(0, 0, 0, 0.2)" 
-  size="medium" 
-  color="#fff" 
-  type="ball-clip-rotate" 
-  [fullScreen]="true">
-</ngx-spinner>
+<!-- Common Spinner -->
+<app-common-spinner></app-common-spinner>

@@ -83,3 +83,26 @@
     margin-top: 30px;
   }
 }
+/* Small Centered Content Divider */
+.content-divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 20px auto;
+  width: 200px;
+  max-width: 80%;
+}
+
+/* Mobile responsiveness for divider */
+@media (max-width: 575px) {
+  .content-divider {
+    margin: 15px auto;
+    width: 150px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991px) {
+  .content-divider {
+    margin: 18px auto;
+    width: 180px;
+  }
+}

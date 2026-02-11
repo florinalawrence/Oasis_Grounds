@@ -358,16 +358,7 @@ deleteDocumentUpload(fileData: any): Observable<any> {
   }
 
   // Delete nearby detail
-  // deleteNearByDetail(data: any): Observable<any> {
-  //   const headers = this.getHeaders();
-  //   return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_NEARBY_DATA}`, data, { headers })
-  //     .pipe(
-  //       catchError((err) => {
-  //         const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting nearby detail';
-  //         return throwError(() => new Error(errorMessage));
-  //       })
-  //     );
-  // }
+ 
 
   deleteNearByDetail(data: any): Observable<any> {
   const headers = this.getHeaders();
@@ -554,16 +545,38 @@ deleteDocumentUpload(fileData: any): Observable<any> {
       );
   }
   // Delete property by id
+  // deletePropertyById(propertyId: string): Observable<any> {
+  //   const endpoint = `${this.baseApiUrl}${AuthEndPoints.DELETE_PROPERTY_BY_ID}/${propertyId}`;
+  //   return this.http.delete<any>(endpoint)
+  //     .pipe(
+  //       catchError((err) => {
+  //         const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting property';
+  //         return throwError(() => new Error(errorMessage));
+  //       })
+  //     );
+  // }
+
   deletePropertyById(propertyId: string): Observable<any> {
-    const endpoint = `${this.baseApiUrl}${AuthEndPoints.DELETE_PROPERTY_BY_ID}/${propertyId}`;
-    return this.http.delete<any>(endpoint)
-      .pipe(
-        catchError((err) => {
-          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting property';
-          return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
+  const token = this.session.getToken();
+
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+
+  const endpoint = `${this.baseApiUrl}${AuthEndPoints.DELETE_PROPERTY_BY_ID}/${propertyId}`;
+
+  return this.http.delete<any>(endpoint, { headers }).pipe(
+    catchError((err) => {
+      const errorMessage =
+        err.error?.errorList ||
+        err.error?.headers?.message ||
+        'An error occurred while deleting property';
+
+      return throwError(() => new Error(errorMessage));
+    })
+  );
+}
+
 
   // Get property by ID for editing
   getPropertyById(propertyId: string): Observable<any> {

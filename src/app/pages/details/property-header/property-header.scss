@@ -15,6 +15,14 @@ h2 {
   margin-right: 15px;
 }
 
+/* Small divider at bottom of header */
+.header-divider {
+  height: 2px;
+  background-color: #e5e7eb;
+  width: 1250px;
+  margin: 15px auto 0;
+}
+
 .breadcrumb {
   color: #0d6efd;
   font-size: 0.9rem;
@@ -100,6 +108,11 @@ h2 {
     font-size: 0.8rem;
     border-radius: 20px;
     flex-shrink: 0;
+  }
+
+  .header-divider {
+    width: 80px;
+    margin: 12px auto 0;
   }
 
   .back-btn i {
@@ -198,6 +211,11 @@ h2 {
 
   .text-muted.small {
     font-size: 0.85rem;
+  }
+
+  .header-divider {
+    width: 90px;
+    margin: 13px auto 0;
   }
 }
 

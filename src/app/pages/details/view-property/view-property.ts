@@ -209,14 +209,10 @@ import { CommonModule } from '@angular/common';
 export class ViewProperty implements OnChanges {
   @Input() propertyData: any = null;
 
-  // Property images
-  mainImage = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop';
+  // Property images - will be populated from propertyData
+  mainImage = 'assets/images/no_image.png';
   
-  thumbnailImages = [
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&h=300&fit=crop'
-  ];
+  thumbnailImages: string[] = [];
 
   // All property images for gallery
   allImages: string[] = [];
@@ -296,29 +292,64 @@ export class ViewProperty implements OnChanges {
   //   });
   // }
 private loadPropertyImages(): void {
+    console.log('🖼️ Loading property images from:', this.propertyData);
 
-  // 1️⃣ Clear everything
-  this.allImages = [];
+    // 1️⃣ Clear everything
+    this.allImages = [];
+    this.thumbnailImages = [];
 
-  // 2️⃣ Set main image
-  if (this.propertyData?.featuredImage) {
-    this.mainImage = this.propertyData.featuredImage;
-  }
-
-  // 3️⃣ Add MAIN image first
-  if (this.mainImage && !this.allImages.includes(this.mainImage)) {
-    this.allImages.push(this.mainImage);
-  }
-
-  // 4️⃣ Add THUMBNAIL images
-  this.thumbnailImages.forEach(img => {
-    if (img && !this.allImages.includes(img)) {
-      this.allImages.push(img);
+    // 2️⃣ Set main image from featured image
+    if (this.propertyData?.featuredImage && 
+        this.propertyData.featuredImage.trim() !== '' &&
+        this.propertyData.featuredImage !== 'assets/images/no_image.png') {
+      this.mainImage = this.propertyData.featuredImage;
+    } else {
+      this.mainImage = 'assets/images/no_image.png';
     }
-  });
 
-  console.log('🟢 FINAL allImages (popup):', this.allImages);
-}
+    // 3️⃣ Add featured image to all images if it exists
+    if (this.mainImage && this.mainImage !== 'assets/images/no_image.png') {
+      this.allImages.push(this.mainImage);
+    }
+
+    // 4️⃣ Add list of images
+    if (this.propertyData?.listOfImage && Array.isArray(this.propertyData.listOfImage)) {
+      this.propertyData.listOfImage.forEach((img: string) => {
+        if (img && img.trim() !== '' && img !== 'assets/images/no_image.png') {
+          this.thumbnailImages.push(img);
+          if (!this.allImages.includes(img)) {
+            this.allImages.push(img);
+          }
+        }
+      });
+    }
+
+    // 5️⃣ Add document images
+    if (this.propertyData?.documentFileUploads && Array.isArray(this.propertyData.documentFileUploads)) {
+      this.propertyData.documentFileUploads.forEach((doc: any) => {
+        if (doc?.fileUrl && doc.fileUrl.trim() !== '' && doc.fileUrl !== 'assets/images/no_image.png') {
+          this.thumbnailImages.push(doc.fileUrl);
+          if (!this.allImages.includes(doc.fileUrl)) {
+            this.allImages.push(doc.fileUrl);
+          }
+        }
+      });
+    }
+
+    // 6️⃣ If no main image but we have thumbnails, use first thumbnail as main
+    if (this.mainImage === 'assets/images/no_image.png' && this.thumbnailImages.length > 0) {
+      this.mainImage = this.thumbnailImages[0];
+    }
+
+    // 7️⃣ Ensure we have at least 3 thumbnail images for the grid (pad with placeholders if needed)
+    while (this.thumbnailImages.length < 3 && this.hasImages()) {
+      this.thumbnailImages.push('assets/images/no_image.png');
+    }
+
+    console.log('🖼️ Main image:', this.mainImage);
+    console.log('🖼️ Thumbnail images:', this.thumbnailImages);
+    console.log('🖼️ All images for gallery:', this.allImages);
+  }
 
 
 
@@ -448,6 +479,31 @@ private loadPropertyImages(): void {
   }
 
   /**
+   * Check if property has any images (featured image or list of images)
+   */
+  hasImages(): boolean {
+    const hasFeaturedImage = this.propertyData?.featuredImage && 
+                            this.propertyData.featuredImage.trim() !== '' &&
+                            this.propertyData.featuredImage !== 'assets/images/no_image.png';
+    
+    const hasListImages = this.propertyData?.listOfImage && 
+                         Array.isArray(this.propertyData.listOfImage) && 
+                         this.propertyData.listOfImage.length > 0 &&
+                         this.propertyData.listOfImage.some((img: string) => 
+                           img && img.trim() !== '' && img !== 'assets/images/no_image.png'
+                         );
+    
+    const hasDocumentImages = this.propertyData?.documentFileUploads && 
+                             Array.isArray(this.propertyData.documentFileUploads) && 
+                             this.propertyData.documentFileUploads.length > 0 &&
+                             this.propertyData.documentFileUploads.some((doc: any) => 
+                               doc?.fileUrl && doc.fileUrl.trim() !== '' && doc.fileUrl !== 'assets/images/no_image.png'
+                             );
+
+    return hasFeaturedImage || hasListImages || hasDocumentImages;
+  }
+
+  /**
    * Change main image when clicking on thumbnail
    */
   // changeMainImage(thumbnailSrc: string, index: number): void {
@@ -471,9 +527,11 @@ changeMainImage(image: string): void {
    * Open full gallery modal/lightbox
    */
   openGallery(): void {
-    this.isGalleryOpen = true;
-    this.currentImageIndex = 0;
-    document.body.style.overflow = 'hidden';
+    if (this.hasImages()) {
+      this.isGalleryOpen = true;
+      this.currentImageIndex = 0;
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   /**

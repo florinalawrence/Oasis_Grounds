@@ -32,6 +32,7 @@ export class PropertyHeader implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
+    console.log('📥 Property data received in property-header:', this.propertyData);
     this.updateBreadcrumbs();
   }
 
@@ -74,7 +75,12 @@ export class PropertyHeader implements OnInit, OnChanges {
    * Get property title for display
    */
   getPropertyTitle(): string {
-    return this.propertyData?.title || 'Property Details';
+    // Try different possible title fields
+    return this.propertyData?.title || 
+           this.propertyData?.propertyTitle || 
+           this.propertyData?.name || 
+           this.propertyData?.propertyName ||
+           'Property Details';
   }
 
   /**
@@ -96,16 +102,20 @@ export class PropertyHeader implements OnInit, OnChanges {
    * Get property price for display
    */
   getPropertyPrice(): string {
-    if (!this.propertyData?.price) return 'Price not available';
+    // Try different possible price fields
+    const price = this.propertyData?.price || 
+                  this.propertyData?.propertyPrice || 
+                  this.propertyData?.amount;
+    
+    if (!price) return 'Price not available';
     
     const currency = this.propertyData?.currency || 'INR';
-    const price = this.propertyData.price;
     
     // Format price based on currency
     if (currency === 'INR') {
       return `₹${this.formatIndianNumber(price)}`;
     } else {
-      return `${price}`;
+      return `${currency} ${price}`;
     }
   }
 
@@ -113,8 +123,11 @@ export class PropertyHeader implements OnInit, OnChanges {
    * Get property status (Sell/Rent/Lease)
    */
   getPropertyStatus(): string {
-    const status = this.propertyData?.status;
-    if (status === 'Sell') return 'For Sale';
+    const status = this.propertyData?.status || 
+                   this.propertyData?.propertyStatus || 
+                   this.propertyData?.type;
+    
+    if (status === 'Sell' || status === 'Sale') return 'For Sale';
     if (status === 'Rent') return 'For Rent';
     if (status === 'Lease') return 'For Lease';
     return 'Available';
