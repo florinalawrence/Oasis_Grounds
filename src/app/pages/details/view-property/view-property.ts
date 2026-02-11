@@ -235,49 +235,92 @@ export class ViewProperty implements OnChanges {
   /**
    * Load property images from property data
    */
-  private loadPropertyImages(): void {
-    // Start with featured image as main image
-    if (this.propertyData?.featuredImage) {
-      this.mainImage = this.propertyData.featuredImage;
-      this.allImages = [this.propertyData.featuredImage];
-    }
+  // private loadPropertyImages(): void {
+  //   console.log('🖼️ Loading property images from:', this.propertyData);
+    
+  //   // Initialize allImages array
+  //   this.allImages = [];
+    
+  //   // Start with featured image as main image
+  //   if (this.propertyData?.featuredImage) {
+  //     this.mainImage = this.propertyData.featuredImage;
+  //     this.allImages.push(this.propertyData.featuredImage);
+  //   }
 
-    // Add document uploads if they are images
-    if (this.propertyData?.documentFileUploads && Array.isArray(this.propertyData.documentFileUploads)) {
-      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-      const imageUploads = this.propertyData.documentFileUploads.filter((doc: any) => 
-        imageExtensions.includes(doc.documentType?.toLowerCase())
-      );
+  //   // Check if there's a direct images array
+  //   if (this.propertyData?.images && Array.isArray(this.propertyData.images)) {
+  //     console.log('📸 Found images array:', this.propertyData.images.length, 'images');
+  //     this.propertyData.images.forEach((imageUrl: string) => {
+  //       if (imageUrl && !this.allImages.includes(imageUrl)) {
+  //         this.allImages.push(imageUrl);
+  //       }
+  //     });
+  //   }
 
-      // Add image URLs to allImages array
-      imageUploads.forEach((doc: any) => {
-        if (doc.documentUrl && !this.allImages.includes(doc.documentUrl)) {
-          this.allImages.push(doc.documentUrl);
-        }
-      });
-    }
+  //   // Add document uploads if they are images
+  //   if (this.propertyData?.documentFileUploads && Array.isArray(this.propertyData.documentFileUploads)) {
+  //     console.log('📄 Found documentFileUploads:', this.propertyData.documentFileUploads.length, 'documents');
+  //     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+  //     const imageUploads = this.propertyData.documentFileUploads.filter((doc: any) => 
+  //       imageExtensions.includes(doc.documentType?.toLowerCase())
+  //     );
 
-    // If we have images, set thumbnails
-    if (this.allImages.length > 1) {
-      this.thumbnailImages = this.allImages.slice(1, 4);
+  //     // Add image URLs to allImages array
+  //     imageUploads.forEach((doc: any) => {
+  //       if (doc.documentUrl && !this.allImages.includes(doc.documentUrl)) {
+  //         this.allImages.push(doc.documentUrl);
+  //       }
+  //     });
+  //   }
+
+  //   // If we have images, set thumbnails (first 3 after main image)
+  //   if (this.allImages.length > 1) {
+  //     this.thumbnailImages = this.allImages.slice(1, 4);
       
-      // Fill remaining thumbnails with placeholders if needed
-      while (this.thumbnailImages.length < 3) {
-        this.thumbnailImages.push('https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&h=300&fit=crop');
-      }
-    }
+  //     // Fill remaining thumbnails with placeholders if needed
+  //     while (this.thumbnailImages.length < 3) {
+  //       this.thumbnailImages.push('https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&h=300&fit=crop');
+  //     }
+  //   }
 
-    // Ensure allImages has at least the main image
-    if (this.allImages.length === 0) {
-      this.allImages = [this.mainImage];
-    }
+  //   // Ensure allImages has at least the main image
+  //   if (this.allImages.length === 0) {
+  //     this.allImages = [this.mainImage];
+  //   }
 
-    console.log('🖼️ Loaded images:', {
-      mainImage: this.mainImage,
-      thumbnailCount: this.thumbnailImages.length,
-      totalImages: this.allImages.length
-    });
+  //   console.log('🖼️ Final loaded images:', {
+  //     mainImage: this.mainImage,
+  //     thumbnailCount: this.thumbnailImages.length,
+  //     totalImages: this.allImages.length,
+  //     allImages: this.allImages
+  //   });
+  // }
+private loadPropertyImages(): void {
+
+  // 1️⃣ Clear everything
+  this.allImages = [];
+
+  // 2️⃣ Set main image
+  if (this.propertyData?.featuredImage) {
+    this.mainImage = this.propertyData.featuredImage;
   }
+
+  // 3️⃣ Add MAIN image first
+  if (this.mainImage && !this.allImages.includes(this.mainImage)) {
+    this.allImages.push(this.mainImage);
+  }
+
+  // 4️⃣ Add THUMBNAIL images
+  this.thumbnailImages.forEach(img => {
+    if (img && !this.allImages.includes(img)) {
+      this.allImages.push(img);
+    }
+  });
+
+  console.log('🟢 FINAL allImages (popup):', this.allImages);
+}
+
+
 
   /**
    * Get property address
@@ -407,19 +450,22 @@ export class ViewProperty implements OnChanges {
   /**
    * Change main image when clicking on thumbnail
    */
-  changeMainImage(thumbnailSrc: string, index: number): void {
-    const tempImage = this.mainImage;
-    this.mainImage = thumbnailSrc;
-    this.thumbnailImages[index] = tempImage;
+  // changeMainImage(thumbnailSrc: string, index: number): void {
+  //   const tempImage = this.mainImage;
+  //   this.mainImage = thumbnailSrc;
+  //   this.thumbnailImages[index] = tempImage;
     
-    // Update the allImages array as well
-    const mainImageIndex = this.allImages.indexOf(tempImage);
-    const thumbnailIndex = this.allImages.indexOf(thumbnailSrc);
-    if (mainImageIndex !== -1 && thumbnailIndex !== -1) {
-      this.allImages[mainImageIndex] = thumbnailSrc;
-      this.allImages[thumbnailIndex] = tempImage;
-    }
-  }
+  //   // Update the allImages array as well
+  //   const mainImageIndex = this.allImages.indexOf(tempImage);
+  //   const thumbnailIndex = this.allImages.indexOf(thumbnailSrc);
+  //   if (mainImageIndex !== -1 && thumbnailIndex !== -1) {
+  //     this.allImages[mainImageIndex] = thumbnailSrc;
+  //     this.allImages[thumbnailIndex] = tempImage;
+  //   }
+  // }
+changeMainImage(image: string): void {
+  this.mainImage = image;
+}
 
   /**
    * Open full gallery modal/lightbox

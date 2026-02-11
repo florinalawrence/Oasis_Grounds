@@ -167,7 +167,9 @@ export class DocumentAttachment implements OnInit {
           }
         }
 
-        formData.append(`documentUploads[${validFilesCount}]`, processedFile);
+        // formData.append(`documentUploads[${validFilesCount}]`, processedFile);
+        formData.append('file', processedFile);
+
         validFilesCount++;
         processedCount++;
       }
@@ -319,16 +321,22 @@ export class DocumentAttachment implements OnInit {
         this.spinner.show();
       }
       
-      setTimeout(() => {
-        this.service.saveDocument(formData).subscribe({
-          next: res => {
-            this.handleUploadResponse(res);
-          },
-          error: (err) => {
-            this.handleUploadError(err);
-          }
-        });
-      }, 1200);
+      // setTimeout(() => {
+      //   this.service.saveDocument(formData).subscribe({
+      //     next: res => {
+      //       this.handleUploadResponse(res);
+      //     },
+      //     error: (err) => {
+      //       this.handleUploadError(err);
+      //     }
+      //   });
+      // }, 1200);
+
+      this.service.saveDocument(formData).subscribe({
+  next: res => this.handleUploadResponse(res),
+  error: err => this.handleUploadError(err)
+});
+
     }
   }
 

@@ -1,11 +1,11 @@
 import { Component, OnInit, HostListener, AfterViewInit, Input, inject, DestroyRef } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
+import { LoaderService } from '../../../../services/loader.service';
 import { RoutePath } from '../../../../core/constant/api.constant';
 import { DatePipe, CommonModule } from '@angular/common';
 import * as currencyData from '../../../../../assets/common-currency.json';
@@ -15,7 +15,7 @@ import * as currencyData from '../../../../../assets/common-currency.json';
   templateUrl: './add-property.html',
   styleUrls: ['./add-property.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule],
+  imports: [CommonModule, ReactiveFormsModule],
   providers: [DatePipe]
 })
 export class AddProperty implements OnInit, AfterViewInit {
@@ -89,7 +89,7 @@ export class AddProperty implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly service = inject(ManagePropertyService);
   private readonly swalToast = inject(ToastService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly notifier = inject(NotifierService);
   private readonly datePipe = inject(DatePipe);
   private readonly destroyRef = inject(DestroyRef);
@@ -474,7 +474,7 @@ export class AddProperty implements OnInit, AfterViewInit {
     }
 
     this.mapFormBasicDetailsData();
-    this.spinner.show();
+    this.loader.show();
     
     if (this.isEdit) {
       // Update existing property
@@ -491,18 +491,18 @@ export class AddProperty implements OnInit, AfterViewInit {
           if (res.headers.statusCode == 200) {
             this.swalToast.showToast('Property updated successfully', 'success');
             this.router.navigate(['/user-dashboard/my-property']);
-            this.spinner.hide();
+            this.loader.hide();
           } else {
             const errorList = res.errorList;
             const errorMessages = Object.values(errorList).join(', ');
             this.swalToast.showToast(errorMessages, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         },
         error: (err) => {
           const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
           this.swalToast.showToast(errList, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     } else {
@@ -555,19 +555,19 @@ export class AddProperty implements OnInit, AfterViewInit {
               // Navigate to my properties as fallback
               this.router.navigate(['/user-dashboard/my-property']);
             }
-            this.spinner.hide();
+            this.loader.hide();
           } else {
             const errorList = res.errorList;
             const errorMessages = Object.values(errorList).join(', ');
             this.swalToast.showToast(errorMessages, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           }
         },
         error: (err) => {
           console.error('❌ Add Property API Error:', err);
           const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
           this.swalToast.showToast(errList, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       });
     }
@@ -652,7 +652,7 @@ export class AddProperty implements OnInit, AfterViewInit {
    */
   loadPropertyData(): void {
     console.log('📡 Loading property data for editing, ID:', this.propertyId);
-    this.spinner.show();
+    this.loader.show();
 
     this.service.getPropertyById(this.propertyId).pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -667,12 +667,12 @@ export class AddProperty implements OnInit, AfterViewInit {
           this.selectedPropertyData = res;
           this.populateFormWithData(this.selectedPropertyData);
         }
-        this.spinner.hide();
+        this.loader.hide();
       },
       error: (err) => {
         console.error('❌ Failed to load property data:', err);
         this.swalToast.showToast('Failed to load property data', 'error');
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }
@@ -684,16 +684,16 @@ export class AddProperty implements OnInit, AfterViewInit {
     console.log('📝 Populating form with data:', data);
     console.log('🔍 All available data keys:', Object.keys(data));
     console.log('🔍 Debugging specific fields:');
-    console.log('  - data.min (propertyAgeMin):', data.min);
-    console.log('  - data.max (propertyAgeMax):', data.max);
-    console.log('  - data.propertyAgeMin:', data.propertyAgeMin);
-    console.log('  - data.propertyAgeMax:', data.propertyAgeMax);
-    console.log('  - data.minAge:', data.minAge);
-    console.log('  - data.maxAge:', data.maxAge);
-    console.log('  - data.availableDate (transferDate):', data.availableDate);
-    console.log('  - data.transferDate:', data.transferDate);
-    console.log('  - data.availabilityDate:', data.availabilityDate);
-    console.log('  - data.readyToMove:', data.readyToMove);
+    console.log('  - data.propertyAge:', data.propertyAge);
+    console.log('  - data.propertyAge?.min:', data.propertyAge?.min);
+    console.log('  - data.propertyAge?.max:', data.propertyAge?.max);
+    console.log('  - data.min (fallback):', data.min);
+    console.log('  - data.max (fallback):', data.max);
+    console.log('  - data.availability:', data.availability);
+    console.log('  - data.availability?.readyToMove:', data.availability?.readyToMove);
+    console.log('  - data.availability?.availableDate:', data.availability?.availableDate);
+    console.log('  - data.readyToMove (fallback):', data.readyToMove);
+    console.log('  - data.availableDate (fallback):', data.availableDate);
     
     if (!data) return;
 
@@ -709,16 +709,16 @@ export class AddProperty implements OnInit, AfterViewInit {
       price: data.price || null,
       facing: data.facingDirection || 'North',
       developerName: data.developerName || '',
-      propertyAgeMin: data.min || data.propertyAgeMin || data.minAge || null,
-      propertyAgeMax: data.max || data.propertyAgeMax || data.maxAge || null,
+      propertyAgeMin: data.propertyAge?.min || data.min || data.propertyAgeMin || data.minAge || null,
+      propertyAgeMax: data.propertyAge?.max || data.max || data.propertyAgeMax || data.maxAge || null,
       parking: data.parking || '',
       videoUrl: data.videoUrl || '',
       noOfBedrooms: data.bedRooms || null,
       noOfBathrooms: data.bathRooms || null,
       description: data.description || '',
       perValueUnit: data.perValueUnit || 'sqft',
-      isReadyToMove: data.readyToMove || false,
-      transferDate: this.formatDateForInput(data.availableDate || data.transferDate || data.availabilityDate) || '',
+      isReadyToMove: data.availability?.readyToMove || data.readyToMove || false,
+      transferDate: this.formatDateForInput(data.availability?.availableDate || data.availableDate || data.transferDate || data.availabilityDate) || '',
       // Lease-specific fields
       leaseDuration: data.leaseDuration || '',
       securityDeposit: data.securityDeposit || '',

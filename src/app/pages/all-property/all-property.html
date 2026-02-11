@@ -1,5 +1,23 @@
 
 <div class="container-fluid px-4">
+  <!-- TEST BUTTON - For Testing Property Detail Navigation -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="alert alert-info d-flex justify-content-between align-items-center" style="background: linear-gradient(90deg, rgba(107, 150, 247, 0.1) 0%, rgba(22, 105, 246, 0.1) 50%); border: 2px solid #667eea;">
+        <div>
+          <h5 class="mb-1"><i class="bi bi-info-circle me-2"></i>Testing Mode</h5>
+          <p class="mb-0 small">Click the button to test navigation to Property Detail screen</p>
+        </div>
+        <button 
+          class="btn btn-primary btn-lg" 
+          (click)="testNavigateToPropertyDetail()"
+          style="background: linear-gradient(90deg, rgba(107, 150, 247, 1) 0%, rgba(22, 105, 246, 1) 50%); border: none; padding: 12px 30px; font-weight: 600; box-shadow: 0 4px 12px rgba(107, 150, 247, 0.4);">
+          <i class="bi bi-house-door me-2"></i>Test Property Detail
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="row align-items-start">
     <!-- First Column - Sticky Filters -->
     <div class="col-md-3 cd-sm-12 cd- sticky-column">

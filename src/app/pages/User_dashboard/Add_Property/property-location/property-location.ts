@@ -1063,7 +1063,6 @@
 import { Component, OnInit, AfterViewInit, Input, Output, EventEmitter, ViewChild, signal, effect, inject, DestroyRef } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -1071,16 +1070,18 @@ import { RoutePath } from '../../../../core/constant/api.constant';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
+import { LoaderService } from '../../../../services/loader.service';
 import Swal from 'sweetalert2';
 import { MapLocationComponent } from '../../../map-location/map-location';
 import { CommonModule } from '@angular/common';
+import { CommonSpinner } from '../../../../shared/components/common-spinner/common-spinner';
 
 @Component({
   selector: 'app-property-location',
   templateUrl: './property-location.html',
   styleUrls: ['./property-location.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule, MapLocationComponent]
+  imports: [CommonModule, ReactiveFormsModule, MapLocationComponent, CommonSpinner]
 })
 export class PropertyLocation implements OnInit, AfterViewInit {
   @Input() selectedPropertyData: any;
@@ -1102,7 +1103,7 @@ export class PropertyLocation implements OnInit, AfterViewInit {
   // Services
   private fb = inject(FormBuilder);
   private service = inject(ManagePropertyService);
-  private spinner = inject(NgxSpinnerService);
+  private loader = inject(LoaderService);
   private notifier = inject(NotifierService);
   private swalToast = inject(ToastService);
   private router = inject(Router);
@@ -1427,7 +1428,7 @@ export class PropertyLocation implements OnInit, AfterViewInit {
       return;
     }
   
-    this.spinner.show();
+    this.loader.show();
   
     const rawData = this.addrDetailForm.value;
   
@@ -1463,14 +1464,14 @@ export class PropertyLocation implements OnInit, AfterViewInit {
           const errorMessages = Object.values(errorList).join(', ') || 'An unexpected error occurred';
           this.swalToast.showToast(errorMessages, 'error');
         }
-        this.spinner.hide(); 
+        this.loader.hide(); 
       },
       error: (err) => {
         console.error('API Error:', err);
         const errList = err?.error || {};
         const errorMessages = Object.values(errList).join(', ') || 'API request failed';
         this.swalToast.showToast(errorMessages, 'error');
-        this.spinner.hide(); 
+        this.loader.hide(); 
       }
     });
   }
@@ -1577,22 +1578,24 @@ export class PropertyLocation implements OnInit, AfterViewInit {
       showCloseButton: false,
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loader.show();
         this.service.publishProperty(this.propertyId).pipe(
           takeUntilDestroyed(this.destroyRef)
         ).subscribe({
           next: (res) => {
             if (res.headers.statusCode == 200) {
               this.swalToast.showToast(res.headers.message, 'success');
-              this.spinner.hide();
+              this.loader.hide();
               this.router.navigateByUrl(RoutePath.MY_PROPERTIES);
             } else {
               this.swalToast.showToast(res.headers.message, 'error');
+              this.loader.hide();
             }
           },
           error: (err) => {
             const errList = JSON.stringify(err, null, 2).replace(/[{}"]/g, '');
             this.swalToast.showToast(errList, 'error');
-            this.spinner.hide();
+            this.loader.hide();
           },
         });
       }

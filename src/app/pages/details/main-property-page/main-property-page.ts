@@ -25,13 +25,13 @@ export class MainPropertyPage implements OnInit {
   private readonly propertyService = inject(ManagePropertyService);
   private readonly swalToast = inject(ToastService);
   private readonly spinner = inject(NgxSpinnerService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef); 
 
   // Signals for reactive state
   readonly propertyData = signal<any>(null);
   readonly propertyId = signal<string | null>(null);
   readonly isLoading = signal<boolean>(false);
-  readonly navigationSource = signal<string>('all-properties'); // Default to all-properties
+  readonly navigationSource = signal<string>('all-properties'); 
 
   ngOnInit(): void {
     // Get property ID and navigation source from route parameters
@@ -49,9 +49,13 @@ export class MainPropertyPage implements OnInit {
     // Get navigation source from query parameters
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(queryParams => {
       const source = queryParams.get('source');
+      console.log('🔍 Query params:', queryParams.keys);
+      console.log('🔍 Source from URL:', source);
       if (source) {
         this.navigationSource.set(source);
-        console.log('🧭 Navigation source:', source);
+        console.log('✅ Navigation source set to:', this.navigationSource());
+      } else {
+        console.log('⚠️ No source in URL, using default:', this.navigationSource());
       }
     });
   }
@@ -63,11 +67,9 @@ export class MainPropertyPage implements OnInit {
     this.isLoading.set(true);
     this.spinner.show();
 
-    console.log('🔍 Loading property data for ID:', propertyId);
 
     this.propertyService.getPropertyById(propertyId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
-        console.log('✅ Property data loaded:', response);
         
         // Handle different response structures
         const propertyData = response.data || response.body || response;

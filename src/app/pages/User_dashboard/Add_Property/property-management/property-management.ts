@@ -2,16 +2,16 @@ import { Component, OnInit, Input, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from '../../../../services/Toast-service/toast.service';
+import { LoaderService } from '../../../../services/loader.service';
 import { NotifierService } from '../../../../services/Notifier-service/notifier.service';
 import { ManagePropertyService } from '../../../../services/ManageProperty-service/manage-property.service';
 
 @Component({
   selector: 'app-property-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgxSpinnerModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './property-management.html',
   styleUrl: './property-management.scss',
 })
@@ -75,7 +75,7 @@ export class PropertyManagement implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ManagePropertyService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly notifier = inject(NotifierService);
   private readonly swalToast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
@@ -242,7 +242,7 @@ export class PropertyManagement implements OnInit {
 
     console.log('Saving Property Features & Facilities:', featureData);
 
-    this.spinner.show();
+    this.loader.show();
 
     this.service.savePropertyFeature(featureData).pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -251,7 +251,7 @@ export class PropertyManagement implements OnInit {
         if (res.headers.statusCode == 200) {
           this.swalToast.showToast(res.headers.message, 'success');
           this.errMsg = null;
-          this.spinner.hide();
+          this.loader.hide();
           
           // Update form with saved data
           this.propertyManagementForm.patchValue({
@@ -262,7 +262,7 @@ export class PropertyManagement implements OnInit {
           const errorList = res.errorList;
           const errorMessages = Object.values(errorList).join(', ');
           this.swalToast.showToast(errorMessages, 'error');
-          this.spinner.hide();
+          this.loader.hide();
         }
       },
       error: (err) => {
@@ -277,7 +277,7 @@ export class PropertyManagement implements OnInit {
           this.swalToast.showToast('Failed to save property features', 'error');
         }
         
-        this.spinner.hide();
+        this.loader.hide();
       }
     });
   }

@@ -358,16 +358,26 @@ deleteDocumentUpload(fileData: any): Observable<any> {
   }
 
   // Delete nearby detail
+  // deleteNearByDetail(data: any): Observable<any> {
+  //   const headers = this.getHeaders();
+  //   return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_NEARBY_DATA}`, data, { headers })
+  //     .pipe(
+  //       catchError((err) => {
+  //         const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting nearby detail';
+  //         return throwError(() => new Error(errorMessage));
+  //       })
+  //     );
+  // }
+
   deleteNearByDetail(data: any): Observable<any> {
-    const headers = this.getHeaders();
-    return this.http.post<any>(`${this.baseApiUrl}${AuthEndPoints.DELETE_NEARBY_DATA}`, data, { headers })
-      .pipe(
-        catchError((err) => {
-          const errorMessage = err.error?.errorList || err.error?.headers?.message || 'An error occurred while deleting nearby detail';
-          return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
+  const headers = this.getHeaders();
+  return this.http.put<any>(
+    `${this.baseApiUrl}${AuthEndPoints.DELETE_NEARBY_DATA}`,
+    data,
+    { headers }
+  );
+}
+
 
   
 

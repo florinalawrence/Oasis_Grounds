@@ -1,15 +1,16 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { ManagePropertyService } from '../../../services/ManageProperty-service/manage-property.service';
 import { ToastService } from '../../../services/Toast-service/toast.service';
+import { LoaderService } from '../../../services/loader.service';
 import { AddProperty } from '../Add_Property/add-property/add-property';
 import { PropertyManagement } from '../Add_Property/property-management/property-management';
 import { NearbyLocationsComponent } from '../Add_Property/nearby-locations/nearby-locations';
 import { PropertyImages } from '../Add_Property/property-images/property-images';
 import { DocumentAttachment } from '../Add_Property/document-attachment/document-attachment';
 import { PropertyLocation } from '../Add_Property/property-location/property-location';
+import { CommonSpinner } from '../../../shared/components/common-spinner/common-spinner';
 
 @Component({
   selector: 'app-edit-property',
@@ -20,6 +21,7 @@ import { PropertyLocation } from '../Add_Property/property-location/property-loc
     PropertyImages,
     DocumentAttachment,
     PropertyLocation,
+    CommonSpinner,
   ],
   templateUrl: './edit-property.html',
   styleUrl: './edit-property.scss',
@@ -30,7 +32,7 @@ export class EditProperty implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly service = inject(ManagePropertyService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly loader = inject(LoaderService);
   private readonly swalToast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -64,15 +66,15 @@ export class EditProperty implements OnInit {
       return;
     }
 
-    console.log(' Loading property data for edit-property, ID:', this.propertyId);
-    this.spinner.show();
+    console.log('📝 Loading property data for edit-property, ID:', this.propertyId);
+    this.loader.show();
 
     this.service.getPropertyDetailById(this.propertyId).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (res) => {
-        console.log(' Property data loaded in edit-property:', res);
-        console.log(' Response structure:', {
+        console.log('✅ Property data loaded in edit-property:', res);
+        console.log('📦 Response structure:', {
           hasRecordInfo: !!res?.recordInfo,
           hasDirectData: !!res,
           keys: res ? Object.keys(res) : [],
@@ -80,28 +82,28 @@ export class EditProperty implements OnInit {
 
         if (res && res.recordInfo) {
           this.selectedPropertyData = res.recordInfo;
-          console.log(' Using res.recordInfo as selectedPropertyData');
+          console.log('📋 Using res.recordInfo as selectedPropertyData');
         } else if (res) {
           this.selectedPropertyData = res;
-          console.log(' Using res directly as selectedPropertyData');
+          console.log('📋 Using res directly as selectedPropertyData');
         }
 
         // Ensure property ID is included in the data
         if (this.selectedPropertyData && !this.selectedPropertyData.id) {
           this.selectedPropertyData.id = this.propertyId;
-          console.log(' Added property ID to selectedPropertyData');
+          console.log('🆔 Added property ID to selectedPropertyData');
         }
 
         // Verify property ID consistency
         this.verifyPropertyIdConsistency();
 
-        console.log(' Final selectedPropertyData:', this.selectedPropertyData);
-        this.spinner.hide();
+        console.log('🏠 Final selectedPropertyData:', this.selectedPropertyData);
+        this.loader.hide();
       },
       error: (err) => {
-        console.error(' Failed to load property data in edit-property:', err);
+        console.error('❌ Failed to load property data in edit-property:', err);
         this.swalToast.showToast('Failed to load property data. Please try again.', 'error');
-        this.spinner.hide();
+        this.loader.hide();
       },
     });
   }

@@ -385,6 +385,21 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * TEST METHOD - Navigate to property detail with a test property ID
+   * This will show the property-details component (not view-property)
+   */
+  testNavigateToPropertyDetail() {
+    // Get the first property from my properties or use a hardcoded test ID
+    const testPropertyId = '696475d77593a94495263f8f'; // Replace with actual property ID from your database
+    
+    console.log('🧪 TEST: Navigating to property detail page with ID:', testPropertyId);
+    
+    this.router.navigate(['/details', testPropertyId], {
+      queryParams: { source: 'all-properties' }
+    });
+  }
+
   // Old component methods
   getRandomFeaturedProperty() {
     this.propertyService.getRandomPropertyData().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
