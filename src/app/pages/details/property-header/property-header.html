@@ -21,7 +21,14 @@
           <i class="bi bi-arrow-left"></i>
         </button>
         <div class="min-width-0 flex-fill">
-          <h1 class="h5 mb-1 text-truncate">{{ getPropertyTitle() }}</h1>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <h1 class="h5 mb-0 text-truncate">{{ getPropertyTitle() }}</h1>
+            @if (navigationSource === 'my-properties') {
+              <span class="status-chip" [ngClass]="getStatusChipClass()">
+                {{ getVerifiedStatus() }}
+              </span>
+            }
+          </div>
           <div class="d-flex align-items-center gap-2 text-muted small">
             <i class="bi bi-geo-alt flex-shrink-0"></i>
             <span class="text-truncate">{{ getPropertyLocation() }}</span>

@@ -32,7 +32,6 @@ export class PropertyHeader implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    console.log('📥 Property data received in property-header:', this.propertyData);
     this.updateBreadcrumbs();
   }
 
@@ -68,7 +67,7 @@ export class PropertyHeader implements OnInit, OnChanges {
     }
 
     this.breadcrumbs.set(breadcrumbItems);
-    console.log('🧭 Updated breadcrumbs for source:', this.navigationSource, breadcrumbItems);
+    
   }
 
   /**
@@ -131,6 +130,36 @@ export class PropertyHeader implements OnInit, OnChanges {
     if (status === 'Rent') return 'For Rent';
     if (status === 'Lease') return 'For Lease';
     return 'Available';
+  }
+
+  /**
+   * Get verified status for chip display
+   */
+  getVerifiedStatus(): string {
+    const status = this.propertyData?.verifiedStatus?.toLowerCase() || '';
+    
+    // Check if property is verified
+    if (status === 'verified' || status === 'approved') {
+      return 'Verified';
+    }
+    
+    // All other statuses are considered not verified
+    return 'Not Verified';
+  }
+
+  /**
+   * Get chip color class based on verified status
+   */
+  getStatusChipClass(): string {
+    const status = this.propertyData?.verifiedStatus?.toLowerCase() || '';
+    
+    // Green for verified/approved
+    if (status === 'verified' || status === 'approved') {
+      return 'status-chip-success';
+    }
+    
+    // Yellow for all other statuses (not verified)
+    return 'status-chip-warning';
   }
 
   /**

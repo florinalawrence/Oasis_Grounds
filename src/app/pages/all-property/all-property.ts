@@ -189,7 +189,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     type: this.panelTypeVisible(),
   }));
 
-  // Legacy properties (keeping for compatibility with template)
+  // Legacy properties 
   sortFilterValue: any;
   propertyDataCount: any;
   addOnCityBlur = true;
@@ -322,8 +322,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading properties:', error);
-        // this.swalToast.showToast('Failed to load properties', 'error');
         this.isLoading.set(false);
         this.spinner.hide();
       },
@@ -369,8 +367,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         this.spinner.hide();
       },
       error: (error) => {
-        console.error('Error searching properties:', error);
-        // this.swalToast.showToast('Failed to search properties', 'error');
+      
         this.isLoading.set(false);
         this.spinner.hide();
       },
@@ -385,21 +382,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * TEST METHOD - Navigate to property detail with a test property ID
-   * This will show the property-details component (not view-property)
-   */
-  testNavigateToPropertyDetail() {
-    // Get the first property from my properties or use a hardcoded test ID
-    const testPropertyId = '696475d77593a94495263f8f'; // Replace with actual property ID from your database
-    
-    console.log('🧪 TEST: Navigating to property detail page with ID:', testPropertyId);
-    
-    this.router.navigate(['/details', testPropertyId], {
-      queryParams: { source: 'all-properties' }
-    });
-  }
-
   // Old component methods
   getRandomFeaturedProperty() {
     this.propertyService.getRandomPropertyData().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -408,7 +390,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err: any) => {
         const errList = err;
-        // this.swalToast.showToast(errList, 'error');
       },
     });
   }
@@ -534,12 +515,7 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getWishList() {
-    // TODO: Implement wishlist functionality when service method is available
-    // this.dataSubscription = this.propertyService.getWishlistData().subscribe((res: any) => {
-    //   if (res?.headers?.statusCode == 200) {
-    //     this.wishList = res?.data || [];
-    //   }
-    // });
+    
   }
 
   getNotifyData() {
@@ -549,14 +525,11 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getPropertyDetails() {
-    console.log('🔄 Fetching Properties from Production API...');
     this.spinner.show();
     this.isLoading.set(true);
     this.isLoadingProperties.set(true);
     this.dataLoaded.set(false);
 
-    console.log('🌐 Production API Base URL:', this.propertyService.baseApiUrl);
-    console.log('🔍 Search Filter:', this.searchFilter);
 
     if (this.searchFilter) {
       this.Country.setValue(this.searchFilter?.searchWithCountry || '');
@@ -576,38 +549,29 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.filteredProperties.set([]);
     this.propertyService.getPropertyDetailsByFilter(this.searchFilter).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
-        console.log(' Production API Response:', res);
-        console.log(' Response Type:', typeof res);
-        console.log(' Response Keys:', res ? Object.keys(res) : 'No keys');
+     
 
-        // Handle different response structures from production API
         let propertyData = [];
         
         if (res && res.data && Array.isArray(res.data)) {
           propertyData = res.data;
-          console.log(' Found property data in res.data from production API');
         } else if (res && Array.isArray(res)) {
           propertyData = res;
-          console.log('Response is direct array from production API');
         } else if (res && res.properties && Array.isArray(res.properties)) {
           propertyData = res.properties;
-          console.log(' Found property data in res.properties from production API');
         } else if (res && res.result && Array.isArray(res.result)) {
           propertyData = res.result;
-          console.log(' Found property data in res.result from production API');
         } else if (res && res.recordInfo && Array.isArray(res.recordInfo)) {
           propertyData = res.recordInfo;
-          console.log(' Found property data in res.recordInfo from production API');
         } else {
-          console.warn(' No valid property data found in production API response');
           propertyData = [];
         }
 
         this.propertyList.set(propertyData);
 
         if (propertyData.length > 0) {
-          console.log(`Found ${propertyData.length} properties in development API`);
-          console.log('Sample property from development API:', propertyData[0]);
+         
+          
 
           // FIXED MAPPING - matching the API response structure
           this.filteredProperties.set(this.propertyList().map((property) => ({
@@ -644,7 +608,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           // Apply sorting if a sort filter is active
           const currentSort = this.selectedSort();
           if (currentSort && currentSort !== 'default') {
-            console.log(" Applying sort filter after loading:', currentSort");
             this.applySorting(currentSort);
           } else {
             // Split for featured and latest sections (default behavior)
@@ -653,10 +616,8 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
             this.latestProperties.set(this.filteredProperties().slice(midPoint));
           }
 
-          console.log(`Successfully loaded ${propertyData.length} properties from production API`);
           // this.swalToast.showToast(`Loaded ${propertyData.length} properties from production database`, 'success');
         } else {
-          console.log('📭 No properties found in production API response');
           this.filteredProperties.set([]);
           this.featuredProperties.set([]);
           this.latestProperties.set([]);
@@ -668,7 +629,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
           this.totalPages.set(0);
           this.searchResultsCount.set(0);
 
-          // this.swalToast.showToast('📭 No properties found in production database', 'info');
         }
 
         this.dataLoaded.set(true);
@@ -685,7 +645,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
         }, 100);
       },
       error: (err: any) => {
-        console.error(' Production API Error:', err);
         console.error(' Error details:', {
           status: err.status,
           statusText: err.statusText,
@@ -809,7 +768,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     const img = event.target as HTMLImageElement;
     // Set fallback image
     img.src = 'assets/images/no_image.png';
-    console.warn('Property image failed to load, using fallback image');
   }
 
   // Form getters
@@ -900,7 +858,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     // Apply sorting to current properties instead of refetching
     this.applySorting(selectedValue);
     
-    console.log('🔄 Applied sorting:', selectedValue);
   }
 
   /**
@@ -912,7 +869,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     const currentProperties = [...this.filteredProperties()];
     
     if (!currentProperties.length) {
-      console.log('⚠️ No properties to sort');
       this.isSorting.set(false);
       return;
     }
@@ -975,7 +931,6 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
     this.featuredProperties.set(sortedProperties.slice(0, midPoint));
     this.latestProperties.set(sortedProperties.slice(midPoint));
 
-    console.log(` Sorted ${sortedProperties.length} properties by: ${sortType}`);
     
     // Add a small delay to show sorting feedback
     setTimeout(() => {
@@ -1607,6 +1562,5 @@ export class AllProperty implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cleanup handled automatically by takeUntilDestroyed
   }
 }

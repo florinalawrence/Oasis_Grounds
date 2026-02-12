@@ -97,7 +97,7 @@ bootstrapApplication(App, {
         ],
         onError: (err: any) => {
           console.error('Social Auth Configuration Error:', err);
-          // Don't show user-facing error here as this is configuration level
+         
         }
       } as SocialAuthServiceConfig
     },

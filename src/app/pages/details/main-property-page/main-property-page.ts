@@ -51,13 +51,10 @@ export class MainPropertyPage implements OnInit {
     // Get navigation source from query parameters
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(queryParams => {
       const source = queryParams.get('source');
-      console.log('🔍 Query params:', queryParams.keys);
-      console.log('🔍 Source from URL:', source);
       if (source) {
         this.navigationSource.set(source);
-        console.log('✅ Navigation source set to:', this.navigationSource());
       } else {
-        console.log('⚠️ No source in URL, using default:', this.navigationSource());
+        console.log('No source in URL, using default:', this.navigationSource());
       }
     });
   }
@@ -66,44 +63,31 @@ export class MainPropertyPage implements OnInit {
    * Load property data by ID
    */
   private loadPropertyData(propertyId: string): void {
-    console.log('🔍 Loading property data for ID:', propertyId);
-    console.log('🌐 Base API URL:', this.propertyService.baseApiUrl);
-    console.log('🌐 Full API URL:', `${this.propertyService.baseApiUrl}property/view/property/${propertyId}`);
-    
+  
     this.isLoading.set(true);
     this.loader.show();
 
     this.propertyService.getPropertyById(propertyId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
-        console.log('📦 Raw API Response:', response);
-        console.log('📦 Response Type:', typeof response);
-        console.log('📦 Response Keys:', Object.keys(response || {}));
-        
+    
         // Handle different response structures
         let propertyData = null;
         
         // Try different possible response structures
         if (response?.recordInfo) {
           propertyData = response.recordInfo;
-          console.log('✅ Using response.recordInfo');
         } else if (response?.data) {
           propertyData = response.data;
-          console.log('✅ Using response.data');
         } else if (response?.body) {
           propertyData = response.body;
-          console.log('✅ Using response.body');
         } else if (response && typeof response === 'object') {
           propertyData = response;
-          console.log('✅ Using direct response object');
         }
         
-        console.log('🏠 Final Property Data:', propertyData);
         
         if (propertyData) {
           this.propertyData.set(propertyData);
-          console.log('✅ Property data set successfully');
         } else {
-          console.warn('⚠️ No property data found in response');
           this.swalToast.showToast('Property data not found', 'error');
         }
         
@@ -111,10 +95,7 @@ export class MainPropertyPage implements OnInit {
         this.loader.hide();
       },
       error: (error) => {
-        console.error('❌ Error loading property data:', error);
-        console.error('❌ Error Status:', error.status);
-        console.error('❌ Error Message:', error.message);
-        console.error('❌ Error Response:', error.error);
+     
         
         let errorMessage = 'Failed to load property details';
         if (error.error?.message) {

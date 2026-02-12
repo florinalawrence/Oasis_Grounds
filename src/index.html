@@ -44,9 +44,7 @@
   <!-- Debug script for Leaflet -->
   <script>
     window.addEventListener('load', function() {
-      console.log('🌍 Page loaded, checking Leaflet availability...');
       if (typeof L !== 'undefined') {
-        console.log('✅ Leaflet is available:', L.version);
         
         // Set default icon paths to prevent 404 errors
         if (L.Icon && L.Icon.Default) {
@@ -57,7 +55,6 @@
           });
         }
       } else {
-        console.error('❌ Leaflet is not available!');
       }
     });
 
